@@ -1,4 +1,3 @@
-import minicraft.core.Game;
 import minicraft.entity.furniture.Furniture;
 import minicraft.item.ClothingItem;
 import minicraft.item.FurnitureItem;
@@ -10,19 +9,15 @@ import minicraft.item.StackableItem;
 import minicraft.item.UnknownItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.List;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.calls;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
@@ -475,11 +470,5 @@ public class InventoryTest {
 		StackableItem storedItem = (StackableItem) testInventory.get(0);
 		assertEquals(4,storedItem.count);
 	}
-
-
-
-
-
-
 }
 

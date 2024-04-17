@@ -1,9 +1,6 @@
-import minicraft.core.Game;
-import minicraft.item.ArmorItem;
 import minicraft.item.BookItem;
 import minicraft.item.Item;
 import minicraft.item.Items;
-import minicraft.screen.BookDisplay;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

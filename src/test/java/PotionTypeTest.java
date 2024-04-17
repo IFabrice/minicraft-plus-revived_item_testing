@@ -1,14 +1,21 @@
 import minicraft.core.Game;
 import minicraft.entity.mob.Player;
 import minicraft.gfx.Color;
+import minicraft.item.ClothingItem;
 import minicraft.item.PotionType;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PotionTypeTest {
 
@@ -134,6 +141,52 @@ public class PotionTypeTest {
 		assertEquals(regenDispColor,regen.dispColor);
 		assertEquals(1800,regen.duration);
 	}
+
+	@Test
+	public void testHealthVariables() {
+		int healthDispColor = 10;
+		PotionType health;
+		try (MockedStatic<Color> utilities = mockStatic(Color.class)) {
+			utilities.when(() -> Color.get(1, 194, 56, 84))
+				.thenReturn(healthDispColor);
+			health = PotionType.Health;
+		}
+		assertEquals(healthDispColor,health.dispColor);
+		assertEquals(0,health.duration);
+	}
+
+	@Test
+	public void testHealthToggleEffectAddEffect() {
+		int healthDispColor = 10;
+		PotionType health;
+		try (MockedStatic<Color> utilities = mockStatic(Color.class)) {
+			utilities.when(() -> Color.get(1, 194, 56, 84))
+				.thenReturn(healthDispColor);
+			health = PotionType.Health;
+		}
+		ArgumentCaptor<Integer> valueCapture = ArgumentCaptor.forClass(Integer.class);
+		Player mockPlayer = mock(Player.class);
+		doNothing().when(mockPlayer).heal(valueCapture.capture());
+		assertTrue(health.toggleEffect(mockPlayer,true));
+		assertEquals(5,valueCapture.getValue());
+	}
+
+	@Test
+	public void testHealthToggleEffectNoAddEffect() {
+		int healthDispColor = 10;
+		PotionType health;
+		try (MockedStatic<Color> utilities = mockStatic(Color.class)) {
+			utilities.when(() -> Color.get(1, 194, 56, 84))
+				.thenReturn(healthDispColor);
+			health = PotionType.Health;
+		}
+		Player mockPlayer = mock(Player.class);
+		doNothing().when(mockPlayer).heal(anyInt());
+		assertTrue(health.toggleEffect(mockPlayer,false));
+		verify(mockPlayer,times(0)).heal(anyInt());
+	}
+
+
 
 
 
