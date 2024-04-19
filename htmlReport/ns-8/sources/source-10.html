@@ -1,0 +1,221 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Recipe</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.item</a>
+</div>
+
+<h1>Coverage Summary for Class: Recipe (minicraft.item)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Recipe</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    10%
+  </span>
+  <span class="absValue">
+    (1/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    32.7%
+  </span>
+  <span class="absValue">
+    (16/49)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.TreeMap;
+&nbsp;
+&nbsp;public class Recipe {
+<b class="fc">&nbsp;	private final TreeMap&lt;String, Integer&gt; costs = new TreeMap&lt;&gt;(String.CASE_INSENSITIVE_ORDER);  // A list of costs for the recipe</b>
+&nbsp;	private final String product; // The result item of the recipe
+&nbsp;	private final int amount;
+&nbsp;	private boolean canCraft; // Checks if the player can craft the recipe
+&nbsp;
+<b class="fc">&nbsp;	public Recipe(String createdItem, String... reqItems) {</b>
+<b class="fc">&nbsp;		canCraft = false;</b>
+<b class="fc">&nbsp;		String[] sep = createdItem.split(&quot;_&quot;);</b>
+<b class="fc">&nbsp;		product = sep[0].toUpperCase(); // Assigns the result item</b>
+<b class="fc">&nbsp;		amount = Integer.parseInt(sep[1]);</b>
+&nbsp;
+<b class="fc">&nbsp;		for (String reqItem : reqItems) {</b>
+<b class="fc">&nbsp;			String[] curSep = reqItem.split(&quot;_&quot;);</b>
+<b class="fc">&nbsp;			String curItem = curSep[0].toUpperCase(); // The current cost that&#39;s being added to costs.</b>
+<b class="fc">&nbsp;			int amt = Integer.parseInt(curSep[1]);</b>
+<b class="fc">&nbsp;			boolean added = false;</b>
+&nbsp;
+<b class="fc">&nbsp;			for (String cost : costs.keySet().toArray(new String[0])) { // Loop through the costs that have already been added</b>
+<b class="fc">&nbsp;				if (cost.equals(curItem)) {</b>
+<b class="nc">&nbsp;					costs.put(cost, costs.get(cost) + amt);</b>
+<b class="nc">&nbsp;					added = true;</b>
+<b class="nc">&nbsp;					break;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="fc">&nbsp;			if (added) continue;</b>
+<b class="fc">&nbsp;			costs.put(curItem, amt);</b>
+&nbsp;		}
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Item getProduct() {
+<b class="nc">&nbsp;		return Items.get(product);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Map&lt;String, Integer&gt; getCosts() {
+<b class="nc">&nbsp;		return new HashMap&lt;&gt;(costs);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public int getAmount() {
+<b class="nc">&nbsp;		return amount;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean getCanCraft() {
+<b class="nc">&nbsp;		return canCraft;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean checkCanCraft(Player player) {
+<b class="nc">&nbsp;		canCraft = getCanCraft(player);</b>
+<b class="nc">&nbsp;		return canCraft;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Checks if the player can craft the recipe
+&nbsp;	 */
+&nbsp;	private boolean getCanCraft(Player player) {
+<b class="nc">&nbsp;		if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) return true;</b>
+&nbsp;
+<b class="nc">&nbsp;		for (String cost : costs.keySet().toArray(new String[0])) { // Cycles through the costs list</b>
+&nbsp;			/// This method ONLY WORKS if costs does not contain two elements such that inventory.count will count an item it contains as matching more than once.
+<b class="nc">&nbsp;			if (player.getInventory().count(Items.get(cost)) &lt; costs.get(cost)) {</b>
+<b class="nc">&nbsp;				return false;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// (WAS) abstract method given to the sub-recipe classes.
+&nbsp;	public boolean craft(Player player) {
+<b class="nc">&nbsp;		if (!getCanCraft(player)) return false;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (!Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) {</b>
+&nbsp;			// Remove the cost items from the inventory.
+<b class="nc">&nbsp;			for (String cost : costs.keySet().toArray(new String[0])) {</b>
+<b class="nc">&nbsp;				player.getInventory().removeItems(Items.get(cost), costs.get(cost));</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		// Rdd the crafted items.
+<b class="nc">&nbsp;		for (int i = 0; i &lt; amount; i++) {</b>
+<b class="nc">&nbsp;			Item product = getProduct();</b>
+<b class="nc">&nbsp;			if (player.getInventory().add(product) == 0)</b>
+<b class="nc">&nbsp;				player.getLevel().dropItem(player.x, player.y, product);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean equals(Object obj) {
+<b class="nc">&nbsp;		if (obj instanceof Recipe) {</b>
+<b class="nc">&nbsp;			Recipe r = (Recipe) obj;</b>
+<b class="nc">&nbsp;			return this.amount == r.amount &amp;&amp;</b>
+<b class="nc">&nbsp;				this.product.equalsIgnoreCase(r.product) &amp;&amp;</b>
+<b class="nc">&nbsp;				this.costs.equals(r.costs);</b>
+&nbsp;		} else
+<b class="nc">&nbsp;			return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public int hashCode() {
+<b class="nc">&nbsp;		int result = costs.hashCode();</b>
+<b class="nc">&nbsp;		result = 31 * result + product.hashCode();</b>
+<b class="nc">&nbsp;		result = 31 * result + amount;</b>
+<b class="nc">&nbsp;		return result;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

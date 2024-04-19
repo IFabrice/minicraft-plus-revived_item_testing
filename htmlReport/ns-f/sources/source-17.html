@@ -1,0 +1,366 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > PlayerInvDisplay</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen</a>
+</div>
+
+<h1>Coverage Summary for Class: PlayerInvDisplay (minicraft.screen)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PlayerInvDisplay</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/123)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">PlayerInvDisplay$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/125)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen;
+&nbsp;
+&nbsp;import com.studiohartman.jamepad.ControllerButton;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Font;
+&nbsp;import minicraft.gfx.Point;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.item.Inventory;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.item.Items;
+&nbsp;import minicraft.item.StackableItem;
+&nbsp;import minicraft.screen.entry.StringEntry;
+&nbsp;
+&nbsp;public class PlayerInvDisplay extends Display {
+&nbsp;
+&nbsp;	private static final int padding = 10;
+&nbsp;
+&nbsp;	private final Player player;
+&nbsp;
+<b class="nc">&nbsp;	private String itemDescription = &quot;&quot;;</b>
+&nbsp;	private Menu.Builder descriptionMenuBuilder;
+&nbsp;
+&nbsp;	private final boolean creativeMode;
+&nbsp;	private final Inventory creativeInv;
+&nbsp;
+&nbsp;	public PlayerInvDisplay(Player player) {
+<b class="nc">&nbsp;		super(new InventoryMenu(player, player.getInventory(), &quot;minicraft.display.menus.inventory&quot;, RelPos.LEFT));</b>
+<b class="nc">&nbsp;		this.player = player;</b>
+<b class="nc">&nbsp;		descriptionMenuBuilder = new Menu.Builder(true, 3, RelPos.TOP_LEFT);</b>
+<b class="nc">&nbsp;		creativeMode = Game.isMode(&quot;minicraft.settings.mode.creative&quot;);</b>
+<b class="nc">&nbsp;		itemDescription = getDescription();</b>
+<b class="nc">&nbsp;		Menu descriptionMenu = descriptionMenuBuilder.setPositioning(new Point(padding, menus[0].getBounds().getBottom() + 8), RelPos.BOTTOM_RIGHT)</b>
+<b class="nc">&nbsp;			.setEntries(StringEntry.useLines(Color.WHITE, false, itemDescription.split(&quot;\n&quot;)))</b>
+<b class="nc">&nbsp;			.setSelectable(false)</b>
+<b class="nc">&nbsp;			.createMenu();</b>
+<b class="nc">&nbsp;		if (creativeMode) {</b>
+<b class="nc">&nbsp;			creativeInv = Items.getCreativeModeInventory();</b>
+<b class="nc">&nbsp;			menus = new Menu[] {</b>
+&nbsp;				menus[0],
+<b class="nc">&nbsp;				new InventoryMenu(player, creativeInv, &quot;minicraft.displays.player_inv.container_title.items&quot;, RelPos.RIGHT) {{</b>
+<b class="nc">&nbsp;					creativeInv = true;</b>
+&nbsp;				}},
+&nbsp;				descriptionMenu
+&nbsp;			};
+&nbsp;
+<b class="nc">&nbsp;			menus[1].translate(menus[0].getBounds().getWidth() + padding, 0);</b>
+<b class="nc">&nbsp;			update();</b>
+&nbsp;
+<b class="nc">&nbsp;			if (menus[0].getNumOptions() == 0) onSelectionChange(0, 1);</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			creativeInv = null;</b>
+<b class="nc">&nbsp;			menus = new Menu[] { menus[0], descriptionMenu };</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		onScreenKeyboardMenu = OnScreenKeyboardMenu.checkAndCreateMenu();</b>
+<b class="nc">&nbsp;		if (onScreenKeyboardMenu != null)</b>
+<b class="nc">&nbsp;			onScreenKeyboardMenu.setVisible(false);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private String getDescription() {
+<b class="nc">&nbsp;		if (selection == 0) {</b>
+<b class="nc">&nbsp;			Inventory inv = player.getInventory();</b>
+<b class="nc">&nbsp;			return inv.invSize() == 0 ? &quot;&quot; : inv.get(menus[0].getSelection()).getDescription();</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			return creativeInv.invSize() == 0 ? &quot;&quot; : creativeInv.get(menus[1].getSelection()).getDescription();</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	OnScreenKeyboardMenu onScreenKeyboardMenu;
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick(InputHandler input) {
+<b class="nc">&nbsp;		boolean acted = false; // Checks if typing action is needed to be handled.</b>
+<b class="nc">&nbsp;		boolean mainMethod = false;</b>
+&nbsp;
+<b class="nc">&nbsp;		itemDescription = getDescription();</b>
+<b class="nc">&nbsp;		Menu curMenu = menus[selection];</b>
+<b class="nc">&nbsp;		if (onScreenKeyboardMenu == null || !curMenu.isSearcherBarActive() &amp;&amp; !onScreenKeyboardMenu.isVisible()) {</b>
+<b class="nc">&nbsp;			super.tick(input);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (input.inputPressed(&quot;menu&quot;)) {</b>
+<b class="nc">&nbsp;				Game.exitDisplay();</b>
+<b class="nc">&nbsp;				return;</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			curMenu = menus[selection];</b>
+<b class="nc">&nbsp;			mainMethod = true;</b>
+&nbsp;		} else {
+&nbsp;			try {
+<b class="nc">&nbsp;				onScreenKeyboardMenu.tick(input);</b>
+<b class="nc">&nbsp;			} catch (OnScreenKeyboardMenu.OnScreenKeyboardMenuTickActionCompleted |</b>
+&nbsp;			         OnScreenKeyboardMenu.OnScreenKeyboardMenuBackspaceButtonActed e) {
+<b class="nc">&nbsp;				acted = true;</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+<b class="nc">&nbsp;			if (!acted)</b>
+<b class="nc">&nbsp;				curMenu.tick(input);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (input.getMappedKey(&quot;menu&quot;).isClicked()) { // Should not listen button press.</b>
+<b class="nc">&nbsp;				Game.exitDisplay();</b>
+<b class="nc">&nbsp;				return;</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (curMenu.isSearcherBarActive()) {</b>
+<b class="nc">&nbsp;				if (input.buttonPressed(ControllerButton.X)) { // Hide the keyboard.</b>
+<b class="nc">&nbsp;					onScreenKeyboardMenu.setVisible(!onScreenKeyboardMenu.isVisible());</b>
+&nbsp;				}
+&nbsp;			} else {
+<b class="nc">&nbsp;				onScreenKeyboardMenu.setVisible(false);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (mainMethod || !onScreenKeyboardMenu.isVisible()) {</b>
+<b class="nc">&nbsp;			if (creativeMode) {</b>
+<b class="nc">&nbsp;				int otherIdx = getOtherIdx();</b>
+&nbsp;
+<b class="nc">&nbsp;				if (curMenu.getNumOptions() == 0) return;</b>
+&nbsp;
+&nbsp;				Inventory from, to;
+<b class="nc">&nbsp;				if (selection == 0) {</b>
+<b class="nc">&nbsp;					if (input.inputPressed(&quot;attack&quot;) &amp;&amp; menus[0].getNumOptions() &gt; 0) {</b>
+<b class="nc">&nbsp;						player.activeItem = player.getInventory().remove(menus[0].getSelection());</b>
+<b class="nc">&nbsp;						Game.exitDisplay();</b>
+<b class="nc">&nbsp;						return;</b>
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					from = player.getInventory();</b>
+<b class="nc">&nbsp;					to = creativeInv;</b>
+&nbsp;
+<b class="nc">&nbsp;					int fromSel = curMenu.getSelection();</b>
+<b class="nc">&nbsp;					Item fromItem = from.get(fromSel);</b>
+&nbsp;
+&nbsp;					boolean deleteAll;
+<b class="nc">&nbsp;					if (input.getMappedKey(&quot;SHIFT-D&quot;).isClicked() || input.buttonPressed(ControllerButton.Y)) {</b>
+<b class="nc">&nbsp;						deleteAll = true;</b>
+<b class="nc">&nbsp;					} else if (input.getMappedKey(&quot;D&quot;).isClicked() || input.buttonPressed(ControllerButton.X)) {</b>
+<b class="nc">&nbsp;						deleteAll = !(fromItem instanceof StackableItem) || ((StackableItem) fromItem).count == 1;</b>
+<b class="nc">&nbsp;					} else return;</b>
+&nbsp;
+<b class="nc">&nbsp;					if (deleteAll) {</b>
+<b class="nc">&nbsp;						from.remove(fromSel);</b>
+&nbsp;					} else {
+<b class="nc">&nbsp;						((StackableItem) fromItem).count--; // this is known to be valid.</b>
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					update();</b>
+&nbsp;
+<b class="nc">&nbsp;				} else {</b>
+<b class="nc">&nbsp;					from = creativeInv;</b>
+<b class="nc">&nbsp;					to = player.getInventory();</b>
+&nbsp;
+<b class="nc">&nbsp;					int toSel = menus[otherIdx].getSelection();</b>
+<b class="nc">&nbsp;					int fromSel = curMenu.getSelection();</b>
+&nbsp;
+<b class="nc">&nbsp;					Item fromItem = from.get(fromSel);</b>
+&nbsp;
+&nbsp;					boolean transferAll;
+<b class="nc">&nbsp;					if (input.inputPressed(&quot;attack&quot;)) { // If stack limit is available, this can transfer whole stack</b>
+<b class="nc">&nbsp;						transferAll = !(fromItem instanceof StackableItem) || ((StackableItem) fromItem).count == 1;</b>
+<b class="nc">&nbsp;					} else return;</b>
+&nbsp;
+<b class="nc">&nbsp;					Item toItem = fromItem.copy();</b>
+&nbsp;
+<b class="nc">&nbsp;					if (!transferAll) {</b>
+<b class="nc">&nbsp;						((StackableItem) toItem).count = 1;</b>
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					to.add(toSel, toItem);</b>
+<b class="nc">&nbsp;					update();</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;			} else {</b>
+<b class="nc">&nbsp;				if (input.inputPressed(&quot;attack&quot;) &amp;&amp; menus[0].getNumOptions() &gt; 0) {</b>
+<b class="nc">&nbsp;					player.activeItem = player.getInventory().remove(menus[0].getSelection());</b>
+<b class="nc">&nbsp;					Game.exitDisplay();</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen) {
+<b class="nc">&nbsp;		if (itemDescription.isEmpty()) menus[creativeMode ? 2 : 1].shouldRender = false;</b>
+&nbsp;		else {
+<b class="nc">&nbsp;			menus[creativeMode ? 2 : 1] = descriptionMenuBuilder.setEntries(StringEntry.useLines(Color.WHITE, itemDescription.split(&quot;\n&quot;)))</b>
+<b class="nc">&nbsp;				.createMenu(); // This resizes menu</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		super.render(screen);</b>
+&nbsp;
+&nbsp;		// Searcher help text
+<b class="nc">&nbsp;		String text = Localization.getLocalized(&quot;minicraft.displays.player_inv.display.help&quot;, Game.input.getMapping(&quot;SEARCHER-BAR&quot;));</b>
+<b class="nc">&nbsp;		Font.draw(text, screen, selection == 0 ? 12 : Screen.w - 12 - Font.textWidth(text), menus[creativeMode ? 2 : 1].getBounds().getBottom() + 8, Color.WHITE);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (onScreenKeyboardMenu != null)</b>
+<b class="nc">&nbsp;			onScreenKeyboardMenu.render(screen);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	protected void onSelectionChange(int oldSel, int newSel) {
+<b class="nc">&nbsp;		super.onSelectionChange(oldSel, newSel);</b>
+<b class="nc">&nbsp;		if (creativeMode) {</b>
+&nbsp;			// Hide Items Inventory when not selecting it.
+<b class="nc">&nbsp;			if (selection == 0) menus[1].shouldRender = false;</b>
+<b class="nc">&nbsp;			else menus[1].shouldRender = true;</b>
+&nbsp;
+<b class="nc">&nbsp;			if (oldSel == newSel)</b>
+<b class="nc">&nbsp;				return; // this also serves as a protection against access to menus[0] when such may not exist.</b>
+<b class="nc">&nbsp;			int shift = 0;</b>
+<b class="nc">&nbsp;			if (newSel == 0) shift = padding - menus[0].getBounds().getLeft();</b>
+<b class="nc">&nbsp;			if (newSel == 1) shift = (Screen.w - padding) - menus[1].getBounds().getRight();</b>
+<b class="nc">&nbsp;			menus[0].translate(shift, 0);</b>
+<b class="nc">&nbsp;			menus[1].translate(shift, 0);</b>
+<b class="nc">&nbsp;			if (newSel == 0)</b>
+<b class="nc">&nbsp;				descriptionMenuBuilder.setPositioning(new Point(padding, menus[0].getBounds().getBottom() + 8), RelPos.BOTTOM_RIGHT);</b>
+<b class="nc">&nbsp;			if (newSel == 1)</b>
+<b class="nc">&nbsp;				descriptionMenuBuilder.setPositioning(new Point(Screen.w - padding, menus[1].getBounds().getBottom() + 8), RelPos.BOTTOM_LEFT);</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private int getOtherIdx() {
+<b class="nc">&nbsp;		return (selection + 1) % 2;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void update() {
+<b class="nc">&nbsp;		menus[0] = new InventoryMenu((InventoryMenu) menus[0]);</b>
+<b class="nc">&nbsp;		menus[1] = new InventoryMenu((InventoryMenu) menus[1]);</b>
+<b class="nc">&nbsp;		menus[1].translate(menus[0].getBounds().getWidth() + padding, 0);</b>
+<b class="nc">&nbsp;		onSelectionChange(0, selection);</b>
+<b class="nc">&nbsp;		itemDescription = getDescription();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

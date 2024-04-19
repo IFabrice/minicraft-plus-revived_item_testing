@@ -1,0 +1,213 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Quest</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.util</a>
+</div>
+
+<h1>Coverage Summary for Class: Quest (minicraft.util)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Quest</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/17)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Quest$QuestSeries</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/27)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.util;
+&nbsp;
+&nbsp;import minicraft.screen.QuestsDisplay;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.Set;
+&nbsp;
+<b class="nc">&nbsp;public class Quest extends AdvancementElement {</b>
+<b class="nc">&nbsp;	private QuestSeries series = null;</b>
+&nbsp;	private final @Nullable String parent;
+&nbsp;
+&nbsp;	public Quest(String key, String description, Map&lt;String, ElementCriterion&gt; criteria, @Nullable AdvancementElement.ElementRewards rewards,
+&nbsp;	             @NotNull Set&lt;HashSet&lt;String&gt;&gt; requirements, @Nullable String parent,
+&nbsp;	             @NotNull HashMap&lt;String, ElementCriterion&gt; unlockingCriteria, @NotNull Set&lt;HashSet&lt;String&gt;&gt; unlockingRequirements) {
+<b class="nc">&nbsp;		super(key, description, criteria, rewards, requirements, unlockingCriteria, unlockingRequirements);</b>
+<b class="nc">&nbsp;		this.parent = parent;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public QuestSeries getSeries() {
+<b class="nc">&nbsp;		return series;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public @Nullable Quest getParent() {
+<b class="nc">&nbsp;		if (parent != null &amp;&amp; series != null) {</b>
+<b class="nc">&nbsp;			return series.quests.get(parent);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return null;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	protected boolean isUnlockable() {
+<b class="nc">&nbsp;		if (unlocked) return true;</b>
+<b class="nc">&nbsp;		if (!series.unlocked) return false;</b>
+<b class="nc">&nbsp;		Quest parent = getParent();</b>
+<b class="nc">&nbsp;		return super.isUnlockable() &amp;&amp; (parent == null || parent.isCompleted());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void update() {
+<b class="nc">&nbsp;		super.update();</b>
+<b class="nc">&nbsp;		series.update();</b>
+<b class="nc">&nbsp;		QuestsDisplay.refreshDisplayableQuests();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void update0() {
+<b class="nc">&nbsp;		super.update();</b>
+<b class="nc">&nbsp;		QuestsDisplay.refreshDisplayableQuests();</b>
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	public static class QuestSeries extends AdvancementElement {</b>
+<b class="nc">&nbsp;		private final HashMap&lt;String, Quest&gt; quests = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;		public QuestSeries(String key, String description, Map&lt;String, AdvancementElement.ElementCriterion&gt; criteria,
+&nbsp;		                   @Nullable AdvancementElement.ElementRewards rewards, @NotNull Set&lt;HashSet&lt;String&gt;&gt; requirements,
+&nbsp;		                   @NotNull Map&lt;String, Quest&gt; quests, @NotNull HashMap&lt;String, ElementCriterion&gt; unlockingCriteria,
+&nbsp;		                   @NotNull Set&lt;HashSet&lt;String&gt;&gt; unlockingRequirements) {
+<b class="nc">&nbsp;			super(key, description, criteria, rewards, requirements, unlockingCriteria, unlockingRequirements);</b>
+<b class="nc">&nbsp;			this.quests.putAll(quests);</b>
+<b class="nc">&nbsp;			quests.values().forEach(q -&gt; q.series = this);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public HashMap&lt;String, Quest&gt; getSeriesQuests() {
+<b class="nc">&nbsp;			return new HashMap&lt;&gt;(quests);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		protected boolean checkIsCompleted() {
+<b class="nc">&nbsp;			return quests.values().stream().allMatch(quest -&gt; quest.completed) &amp;&amp; super.checkIsCompleted();</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public void update() {
+<b class="nc">&nbsp;			super.update();</b>
+<b class="nc">&nbsp;			quests.values().forEach(Quest::update0);</b>
+<b class="nc">&nbsp;			QuestsDisplay.refreshDisplayableQuests();</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

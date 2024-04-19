@@ -1,0 +1,184 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > InputEntry</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen.entry</a>
+</div>
+
+<h1>Coverage Summary for Class: InputEntry (minicraft.screen.entry)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">InputEntry</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/27)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen.entry;
+&nbsp;
+&nbsp;import minicraft.core.io.ClipboardHandler;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Font;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;
+&nbsp;public class InputEntry extends ListEntry {
+&nbsp;
+&nbsp;	private String prompt;
+&nbsp;	private String regex;
+&nbsp;	private int maxLength;
+&nbsp;
+&nbsp;	private String userInput;
+&nbsp;
+&nbsp;	private ChangeListener listener;
+&nbsp;
+<b class="nc">&nbsp;	private ClipboardHandler clipboardHandler = new ClipboardHandler();</b>
+&nbsp;
+&nbsp;	public InputEntry(String prompt) {
+<b class="nc">&nbsp;		this(prompt, null, 0);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public InputEntry(String prompt, String regex, int maxLen) {
+<b class="nc">&nbsp;		this(prompt, regex, maxLen, &quot;&quot;);</b>
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	public InputEntry(String prompt, String regex, int maxLen, String initValue) {</b>
+<b class="nc">&nbsp;		this.prompt = prompt;</b>
+<b class="nc">&nbsp;		this.regex = regex;</b>
+<b class="nc">&nbsp;		this.maxLength = maxLen;</b>
+&nbsp;
+<b class="nc">&nbsp;		userInput = initValue;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick(InputHandler input) {
+<b class="nc">&nbsp;		String prev = userInput;</b>
+<b class="nc">&nbsp;		userInput = input.addKeyTyped(userInput, regex);</b>
+<b class="nc">&nbsp;		if (!prev.equals(userInput) &amp;&amp; listener != null)</b>
+<b class="nc">&nbsp;			listener.onChange(userInput);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (maxLength &gt; 0 &amp;&amp; userInput.length() &gt; maxLength)</b>
+<b class="nc">&nbsp;			userInput = userInput.substring(0, maxLength); // truncates extra</b>
+<b class="nc">&nbsp;		if (input.getMappedKey(&quot;CTRL-V&quot;).isClicked()) {</b>
+<b class="nc">&nbsp;			userInput = userInput + clipboardHandler.getClipboardContents();</b>
+&nbsp;		}
+<b class="nc">&nbsp;		if (!userInput.equals(&quot;&quot;)) {</b>
+<b class="nc">&nbsp;			if (input.getMappedKey(&quot;CTRL-C&quot;).isClicked()) {</b>
+<b class="nc">&nbsp;				clipboardHandler.setClipboardContents(userInput);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			if (input.getMappedKey(&quot;CTRL-X&quot;).isClicked()) {</b>
+<b class="nc">&nbsp;				clipboardHandler.setClipboardContents(userInput);</b>
+<b class="nc">&nbsp;				userInput = &quot;&quot;;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	public String getUserInput() {
+<b class="nc">&nbsp;		return userInput;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public String toString() {
+<b class="nc">&nbsp;		return Localization.getLocalized(prompt) + (prompt.length() == 0 ? &quot;&quot; : &quot;: &quot;) + userInput;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void render(Screen screen, int x, int y, boolean isSelected) {
+<b class="nc">&nbsp;		Font.draw(toString(), screen, x, y, isValid() ? isSelected ? Color.GREEN : COL_UNSLCT : Color.RED);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean isValid() {
+<b class="nc">&nbsp;		return userInput.matches(regex);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void setChangeListener(ChangeListener l) {
+<b class="nc">&nbsp;		listener = l;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

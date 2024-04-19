@@ -1,0 +1,367 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Initializer</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.core</a>
+</div>
+
+<h1>Coverage Summary for Class: Initializer (minicraft.core)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Initializer</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/93)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Initializer$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Initializer$2</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/9)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/17)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/106)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.core;
+&nbsp;
+&nbsp;import minicraft.core.io.FileHandler;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import minicraft.util.TinylogLoggingProvider;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;import org.tinylog.provider.ProviderRegistry;
+&nbsp;
+&nbsp;import javax.imageio.ImageIO;
+&nbsp;import javax.swing.JFrame;
+&nbsp;import javax.swing.WindowConstants;
+&nbsp;
+&nbsp;import java.awt.BorderLayout;
+&nbsp;import java.awt.Color;
+&nbsp;import java.awt.event.ComponentAdapter;
+&nbsp;import java.awt.event.ComponentEvent;
+&nbsp;import java.awt.event.WindowEvent;
+&nbsp;import java.awt.event.WindowListener;
+&nbsp;import java.awt.image.BufferedImage;
+&nbsp;import java.io.IOException;
+&nbsp;
+&nbsp;public class Initializer extends Game {
+&nbsp;	private Initializer() {
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Reference to actual frame, also it may be null.
+&nbsp;	 */
+&nbsp;	static JFrame frame;
+&nbsp;	static int fra, tik; // These store the number of frames and ticks in the previous second; used for fps, at least.
+&nbsp;
+&nbsp;	public static JFrame getFrame() {
+<b class="nc">&nbsp;		return frame;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static int getCurFps() {
+<b class="nc">&nbsp;		return fra;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	static void parseArgs(String[] args) {
+&nbsp;		// Parses command line arguments
+&nbsp;		@Nullable
+<b class="nc">&nbsp;		String saveDir = null;</b>
+<b class="nc">&nbsp;		boolean enableHardwareAcceleration = true;</b>
+<b class="nc">&nbsp;		for (int i = 0; i &lt; args.length; i++) {</b>
+<b class="nc">&nbsp;			if (args[i].equalsIgnoreCase(&quot;--savedir&quot;) &amp;&amp; i + 1 &lt; args.length) {</b>
+<b class="nc">&nbsp;				i++;</b>
+<b class="nc">&nbsp;				saveDir = args[i];</b>
+<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--fullscreen&quot;)) {</b>
+<b class="nc">&nbsp;				Updater.FULLSCREEN = true;</b>
+<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-log-time&quot;)) {</b>
+<b class="nc">&nbsp;				Logging.logTime = true;</b>
+<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-log-thread&quot;)) {</b>
+<b class="nc">&nbsp;				Logging.logThread = true;</b>
+<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-log-trace&quot;)) {</b>
+<b class="nc">&nbsp;				Logging.logTrace = true;</b>
+<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-level&quot;)) {</b>
+<b class="nc">&nbsp;				Logging.logLevel = true;</b>
+<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-filelog-full&quot;)) {</b>
+<b class="nc">&nbsp;				Logging.fileLogFull = true;</b>
+<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-locale&quot;)) {</b>
+<b class="nc">&nbsp;				Localization.isDebugLocaleEnabled = true;</b>
+<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-unloc-tracing&quot;)) {</b>
+<b class="nc">&nbsp;				Localization.unlocalizedStringTracing = true;</b>
+<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--no-hardware-acceleration&quot;)) {</b>
+<b class="nc">&nbsp;				enableHardwareAcceleration = false;</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;		((TinylogLoggingProvider) ProviderRegistry.getLoggingProvider()).init();</b>
+&nbsp;		// Reference: https://stackoverflow.com/a/13832805
+<b class="nc">&nbsp;		if (enableHardwareAcceleration) System.setProperty(&quot;sun.java2d.opengl&quot;, &quot;true&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		FileHandler.determineGameDir(saveDir);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This is the main loop that runs the game. It:
+&nbsp;	 * -keeps track of the amount of time that has passed
+&nbsp;	 * -fires the ticks needed to run the game
+&nbsp;	 * -fires the command to render out the screen.
+&nbsp;	 */
+&nbsp;	static void run() {
+<b class="nc">&nbsp;		long lastTick = System.nanoTime();</b>
+<b class="nc">&nbsp;		long lastRender = System.nanoTime();</b>
+<b class="nc">&nbsp;		double unprocessed = 0;</b>
+<b class="nc">&nbsp;		int frames = 0;</b>
+<b class="nc">&nbsp;		int ticks = 0;</b>
+<b class="nc">&nbsp;		long lastTimer1 = System.currentTimeMillis();</b>
+&nbsp;
+<b class="nc">&nbsp;		while (running) {</b>
+<b class="nc">&nbsp;			long now = System.nanoTime();</b>
+<b class="nc">&nbsp;			double nsPerTick = 1E9D / Updater.normSpeed; // Nanosecs per sec divided by ticks per sec = nanosecs per tick</b>
+<b class="nc">&nbsp;			if (currentDisplay == null) nsPerTick /= Updater.gamespeed;</b>
+<b class="nc">&nbsp;			unprocessed += (now - lastTick) / nsPerTick; // Figures out the unprocessed time between now and lastTick.</b>
+<b class="nc">&nbsp;			lastTick = now;</b>
+<b class="nc">&nbsp;			while (unprocessed &gt;= 1) { // If there is unprocessed time, then tick.</b>
+<b class="nc">&nbsp;				ticks++;</b>
+<b class="nc">&nbsp;				Updater.tick(); // Calls the tick method (in which it calls the other tick methods throughout the code.</b>
+<b class="nc">&nbsp;				unprocessed--;</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			now = System.nanoTime();</b>
+<b class="nc">&nbsp;			if (now &gt;= lastRender + 1E9D / MAX_FPS / 1.01) {</b>
+<b class="nc">&nbsp;				frames++;</b>
+<b class="nc">&nbsp;				lastRender = now;</b>
+<b class="nc">&nbsp;				Renderer.render();</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			try {
+<b class="nc">&nbsp;				long curNano = System.nanoTime();</b>
+<b class="nc">&nbsp;				long untilNextTick = (long) (lastTick + nsPerTick - curNano);</b>
+<b class="nc">&nbsp;				long untilNextFrame = (long) (lastRender + 1E9D / MAX_FPS - curNano);</b>
+<b class="nc">&nbsp;				if (untilNextTick &gt; 1E3 &amp;&amp; untilNextFrame &gt; 1E3) {</b>
+<b class="nc">&nbsp;					double timeToWait = Math.min(untilNextTick, untilNextFrame) / 1.2; // in nanosecond</b>
+&nbsp;					//noinspection BusyWait
+<b class="nc">&nbsp;					Thread.sleep((long) Math.floor(timeToWait / 1E6), (int) ((timeToWait - Math.floor(timeToWait)) % 1E6));</b>
+&nbsp;				}
+<b class="nc">&nbsp;			} catch (InterruptedException ignored) {</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+<b class="nc">&nbsp;			if (System.currentTimeMillis() - lastTimer1 &gt; 1000) { //updates every 1 second</b>
+<b class="nc">&nbsp;				long interval = System.currentTimeMillis() - lastTimer1;</b>
+<b class="nc">&nbsp;				lastTimer1 = System.currentTimeMillis(); // Adds a second to the timer</b>
+&nbsp;
+<b class="nc">&nbsp;				fra = (int) Math.round(frames * 1000D / interval); // Saves total frames in last second</b>
+<b class="nc">&nbsp;				tik = (int) Math.round(ticks * 1000D / interval); // Saves total ticks in last second</b>
+<b class="nc">&nbsp;				frames = 0; // Resets frames</b>
+<b class="nc">&nbsp;				ticks = 0; // Resets ticks; ie, frames and ticks only are per second</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;	// Creates and displays the JFrame window that the game appears in.
+&nbsp;	static void createAndDisplayFrame() {
+<b class="nc">&nbsp;		Renderer.canvas.setMinimumSize(new java.awt.Dimension(1, 1));</b>
+<b class="nc">&nbsp;		Renderer.canvas.setPreferredSize(Renderer.getWindowSize());</b>
+<b class="nc">&nbsp;		Renderer.canvas.setBackground(Color.BLACK);</b>
+<b class="nc">&nbsp;		JFrame frame = Initializer.frame = new JFrame(NAME);</b>
+<b class="nc">&nbsp;		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);</b>
+<b class="nc">&nbsp;		frame.setLayout(new BorderLayout()); // Sets the layout of the window</b>
+<b class="nc">&nbsp;		frame.add(Renderer.canvas, BorderLayout.CENTER); // Adds the game (which is a canvas) to the center of the screen.</b>
+<b class="nc">&nbsp;		frame.pack(); // Squishes everything into the preferredSize.</b>
+&nbsp;
+&nbsp;		try {
+<b class="nc">&nbsp;			BufferedImage logo = ImageIO.read(Game.class.getResourceAsStream(&quot;/resources/logo.png&quot;)); // Load the window logo</b>
+<b class="nc">&nbsp;			frame.setIconImage(logo);</b>
+<b class="nc">&nbsp;		} catch (IOException e) {</b>
+<b class="nc">&nbsp;			CrashHandler.errorHandle(e);</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		frame.setLocationRelativeTo(null); // The window will pop up in the middle of the screen when launched.</b>
+&nbsp;
+<b class="nc">&nbsp;		frame.addComponentListener(new ComponentAdapter() {</b>
+&nbsp;			public void componentResized(ComponentEvent e) {
+<b class="nc">&nbsp;				float w = frame.getWidth() - frame.getInsets().left - frame.getInsets().right;</b>
+<b class="nc">&nbsp;				float h = frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom;</b>
+<b class="nc">&nbsp;				Renderer.SCALE = Math.min(w / Renderer.WIDTH, h / Renderer.HEIGHT);</b>
+&nbsp;			}
+&nbsp;		});
+&nbsp;
+<b class="nc">&nbsp;		frame.addWindowListener(new WindowListener() {</b>
+&nbsp;			public void windowActivated(WindowEvent e) {
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			public void windowDeactivated(WindowEvent e) {
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			public void windowIconified(WindowEvent e) {
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			public void windowDeiconified(WindowEvent e) {
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			public void windowOpened(WindowEvent e) {
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			public void windowClosed(WindowEvent e) {
+<b class="nc">&nbsp;				Logging.GAMEHANDLER.debug(&quot;Window closed&quot;);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			public void windowClosing(WindowEvent e) {
+<b class="nc">&nbsp;				Logging.GAMEHANDLER.info(&quot;Window closing&quot;);</b>
+<b class="nc">&nbsp;				quit();</b>
+&nbsp;			}
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Launching the main window.
+&nbsp;	 */
+&nbsp;	static void launchWindow() {
+<b class="nc">&nbsp;		frame.setVisible(true);</b>
+<b class="nc">&nbsp;		frame.requestFocus();</b>
+<b class="nc">&nbsp;		Renderer.canvas.requestFocus();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Provides a String representation of the provided Throwable&#39;s stack trace
+&nbsp;	 * that is extracted via PrintStream.
+&nbsp;	 * @param throwable Throwable/Exception from which stack trace is to be
+&nbsp;	 * 	extracted.
+&nbsp;	 * @return String with provided Throwable&#39;s stack trace.
+&nbsp;	 */
+&nbsp;	public static String getExceptionTrace(final Throwable throwable) {
+<b class="nc">&nbsp;		final java.io.ByteArrayOutputStream bytestream = new java.io.ByteArrayOutputStream();</b>
+<b class="nc">&nbsp;		final java.io.PrintStream printStream = new java.io.PrintStream(bytestream);</b>
+<b class="nc">&nbsp;		throwable.printStackTrace(printStream);</b>
+&nbsp;		String exceptionStr;
+&nbsp;		try {
+<b class="nc">&nbsp;			exceptionStr = bytestream.toString(&quot;UTF-8&quot;);</b>
+<b class="nc">&nbsp;		} catch (Exception ex) {</b>
+<b class="nc">&nbsp;			exceptionStr = &quot;Unavailable&quot;;</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;		return exceptionStr;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,196 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > FishingRodItem</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.item</a>
+</div>
+
+<h1>Coverage Summary for Class: FishingRodItem (minicraft.item)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">FishingRodItem</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (27/27)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Random;
+&nbsp;
+&nbsp;public class FishingRodItem extends Item {
+&nbsp;
+&nbsp;	protected static ArrayList&lt;Item&gt; getAllInstances() {
+<b class="fc">&nbsp;		ArrayList&lt;Item&gt; items = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;		for (int i = 0; i &lt; 4; i++) {</b>
+<b class="fc">&nbsp;			items.add(new FishingRodItem(i));</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		return items;</b>
+&nbsp;	}
+&nbsp;
+<b class="fc">&nbsp;	private int uses = 0; // The more uses, the higher the chance of breaking</b>
+&nbsp;	public int level; // The higher the level the lower the chance of breaking
+&nbsp;
+<b class="fc">&nbsp;	private Random random = new Random();</b>
+&nbsp;
+&nbsp;	/* These numbers are a bit confusing, so here&#39;s an explanation
+&nbsp;	 * If you want to know the percent chance of a category (let&#39;s say tool, which is third)
+&nbsp;	 * You have to subtract 1 + the &quot;tool&quot; number from the number before it (for the first number subtract from 100)*/
+<b class="fc">&nbsp;	private static final int[][] LEVEL_CHANCES = {</b>
+&nbsp;		{ 44, 14, 9, 4 }, // They&#39;re in the order &quot;fish&quot;, &quot;junk&quot;, &quot;tools&quot;, &quot;rare&quot;
+&nbsp;		{ 24, 14, 9, 4 }, // Iron has very high chance of fish
+&nbsp;		{ 59, 49, 9, 4 }, // Gold has very high chance of tools
+&nbsp;		{ 79, 69, 59, 4 } // Gem has very high chance of rare items
+&nbsp;	};
+&nbsp;
+<b class="fc">&nbsp;	private static final String[] LEVEL_NAMES = {</b>
+&nbsp;		&quot;Wood&quot;,
+&nbsp;		&quot;Iron&quot;,
+&nbsp;		&quot;Gold&quot;,
+&nbsp;		&quot;Gem&quot;
+&nbsp;	};
+&nbsp;
+&nbsp;	public FishingRodItem(int level) {
+<b class="fc">&nbsp;		super(LEVEL_NAMES[level] + &quot; Fishing Rod&quot;, new LinkedSprite(SpriteType.Item,</b>
+<b class="fc">&nbsp;			LEVEL_NAMES[level].toLowerCase().replace(&quot;wood&quot;, &quot;wooden&quot;) + &quot;_fishing_rod&quot;));</b>
+<b class="fc">&nbsp;		this.level = level;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static int getChance(int idx, int level) {
+<b class="fc">&nbsp;		return LEVEL_CHANCES[level][idx];</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean interactOn(Tile tile, Level level, int xt, int yt, Player player, Direction attackDir) {
+<b class="fc">&nbsp;		if (tile == Tiles.get(&quot;water&quot;) &amp;&amp; !player.isSwimming()) { // Make sure not to use it if swimming</b>
+<b class="fc">&nbsp;			uses++;</b>
+<b class="fc">&nbsp;			player.isFishing = true;</b>
+<b class="fc">&nbsp;			player.fishingLevel = this.level;</b>
+<b class="fc">&nbsp;			return true;</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean canAttack() {
+<b class="fc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean isDepleted() {
+<b class="fc">&nbsp;		if (random.nextInt(100) &gt; 120 - uses + level * 6) { // Breaking is random, the lower the level, and the more times you use it, the higher the chance</b>
+<b class="fc">&nbsp;			Game.notifications.add(&quot;Your Fishing rod broke.&quot;);</b>
+<b class="fc">&nbsp;			return true;</b>
+&nbsp;		}
+<b class="fc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public @NotNull Item copy() {
+<b class="fc">&nbsp;		FishingRodItem item = new FishingRodItem(this.level);</b>
+<b class="fc">&nbsp;		item.uses = this.uses;</b>
+<b class="fc">&nbsp;		return item;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

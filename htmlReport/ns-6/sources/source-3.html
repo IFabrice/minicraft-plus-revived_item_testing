@@ -1,0 +1,165 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Particle</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.entity.particle</a>
+</div>
+
+<h1>Coverage Summary for Class: Particle (minicraft.entity.particle)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Particle</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/21)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.entity.particle;
+&nbsp;
+&nbsp;import minicraft.entity.ClientTickable;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.util.Logging;
+&nbsp;
+&nbsp;import javax.security.auth.DestroyFailedException;
+&nbsp;
+&nbsp;public class Particle extends Entity implements ClientTickable {
+&nbsp;	private int time; // lifetime elapsed.
+&nbsp;	private int lifetime;
+&nbsp;
+&nbsp;	protected LinkedSprite sprite;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Creates an particle entity at the given position. The particle has a x and y radius = 1.
+&nbsp;	 * @param x X map coordinate
+&nbsp;	 * @param y Y map coorindate
+&nbsp;	 * @param xr x radius of the particle
+&nbsp;	 * @param lifetime How many game ticks the particle lives before its removed
+&nbsp;	 * @param sprite The particle&#39;s sprite
+&nbsp;	 */
+&nbsp;	public Particle(int x, int y, int xr, int lifetime, LinkedSprite sprite) {
+&nbsp;		// Make a particle at the given coordinates
+<b class="nc">&nbsp;		super(xr, 1);</b>
+<b class="nc">&nbsp;		this.x = x;</b>
+<b class="nc">&nbsp;		this.y = y;</b>
+<b class="nc">&nbsp;		this.lifetime = lifetime;</b>
+<b class="nc">&nbsp;		this.sprite = sprite;</b>
+<b class="nc">&nbsp;		time = 0;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Particle(int x, int y, int lifetime, LinkedSprite sprite) {
+<b class="nc">&nbsp;		this(x, y, 1, lifetime, sprite);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick() {
+<b class="nc">&nbsp;		time++;</b>
+<b class="nc">&nbsp;		if (time &gt; lifetime) {</b>
+<b class="nc">&nbsp;			remove();</b>
+<b class="nc">&nbsp;			if (sprite != null) try {</b>
+<b class="nc">&nbsp;				sprite.destroy();</b>
+<b class="nc">&nbsp;			} catch (DestroyFailedException e) {</b>
+<b class="nc">&nbsp;				Logging.SPRITE.trace(e);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen) {
+<b class="nc">&nbsp;		screen.render(x, y, sprite);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean isSolid() {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

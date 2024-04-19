@@ -1,0 +1,161 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > WaterTile</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.level.tile</a>
+</div>
+
+<h1>Coverage Summary for Class: WaterTile (minicraft.level.tile)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">WaterTile</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    42.9%
+  </span>
+  <span class="absValue">
+    (3/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    21.7%
+  </span>
+  <span class="absValue">
+    (5/23)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.level.tile;
+&nbsp;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.gfx.SpriteAnimation;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.level.Level;
+&nbsp;
+&nbsp;public class WaterTile extends Tile {
+<b class="fc">&nbsp;	private static SpriteAnimation sprite = new SpriteAnimation(SpriteType.Tile, &quot;water&quot;)</b>
+<b class="fc">&nbsp;		.setConnectionChecker((level, x, y, tile, side) -&gt; tile.connectsToFluid(level, x, y))</b>
+<b class="fc">&nbsp;		.setSingletonWithConnective(true);</b>
+&nbsp;
+&nbsp;	protected WaterTile(String name) {
+<b class="fc">&nbsp;		super(name, sprite);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean connectsToFluid(Level level, int x, int y) {
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen, Level level, int x, int y) {
+<b class="nc">&nbsp;		Tiles.get(&quot;dirt&quot;).render(screen, level, x, y);</b>
+<b class="nc">&nbsp;		sprite.render(screen, level, x, y);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean mayPass(Level level, int x, int y, Entity e) {
+<b class="nc">&nbsp;		return e.canSwim();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean tick(Level level, int xt, int yt) {
+<b class="nc">&nbsp;		int xn = xt;</b>
+<b class="nc">&nbsp;		int yn = yt;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (random.nextBoolean()) xn += random.nextInt(2) * 2 - 1;</b>
+<b class="nc">&nbsp;		else yn += random.nextInt(2) * 2 - 1;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (level.getTile(xn, yn) instanceof HoleTile) {</b>
+<b class="nc">&nbsp;			level.setTile(xn, yn, this);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// These set only the non-diagonally adjacent lava tiles to obsidian
+<b class="nc">&nbsp;		for (int x = -1; x &lt; 2; x++) {</b>
+<b class="nc">&nbsp;			if (level.getTile(xt + x, yt) instanceof LavaTile)</b>
+<b class="nc">&nbsp;				level.setTile(xt + x, yt, Tiles.get(&quot;Raw Obsidian&quot;));</b>
+&nbsp;		}
+<b class="nc">&nbsp;		for (int y = -1; y &lt; 2; y++) {</b>
+<b class="nc">&nbsp;			if (level.getTile(xt, yt + y) instanceof LavaTile)</b>
+<b class="nc">&nbsp;				level.setTile(xt, yt + y, Tiles.get(&quot;Raw Obsidian&quot;));</b>
+&nbsp;		}
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

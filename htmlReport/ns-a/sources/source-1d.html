@@ -1,0 +1,362 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Tiles</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.level.tile</a>
+</div>
+
+<h1>Coverage Summary for Class: Tiles (minicraft.level.tile)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Tiles</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    37.5%
+  </span>
+  <span class="absValue">
+    (3/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    90.9%
+  </span>
+  <span class="absValue">
+    (169/186)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.level.tile;
+&nbsp;
+&nbsp;import minicraft.core.CrashHandler;
+&nbsp;import minicraft.level.tile.farming.CarrotTile;
+&nbsp;import minicraft.level.tile.farming.FarmTile;
+&nbsp;import minicraft.level.tile.farming.HeavenlyBerriesTile;
+&nbsp;import minicraft.level.tile.farming.HellishBerriesTile;
+&nbsp;import minicraft.level.tile.farming.PotatoTile;
+&nbsp;import minicraft.level.tile.farming.TomatoTile;
+&nbsp;import minicraft.level.tile.farming.WheatTile;
+&nbsp;import minicraft.util.Logging;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.HashMap;
+&nbsp;
+<b class="nc">&nbsp;public final class Tiles {</b>
+&nbsp;	/// Idea: to save tile names while saving space, I could encode the names in base 64 in the save file...^M
+&nbsp;	/// Then, maybe, I would just replace the id numbers with id names, make them all private, and then make a get(String) method, parameter is tile name.
+&nbsp;
+<b class="fc">&nbsp;	public static ArrayList&lt;String&gt; oldids = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;	private static HashMap&lt;Short, Tile&gt; tiles = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;	public static void initTileList() {
+<b class="fc">&nbsp;		Logging.TILES.debug(&quot;Initializing tile list...&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;		tiles.put((short) 0, new GrassTile(&quot;Grass&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 1, new DirtTile(&quot;Dirt&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 2, new FlowerTile(&quot;Flower&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 3, new HoleTile(&quot;Hole&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 4, new StairsTile(&quot;Stairs Up&quot;, true));</b>
+<b class="fc">&nbsp;		tiles.put((short) 5, new StairsTile(&quot;Stairs Down&quot;, false));</b>
+<b class="fc">&nbsp;		tiles.put((short) 6, new WaterTile(&quot;Water&quot;));</b>
+&nbsp;		// This is out of order because of lava buckets
+<b class="fc">&nbsp;		tiles.put((short) 17, new LavaTile(&quot;Lava&quot;));</b>
+&nbsp;
+<b class="fc">&nbsp;		tiles.put((short) 7, new RockTile(&quot;Rock&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 8, new TreeTile(&quot;Tree&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 9, new SaplingTile(&quot;Tree Sapling&quot;, Tiles.get(&quot;Grass&quot;), Tiles.get(&quot;Tree&quot;)));</b>
+<b class="fc">&nbsp;		tiles.put((short) 10, new SandTile(&quot;Sand&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 11, new CactusTile(&quot;Cactus&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 12, new SaplingTile(&quot;Cactus Sapling&quot;, Tiles.get(&quot;Sand&quot;), Tiles.get(&quot;Cactus&quot;)));</b>
+<b class="fc">&nbsp;		tiles.put((short) 13, new OreTile(OreTile.OreType.Iron));</b>
+<b class="fc">&nbsp;		tiles.put((short) 14, new OreTile(OreTile.OreType.Gold));</b>
+<b class="fc">&nbsp;		tiles.put((short) 15, new OreTile(OreTile.OreType.Gem));</b>
+<b class="fc">&nbsp;		tiles.put((short) 16, new OreTile(OreTile.OreType.Lapis));</b>
+<b class="fc">&nbsp;		tiles.put((short) 18, new LavaBrickTile(&quot;Lava Brick&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 19, new ExplodedTile(&quot;Explode&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 20, new FarmTile(&quot;Farmland&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 21, new WheatTile(&quot;Wheat&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 22, new HardRockTile(&quot;Hard Rock&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 23, new InfiniteFallTile(&quot;Infinite Fall&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 24, new CloudTile(&quot;Cloud&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 25, new OreTile(OreTile.OreType.Cloud));</b>
+<b class="fc">&nbsp;		tiles.put((short) 26, new DoorTile(Tile.Material.Wood));</b>
+<b class="fc">&nbsp;		tiles.put((short) 27, new DoorTile(Tile.Material.Stone));</b>
+<b class="fc">&nbsp;		tiles.put((short) 28, new DoorTile(Tile.Material.Obsidian));</b>
+<b class="fc">&nbsp;		tiles.put((short) 29, new FloorTile(Tile.Material.Wood));</b>
+<b class="fc">&nbsp;		tiles.put((short) 30, new FloorTile(Tile.Material.Stone));</b>
+<b class="fc">&nbsp;		tiles.put((short) 31, new FloorTile(Tile.Material.Obsidian));</b>
+<b class="fc">&nbsp;		tiles.put((short) 32, new WallTile(Tile.Material.Wood));</b>
+<b class="fc">&nbsp;		tiles.put((short) 33, new WallTile(Tile.Material.Stone));</b>
+<b class="fc">&nbsp;		tiles.put((short) 34, new WallTile(Tile.Material.Obsidian));</b>
+<b class="fc">&nbsp;		tiles.put((short) 35, new WoolTile(WoolTile.WoolType.NORMAL));</b>
+<b class="fc">&nbsp;		tiles.put((short) 36, new PathTile(&quot;Path&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 37, new WoolTile(WoolTile.WoolType.RED));</b>
+<b class="fc">&nbsp;		tiles.put((short) 38, new WoolTile(WoolTile.WoolType.BLUE));</b>
+<b class="fc">&nbsp;		tiles.put((short) 39, new WoolTile(WoolTile.WoolType.GREEN));</b>
+<b class="fc">&nbsp;		tiles.put((short) 40, new WoolTile(WoolTile.WoolType.YELLOW));</b>
+<b class="fc">&nbsp;		tiles.put((short) 41, new WoolTile(WoolTile.WoolType.BLACK));</b>
+<b class="fc">&nbsp;		tiles.put((short) 42, new PotatoTile(&quot;Potato&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 43, new MaterialTile(Tile.Material.Stone));</b>
+<b class="fc">&nbsp;		tiles.put((short) 44, new MaterialTile(Tile.Material.Obsidian));</b>
+<b class="fc">&nbsp;		tiles.put((short) 45, new DecorTile(Tile.Material.Stone));</b>
+<b class="fc">&nbsp;		tiles.put((short) 46, new DecorTile(Tile.Material.Obsidian));</b>
+<b class="fc">&nbsp;		tiles.put((short) 47, new BossWallTile());</b>
+<b class="fc">&nbsp;		tiles.put((short) 48, new BossFloorTile());</b>
+<b class="fc">&nbsp;		tiles.put((short) 49, new BossDoorTile());</b>
+<b class="fc">&nbsp;		tiles.put((short) 50, new TomatoTile(&quot;Tomato&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 51, new CarrotTile(&quot;Carrot&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 52, new HeavenlyBerriesTile(&quot;Heavenly Berries&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 53, new HellishBerriesTile(&quot;Hellish Berries&quot;));</b>
+<b class="fc">&nbsp;		tiles.put((short) 54, new FenceTile(Tile.Material.Wood));</b>
+<b class="fc">&nbsp;		tiles.put((short) 55, new FenceTile(Tile.Material.Stone));</b>
+<b class="fc">&nbsp;		tiles.put((short) 56, new FenceTile(Tile.Material.Obsidian));</b>
+<b class="fc">&nbsp;		tiles.put((short) 57, new TorchTile());</b>
+<b class="fc">&nbsp;		tiles.put((short) 58, new SignTile());</b>
+&nbsp;
+&nbsp;		// WARNING: don&#39;t use this tile for anything!
+<b class="fc">&nbsp;		tiles.put((short) 255, new ConnectTile());</b>
+&nbsp;
+<b class="fc">&nbsp;		for (short i = 0; i &lt; 256; i++) {</b>
+<b class="fc">&nbsp;			if (tiles.get(i) == null) continue;</b>
+<b class="fc">&nbsp;			tiles.get(i).id = (short) i;</b>
+&nbsp;		}
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;
+&nbsp;	static void add(int id, Tile tile) {
+<b class="nc">&nbsp;		tiles.put((short) id, tile);</b>
+<b class="nc">&nbsp;		Logging.TILES.debug(&quot;Adding &quot; + tile.name + &quot; to tile list with id &quot; + id);</b>
+<b class="nc">&nbsp;		tile.id = (short) id;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	static {
+<b class="fc">&nbsp;		for (int i = 0; i &lt; 32768; i++)</b>
+<b class="fc">&nbsp;			oldids.add(null);</b>
+&nbsp;
+<b class="fc">&nbsp;		oldids.set(0, &quot;grass&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(1, &quot;rock&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(2, &quot;water&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(3, &quot;flower&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(4, &quot;tree&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(5, &quot;dirt&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(41, &quot;wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(42, &quot;red wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(43, &quot;blue wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(45, &quot;green wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(127, &quot;yellow wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(56, &quot;black wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(6, &quot;sand&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(7, &quot;cactus&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(8, &quot;hole&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(9, &quot;tree Sapling&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(10, &quot;cactus Sapling&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(11, &quot;farmland&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(12, &quot;wheat&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(13, &quot;lava&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(14, &quot;stairs Down&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(15, &quot;stairs Up&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(17, &quot;cloud&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(30, &quot;explode&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(31, &quot;Wood Planks&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(33, &quot;plank wall&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(34, &quot;stone wall&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(35, &quot;wood door&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(36, &quot;wood door&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(37, &quot;stone door&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(38, &quot;stone door&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(39, &quot;lava brick&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(32, &quot;Stone Bricks&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(120, &quot;Obsidian&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(121, &quot;Obsidian wall&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(122, &quot;Obsidian door&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(123, &quot;Obsidian door&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(18, &quot;hard Rock&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(19, &quot;iron Ore&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(24, &quot;Lapis&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(20, &quot;gold Ore&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(21, &quot;gem Ore&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(22, &quot;cloud Cactus&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(16, &quot;infinite Fall&quot;);</b>
+&nbsp;
+&nbsp;		// Light/torch versions, for compatibility with before 1.9.4-dev3. (were removed in making dev3)
+<b class="fc">&nbsp;		oldids.set(100, &quot;grass&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(101, &quot;sand&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(102, &quot;tree&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(103, &quot;cactus&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(104, &quot;water&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(105, &quot;dirt&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(107, &quot;flower&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(108, &quot;stairs Up&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(109, &quot;stairs Down&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(110, &quot;Wood Planks&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(111, &quot;Stone Bricks&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(112, &quot;wood door&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(113, &quot;wood door&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(114, &quot;stone door&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(115, &quot;stone door&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(116, &quot;Obsidian door&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(117, &quot;Obsidian door&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(119, &quot;hole&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(57, &quot;wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(58, &quot;red wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(59, &quot;blue wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(60, &quot;green wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(61, &quot;yellow wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(62, &quot;black wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(63, &quot;Obsidian&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(64, &quot;tree Sapling&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(65, &quot;cactus Sapling&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;		oldids.set(44, &quot;torch grass&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(40, &quot;torch sand&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(46, &quot;torch dirt&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(47, &quot;torch wood planks&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(48, &quot;torch stone bricks&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(49, &quot;torch Obsidian&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(50, &quot;torch wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(51, &quot;torch red wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(52, &quot;torch blue wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(53, &quot;torch green wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(54, &quot;torch yellow wool&quot;);</b>
+<b class="fc">&nbsp;		oldids.set(55, &quot;torch black wool&quot;);</b>
+&nbsp;	}
+&nbsp;
+<b class="fc">&nbsp;	private static int overflowCheck = 0;</b>
+&nbsp;
+&nbsp;	public static Tile get(String name) {
+&nbsp;		//System.out.println(&quot;Getting from tile list: &quot; + name);
+&nbsp;
+<b class="fc">&nbsp;		name = name.toUpperCase();</b>
+&nbsp;
+<b class="fc">&nbsp;		overflowCheck++;</b>
+&nbsp;
+<b class="fc">&nbsp;		if (overflowCheck &gt; 50) {</b>
+<b class="nc">&nbsp;			CrashHandler.crashHandle(new StackOverflowError(&quot;Tiles#get: &quot; + name), new CrashHandler.ErrorInfo(&quot;Tile fetching Stacking&quot;,</b>
+&nbsp;				CrashHandler.ErrorInfo.ErrorType.SERIOUS, &quot;STACKOVERFLOW prevented in Tiles.get(), on: &quot; + name));
+&nbsp;		}
+&nbsp;
+&nbsp;		//System.out.println(&quot;Fetching tile &quot; + name);
+&nbsp;
+<b class="fc">&nbsp;		Tile getting = null;</b>
+&nbsp;
+<b class="fc">&nbsp;		if (name.contains(&quot;_&quot;)) {</b>
+<b class="nc">&nbsp;			name = name.substring(0, name.indexOf(&quot;_&quot;));</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		for (Tile t : tiles.values()) {</b>
+<b class="fc">&nbsp;			if (t == null) continue;</b>
+<b class="fc">&nbsp;			if (t.name.equals(name)) {</b>
+<b class="fc">&nbsp;				getting = t;</b>
+<b class="fc">&nbsp;				break;</b>
+&nbsp;			}
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+<b class="fc">&nbsp;		if (getting == null) {</b>
+<b class="fc">&nbsp;			Logging.TILES.info(&quot;Invalid tile requested: &quot; + name);</b>
+<b class="fc">&nbsp;			getting = tiles.get((short) 0);</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		overflowCheck = 0;</b>
+<b class="fc">&nbsp;		return getting;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static Tile get(short id) {
+&nbsp;		//System.out.println(&quot;Requesting tile by id: &quot; + id);
+<b class="nc">&nbsp;		if (tiles.get(id) != null) {</b>
+<b class="nc">&nbsp;			return tiles.get(id);</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			Logging.TILES.info(&quot;Unknown tile id requested: &quot; + id);</b>
+<b class="nc">&nbsp;			return tiles.get((short) 0);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	public static String getName(String descriptName) {
+<b class="nc">&nbsp;		if (!descriptName.contains(&quot;_&quot;)) return descriptName;</b>
+&nbsp;		int data;
+<b class="nc">&nbsp;		String[] parts = descriptName.split(&quot;_&quot;);</b>
+<b class="nc">&nbsp;		descriptName = parts[0];</b>
+<b class="nc">&nbsp;		data = Integer.parseInt(parts[1]);</b>
+<b class="nc">&nbsp;		return get(descriptName).getName(data);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static HashMap&lt;Short, Tile&gt; getAll() {
+<b class="nc">&nbsp;		return new HashMap&lt;&gt;(tiles);</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

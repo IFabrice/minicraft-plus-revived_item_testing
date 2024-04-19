@@ -1,0 +1,162 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > KeyInputEntry</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen.entry</a>
+</div>
+
+<h1>Coverage Summary for Class: KeyInputEntry (minicraft.screen.entry)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">KeyInputEntry</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/20)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen.entry;
+&nbsp;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Font;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;
+&nbsp;import java.util.Set;
+&nbsp;
+&nbsp;public class KeyInputEntry extends SelectEntry {
+&nbsp;
+&nbsp;	private String action, mapping, buffer;
+&nbsp;
+&nbsp;	public KeyInputEntry(String key, Set&lt;String&gt; duplicated) {
+<b class="nc">&nbsp;		super(&quot;&quot;, null);</b>
+&nbsp;
+<b class="nc">&nbsp;		this.action = key.substring(0, key.indexOf(&quot;;&quot;));</b>
+<b class="nc">&nbsp;		setMapping(key.substring(key.indexOf(&quot;;&quot;) + 1), duplicated);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void setMapping(String mapping, Set&lt;String&gt; duplicated) {
+<b class="nc">&nbsp;		this.mapping = mapping;</b>
+&nbsp;
+<b class="nc">&nbsp;		StringBuilder buffer = new StringBuilder();</b>
+<b class="nc">&nbsp;		for (int spaces = 0; spaces &lt; Screen.w / Font.textWidth(&quot; &quot;) - action.length() - mapping.length(); spaces++)</b>
+<b class="nc">&nbsp;			buffer.append(&quot; &quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		String newMapping = &quot;&quot;;</b>
+<b class="nc">&nbsp;		for (String k : mapping.split(&quot;\\|&quot;)) {</b>
+<b class="nc">&nbsp;			if (duplicated.contains(k)) k = Color.RED_CODE + k;</b>
+<b class="nc">&nbsp;			k = Color.GRAY_CODE + k + Color.WHITE_CODE;</b>
+<b class="nc">&nbsp;			newMapping += k + &quot;|&quot;;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		this.mapping = newMapping.substring(0, newMapping.length() - 1);</b>
+<b class="nc">&nbsp;		this.buffer = buffer.toString();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick(InputHandler input) {
+<b class="nc">&nbsp;		if (input.getMappedKey(&quot;c&quot;).isClicked() || input.getMappedKey(&quot;enter&quot;).isClicked())</b>
+<b class="nc">&nbsp;			input.changeKeyBinding(action);</b>
+<b class="nc">&nbsp;		else if (input.getMappedKey(&quot;a&quot;).isClicked())</b>
+&nbsp;			// Add a binding, don&#39;t remove previous.
+<b class="nc">&nbsp;			input.addKeyBinding(action);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public int getWidth() {
+<b class="nc">&nbsp;		return Screen.w;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public String toString() {
+<b class="nc">&nbsp;		return Localization.getLocalized(action) + buffer + mapping;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

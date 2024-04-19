@@ -1,0 +1,552 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > SpriteLinker</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.gfx</a>
+</div>
+
+<h1>Coverage Summary for Class: SpriteLinker (minicraft.gfx)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SpriteLinker</td>
+<td class="coverageStat">
+  <span class="percent">
+    40%
+  </span>
+  <span class="absValue">
+    (4/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    33.3%
+  </span>
+  <span class="absValue">
+    (17/51)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">SpriteLinker$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">SpriteLinker$LinkedSprite</td>
+<td class="coverageStat">
+  <span class="percent">
+    57.1%
+  </span>
+  <span class="absValue">
+    (8/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    51.7%
+  </span>
+  <span class="absValue">
+    (30/58)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">SpriteLinker$SpriteMeta</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">SpriteLinker$SpriteType</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    53.6%
+  </span>
+  <span class="absValue">
+    (15/28)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    43.5%
+  </span>
+  <span class="absValue">
+    (50/115)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.gfx;
+&nbsp;
+&nbsp;import minicraft.core.Renderer;
+&nbsp;import minicraft.util.Logging;
+&nbsp;
+&nbsp;import javax.security.auth.DestroyFailedException;
+&nbsp;import javax.security.auth.Destroyable;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.HashMap;
+&nbsp;
+<b class="fc">&nbsp;public class SpriteLinker {</b>
+&nbsp;	/**
+&nbsp;	 * Buffering SpriteSheet for caching.
+&nbsp;	 */
+<b class="fc">&nbsp;	private final HashMap&lt;String, MinicraftImage&gt; entitySheets = new HashMap&lt;&gt;(),</b>
+&nbsp;		guiSheets = new HashMap&lt;&gt;(), itemSheets = new HashMap&lt;&gt;(), tileSheets = new HashMap&lt;&gt;();
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Storing all exist in-used LinkedSprite.
+&nbsp;	 */
+<b class="fc">&nbsp;	private final ArrayList&lt;LinkedSprite&gt; linkedSheets = new ArrayList&lt;&gt;();</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Clearing all Sprite buffers for the upcoming resource pack application.
+&nbsp;	 */
+&nbsp;	public void resetSprites() {
+<b class="nc">&nbsp;		entitySheets.clear();</b>
+<b class="nc">&nbsp;		guiSheets.clear();</b>
+<b class="nc">&nbsp;		itemSheets.clear();</b>
+<b class="nc">&nbsp;		tileSheets.clear();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * The safe size check which will be required for the higher resolution sprites must be used
+&nbsp;	 * before this method invoked. But in new rendering engine.
+&nbsp;	 * @param t The sheet type.
+&nbsp;	 * @param key The sheet key.
+&nbsp;	 * @param spriteSheet The sheet.
+&nbsp;	 */
+&nbsp;	public void setSprite(SpriteType t, String key, MinicraftImage spriteSheet) {
+<b class="pc">&nbsp;		switch (t) {</b>
+&nbsp;			case Entity:
+<b class="nc">&nbsp;				entitySheets.put(key, spriteSheet);</b>
+<b class="nc">&nbsp;				break;</b>
+&nbsp;			case Gui:
+<b class="nc">&nbsp;				guiSheets.put(key, spriteSheet);</b>
+<b class="nc">&nbsp;				break;</b>
+&nbsp;			case Item:
+<b class="nc">&nbsp;				itemSheets.put(key, spriteSheet);</b>
+<b class="nc">&nbsp;				break;</b>
+&nbsp;			case Tile:
+<b class="nc">&nbsp;				tileSheets.put(key, spriteSheet);</b>
+&nbsp;				break;
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Getting the sprite sheet with the category and key.
+&nbsp;	 * @param t The sprite category
+&nbsp;	 * @param key The resource key.
+&nbsp;	 * @return The sprite sheet. &lt;code&gt;null&lt;/code&gt; if not found.
+&nbsp;	 */
+&nbsp;	public MinicraftImage getSheet(SpriteType t, String key) {
+<b class="fc">&nbsp;		switch (t) {</b>
+&nbsp;			case Entity:
+<b class="nc">&nbsp;				return entitySheets.get(key);</b>
+&nbsp;			case Gui:
+<b class="nc">&nbsp;				return guiSheets.get(key);</b>
+&nbsp;			case Item:
+<b class="nc">&nbsp;				return itemSheets.get(key);</b>
+&nbsp;			case Tile:
+<b class="fc">&nbsp;				return tileSheets.get(key);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return null;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Cleaing all skin sheets in entity sheets.
+&nbsp;	 */
+&nbsp;	public void clearSkins() {
+<b class="nc">&nbsp;		for (String k : new ArrayList&lt;&gt;(entitySheets.keySet())) {</b>
+<b class="nc">&nbsp;			if (k.startsWith(&quot;skin.&quot;)) entitySheets.remove(k);</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Setting the skin in entity sheet.
+&nbsp;	 * @param key The key of the sheet.
+&nbsp;	 * @param spriteSheet The sheet to be added.
+&nbsp;	 */
+&nbsp;	public void setSkin(String key, MinicraftImage spriteSheet) {
+<b class="nc">&nbsp;		setSprite(SpriteType.Entity, key, spriteSheet);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Getting the missing texture texture with the specific sprite type.
+&nbsp;	 * @param type The sprite category.
+&nbsp;	 * @return The missing texture or null if invalid sprite type.
+&nbsp;	 */
+&nbsp;	public static LinkedSprite missingTexture(SpriteType type) {
+<b class="fc">&nbsp;		switch (type) {</b>
+&nbsp;			case Entity:
+<b class="nc">&nbsp;				return new LinkedSprite(SpriteType.Entity, &quot;missing_entity&quot;);</b>
+&nbsp;			case Item:
+<b class="fc">&nbsp;				return new LinkedSprite(SpriteType.Item, &quot;missing_item&quot;);</b>
+&nbsp;			case Tile:
+<b class="fc">&nbsp;				return new LinkedSprite(SpriteType.Tile, &quot;missing_tile&quot;);</b>
+&nbsp;			default:
+<b class="nc">&nbsp;				return null;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Getting the sheet of missing texture with the specific sprite type.
+&nbsp;	 * @param type The sprite category.
+&nbsp;	 * @return Ths missing texture sprite sheet or null if invalid sprite type.
+&nbsp;	 */
+&nbsp;	public MinicraftImage missingSheet(SpriteType type) {
+<b class="nc">&nbsp;		switch (type) { // The sheets should be found.</b>
+&nbsp;			case Entity:
+<b class="nc">&nbsp;				return entitySheets.get(&quot;missing_entity&quot;);</b>
+&nbsp;			case Item:
+<b class="nc">&nbsp;				return itemSheets.get(&quot;missing_item&quot;);</b>
+&nbsp;			case Tile:
+<b class="nc">&nbsp;				return tileSheets.get(&quot;missing_tile&quot;);</b>
+&nbsp;			default:
+<b class="nc">&nbsp;				return null;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Updating all existing LinkedSheet for resource pack application.
+&nbsp;	 */
+&nbsp;	public void updateLinkedSheets() {
+<b class="nc">&nbsp;		Logging.SPRITE.debug(&quot;Updating all LinkedSprite.&quot;);</b>
+<b class="nc">&nbsp;		linkedSheets.forEach(s -&gt; s.reload());</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * The metadata of the sprite sheet.
+&nbsp;	 */
+<b class="nc">&nbsp;	public static class SpriteMeta {</b>
+&nbsp;		/**
+&nbsp;		 * The sprite animation configuration.
+&nbsp;		 */
+<b class="nc">&nbsp;		public int frames = 1, // Minimum with 1.</b>
+&nbsp;			frametime = 0; // 0 if no animation.
+&nbsp;		/**
+&nbsp;		 * The sprite connector configuration.
+&nbsp;		 */
+<b class="nc">&nbsp;		public String border = null, corner = null;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * The sprite categories in the image resources. TODO Removed for the new save system
+&nbsp;	 */
+<b class="fc">&nbsp;	public static enum SpriteType {</b>
+<b class="fc">&nbsp;		Item, Gui, Tile, Entity; // Only for resource packs; Skin is not applied.</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Linking the LinkedSprite into specific sheet map. This should only be used by {@link LinkedSprite}.
+&nbsp;	 * @param sheet The sprite to be linked.
+&nbsp;	 * @param type The sprite type to be linked.
+&nbsp;	 */
+&nbsp;	public void linkSpriteSheet(LinkedSprite sheet, SpriteType type) {
+&nbsp;		// Because of the private access.
+<b class="fc">&nbsp;		switch (type) {</b>
+&nbsp;			case Entity:
+<b class="fc">&nbsp;				sheet.linkedMap = Renderer.spriteLinker.entitySheets;</b>
+<b class="fc">&nbsp;				break;</b>
+&nbsp;			case Gui:
+<b class="fc">&nbsp;				sheet.linkedMap = Renderer.spriteLinker.guiSheets;</b>
+<b class="fc">&nbsp;				break;</b>
+&nbsp;			case Item:
+<b class="fc">&nbsp;				sheet.linkedMap = Renderer.spriteLinker.itemSheets;</b>
+<b class="fc">&nbsp;				break;</b>
+&nbsp;			case Tile:
+<b class="fc">&nbsp;				sheet.linkedMap = Renderer.spriteLinker.tileSheets;</b>
+&nbsp;				break;
+&nbsp;		}
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * A sprite collector with resource collector.
+&nbsp;	 */
+<b class="fc">&nbsp;	public static class LinkedSprite implements Destroyable {</b>
+&nbsp;		private final String key; // The resource key.
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * The sprite configuration.
+&nbsp;		 */
+<b class="fc">&nbsp;		private int x, y, w, h, color = -1, mirror = 0, flip = 0;</b>
+&nbsp;
+&nbsp;		// Sprite data.
+&nbsp;		private HashMap&lt;String, MinicraftImage&gt; linkedMap;
+&nbsp;		private SpriteType spriteType;
+&nbsp;		private Sprite sprite;
+&nbsp;		private boolean destoryed; // It is not linked when destoryed.
+<b class="fc">&nbsp;		private boolean reloaded = false; // Whether the sprite is reloaded.</b>
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Create new LinkedSprite for the specific category and resource key.
+&nbsp;		 * @param t The category of the sprite.
+&nbsp;		 * @param key The resource key of the sprite.
+&nbsp;		 */
+<b class="fc">&nbsp;		public LinkedSprite(SpriteType t, String key) {</b>
+<b class="fc">&nbsp;			this.key = key;</b>
+<b class="fc">&nbsp;			this.spriteType = t;</b>
+<b class="fc">&nbsp;			Renderer.spriteLinker.linkSpriteSheet(this, t);</b>
+<b class="fc">&nbsp;			Renderer.spriteLinker.linkedSheets.add(this);</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Getting the sprite sheet of the linked sprite.
+&nbsp;		 * @return The current linked sprite.
+&nbsp;		 */
+&nbsp;		public MinicraftImage getSheet() {
+<b class="nc">&nbsp;			return linkedMap.get(key);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Setting the sprite size.
+&nbsp;		 * @param w The sprite width.
+&nbsp;		 * @param h The sprite height
+&nbsp;		 * @return The instance itself.
+&nbsp;		 */
+&nbsp;		public LinkedSprite setSpriteSize(int w, int h) {
+<b class="fc">&nbsp;			this.w = w;</b>
+<b class="fc">&nbsp;			this.h = h;</b>
+<b class="fc">&nbsp;			reloaded = false; // Reload this.</b>
+<b class="fc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Setting the sprite position.
+&nbsp;		 * @param x The x position of the sprite.
+&nbsp;		 * @param y The y position of the sprite.
+&nbsp;		 * @return The instance itself.
+&nbsp;		 */
+&nbsp;		public LinkedSprite setSpritePos(int x, int y) {
+<b class="fc">&nbsp;			this.x = x;</b>
+<b class="fc">&nbsp;			this.y = y;</b>
+<b class="fc">&nbsp;			reloaded = false; // Reload this.</b>
+<b class="fc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Setting the sprite position and size.
+&nbsp;		 * @param x The x position of the sprite.
+&nbsp;		 * @param y The y position of the sprite.
+&nbsp;		 * @param w The sprite width.
+&nbsp;		 * @param h The sprite height
+&nbsp;		 * @return The instance itself.
+&nbsp;		 */
+&nbsp;		public LinkedSprite setSpriteDim(int x, int y, int w, int h) {
+<b class="fc">&nbsp;			setSpriteSize(w, h);</b>
+<b class="fc">&nbsp;			setSpritePos(x, y);</b>
+<b class="fc">&nbsp;			reloaded = false; // Reload this.</b>
+<b class="fc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Setting the white tint.
+&nbsp;		 * @param color The color of the white tint.
+&nbsp;		 * @return The instance itself.
+&nbsp;		 */
+&nbsp;		public LinkedSprite setColor(int color) {
+<b class="fc">&nbsp;			this.color = color;</b>
+<b class="fc">&nbsp;			reloaded = false; // Reload this.</b>
+<b class="fc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Setting the mirror of the sprite.
+&nbsp;		 * @param mirror The mirror of the sprite.
+&nbsp;		 * @return The instance itself.
+&nbsp;		 */
+&nbsp;		public LinkedSprite setMirror(int mirror) {
+<b class="fc">&nbsp;			this.mirror = mirror;</b>
+<b class="fc">&nbsp;			reloaded = false; // Reload this.</b>
+<b class="fc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Setting the flip of the sprite sheet.
+&nbsp;		 * @param flip The mirror of the sprite sheet.
+&nbsp;		 * @return The instance itself.
+&nbsp;		 */
+&nbsp;		public LinkedSprite setFlip(int flip) {
+<b class="fc">&nbsp;			this.flip = flip;</b>
+<b class="fc">&nbsp;			reloaded = false;</b>
+<b class="fc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Getting the sprite with the configuration.
+&nbsp;		 * @return The generated sprite.
+&nbsp;		 */
+&nbsp;		public Sprite getSprite() {
+<b class="nc">&nbsp;			if (!reloaded) { // Reload if it requires to be reloaded.</b>
+<b class="nc">&nbsp;				reloadSprite();</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			return sprite;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Requiring the sprite to be reloaded when the next time generated.
+&nbsp;		 */
+&nbsp;		public void reload() {
+<b class="nc">&nbsp;			reloaded = false;</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Reloading the sprite with the configuration.
+&nbsp;		 */
+&nbsp;		private void reloadSprite() {
+<b class="nc">&nbsp;			MinicraftImage sheet = linkedMap.get(key);</b>
+<b class="nc">&nbsp;			if (sheet != null) {</b>
+<b class="nc">&nbsp;				if (w &lt;= 0) w = sheet.width / 8; // Set the size as the maximum size of the sheet.</b>
+<b class="nc">&nbsp;				if (h &lt;= 0) h = sheet.height / 8; // Set the size as the maximum size of the sheet.</b>
+&nbsp;
+<b class="nc">&nbsp;				boolean flipX = (0x01 &amp; flip) &gt; 0, flipY = (0x02 &amp; flip) &gt; 0;</b>
+&nbsp;
+<b class="nc">&nbsp;				Sprite.Px[][] pixels = new Sprite.Px[h][w];</b>
+<b class="nc">&nbsp;				for (int r = 0; r &lt; h; r++) {</b>
+<b class="nc">&nbsp;					for (int c = 0; c &lt; w; c++) {</b>
+&nbsp;						// The offsets are there to determine the pixel that will be there: the one in order, or on the opposite side.
+<b class="nc">&nbsp;						int xOffset = flipX ? w - 1 - c : c;</b>
+<b class="nc">&nbsp;						int yOffset = flipY ? h - 1 - r : r;</b>
+<b class="nc">&nbsp;						pixels[r][c] = new Sprite.Px(x + xOffset, y + yOffset, mirror, sheet);</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				sprite = new Sprite(pixels);</b>
+<b class="nc">&nbsp;				sprite.color = color;</b>
+<b class="nc">&nbsp;			} else {</b>
+<b class="nc">&nbsp;				Logging.SPRITE.warn(&quot;SpriteSheet with resource ID not found: {}&quot;, key);</b>
+<b class="nc">&nbsp;				sprite = missingTexture(spriteType).getSprite();</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			reloaded = true;</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Unlink this LinkedSprite from SpriteLinker.
+&nbsp;		 */
+&nbsp;		@Override
+&nbsp;		public void destroy() throws DestroyFailedException {
+<b class="nc">&nbsp;			Renderer.spriteLinker.linkedSheets.remove(this); // Unlink this instance.</b>
+<b class="nc">&nbsp;			destoryed = true;</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * If this LinkedSprite is unlinked from SpriteLinker.
+&nbsp;		 */
+&nbsp;		@Override
+&nbsp;		public boolean isDestroyed() {
+<b class="nc">&nbsp;			return destoryed;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

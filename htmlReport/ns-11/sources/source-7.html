@@ -1,0 +1,356 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > TinylogLoggingConfiguration</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.util</a>
+</div>
+
+<h1>Coverage Summary for Class: TinylogLoggingConfiguration (minicraft.util)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TinylogLoggingConfiguration</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    89.7%
+  </span>
+  <span class="absValue">
+    (61/68)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">TinylogLoggingConfiguration$WriterConfig</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">TinylogLoggingConfiguration$WriterConfig$TagList</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    92.3%
+  </span>
+  <span class="absValue">
+    (12/13)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (10/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    90.7%
+  </span>
+  <span class="absValue">
+    (78/86)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.util;
+&nbsp;
+&nbsp;import minicraft.util.TinylogLoggingConfiguration.WriterConfig.TagList;
+&nbsp;import org.tinylog.Level;
+&nbsp;import org.tinylog.Supplier;
+&nbsp;import org.tinylog.configuration.Configuration;
+&nbsp;import org.tinylog.configuration.ServiceLoader;
+&nbsp;import org.tinylog.core.ConfigurationParser;
+&nbsp;import org.tinylog.core.LogEntry;
+&nbsp;import org.tinylog.core.LogEntryValue;
+&nbsp;import org.tinylog.core.TinylogContextProvider;
+&nbsp;import org.tinylog.format.MessageFormatter;
+&nbsp;import org.tinylog.runtime.RuntimeProvider;
+&nbsp;import org.tinylog.runtime.Timestamp;
+&nbsp;import org.tinylog.writers.ConsoleWriter;
+&nbsp;import org.tinylog.writers.Writer;
+&nbsp;
+&nbsp;import java.util.Collection;
+&nbsp;import java.util.Collections;
+&nbsp;import java.util.EnumSet;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.Map.Entry;
+&nbsp;import java.util.Set;
+&nbsp;
+<b class="fc">&nbsp;public class TinylogLoggingConfiguration {</b>
+&nbsp;	public static class WriterConfig {
+&nbsp;		public final String ID;
+&nbsp;		public Set&lt;Level&gt; levels;
+&nbsp;		public TagList tags;
+&nbsp;
+<b class="fc">&nbsp;		public WriterConfig(String ID, Set&lt;Level&gt; levels, TagList tags) {</b>
+<b class="fc">&nbsp;			this.ID = ID;</b>
+<b class="fc">&nbsp;			this.levels = levels;</b>
+<b class="fc">&nbsp;			this.tags = tags;</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		public static class TagList {
+<b class="fc">&nbsp;			private Set&lt;String&gt; tags = null;</b>
+&nbsp;			private final boolean all;
+&nbsp;
+<b class="fc">&nbsp;			public TagList(boolean all) {</b>
+<b class="fc">&nbsp;				this.all = all;</b>
+<b class="fc">&nbsp;			}</b>
+&nbsp;
+<b class="fc">&nbsp;			public TagList(Set&lt;String&gt; tags) {</b>
+<b class="fc">&nbsp;				this.tags = tags;</b>
+<b class="fc">&nbsp;				all = false;</b>
+<b class="fc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			public boolean contains(String tag) {
+<b class="fc">&nbsp;				if (all) {</b>
+<b class="fc">&nbsp;					return true;</b>
+<b class="fc">&nbsp;				} else if (tags != null) {</b>
+<b class="fc">&nbsp;					return tags.contains(tag);</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					return false;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	public HashMap&lt;Writer, WriterConfig&gt; createWriters() {
+<b class="fc">&nbsp;		if (RuntimeProvider.getProcessId() == Long.MIN_VALUE) {</b>
+<b class="nc">&nbsp;			java.util.ServiceLoader.load(Writer.class); // Workaround for ProGuard (see issue #126)</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		HashMap&lt;Writer, WriterConfig&gt; writers = new HashMap&lt;&gt;(generateConsoleWriters());</b>
+&nbsp;
+<b class="fc">&nbsp;		ServiceLoader&lt;Writer&gt; loader = new ServiceLoader&lt;Writer&gt;(Writer.class, Map.class);</b>
+&nbsp;
+<b class="fc">&nbsp;		Map&lt;String, String&gt; writerProperties = Configuration.getSiblings(&quot;writer&quot;); // Assert they are all defined.</b>
+&nbsp;
+<b class="fc">&nbsp;		for (Entry&lt;String, String&gt; entry : writerProperties.entrySet()) {</b>
+<b class="fc">&nbsp;			Map&lt;String, String&gt; configuration = Configuration.getChildren(entry.getKey());</b>
+<b class="fc">&nbsp;			String tag = configuration.get(&quot;tag&quot;);</b>
+<b class="fc">&nbsp;			Level level = ConfigurationParser.parse(configuration.get(&quot;level&quot;), Level.TRACE);</b>
+&nbsp;
+<b class="fc">&nbsp;			String exception = Configuration.get(&quot;exception&quot;);</b>
+<b class="fc">&nbsp;			if (exception != null &amp;&amp; !configuration.containsKey(&quot;exception&quot;)) {</b>
+<b class="nc">&nbsp;				configuration.put(&quot;exception&quot;, exception);</b>
+&nbsp;			}
+&nbsp;
+<b class="fc">&nbsp;			configuration.put(&quot;ID&quot;, entry.getKey());</b>
+<b class="fc">&nbsp;			configuration.put(&quot;writingthread&quot;, Boolean.toString(true));</b>
+&nbsp;
+<b class="fc">&nbsp;			Writer writer = loader.create(entry.getValue(), configuration);</b>
+<b class="fc">&nbsp;			if (writer != null) {</b>
+<b class="fc">&nbsp;				Set&lt;Level&gt; levels = computeLevelsFromMinimum(level);</b>
+&nbsp;				TagList tagList;
+<b class="fc">&nbsp;				if (tag == null || tag.isEmpty()) {</b>
+<b class="fc">&nbsp;					tagList = new TagList(true);</b>
+<b class="fc">&nbsp;				} else if (tag.equals(&quot;-&quot;)) {</b>
+<b class="nc">&nbsp;					tagList = new TagList(new HashSet&lt;&gt;());</b>
+&nbsp;				} else {
+<b class="fc">&nbsp;					HashSet&lt;String&gt; tags = new HashSet&lt;&gt;();</b>
+<b class="fc">&nbsp;					String[] tagArray = tag.split(&quot;,&quot;);</b>
+<b class="fc">&nbsp;					for (String tagArrayItem : tagArray) {</b>
+<b class="fc">&nbsp;						tagArrayItem = tagArrayItem.trim();</b>
+<b class="fc">&nbsp;						tags.add(tagArrayItem);</b>
+&nbsp;					}
+&nbsp;
+<b class="fc">&nbsp;					tagList = new TagList(tags);</b>
+&nbsp;				}
+&nbsp;
+<b class="fc">&nbsp;				writers.put(writer, new WriterConfig(entry.getKey(), levels, tagList));</b>
+&nbsp;			}
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+<b class="fc">&nbsp;		return writers;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Set&lt;Level&gt; computeLevelsFromMinimum(Level minimum) {
+<b class="fc">&nbsp;		Set&lt;Level&gt; levels = EnumSet.noneOf(Level.class);</b>
+<b class="fc">&nbsp;		for (Level l : Level.values()) {</b>
+<b class="fc">&nbsp;			if (l != Level.OFF &amp;&amp; l.ordinal() &gt;= minimum.ordinal()) {</b>
+<b class="fc">&nbsp;				levels.add(l);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		return levels;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Generate all possible instances of console writer (writer1) with the configuration.
+&nbsp;	 */
+&nbsp;	public HashMap&lt;ConsoleWriter, WriterConfig&gt; generateConsoleWriters() {
+<b class="fc">&nbsp;		HashMap&lt;ConsoleWriter, WriterConfig&gt; map = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;		for (final boolean i : new boolean[] { false, true }) {</b>
+<b class="fc">&nbsp;			for (final boolean j : new boolean[] { false, true }) {</b>
+<b class="fc">&nbsp;				for (final boolean k : new boolean[] { false, true }) {</b>
+<b class="fc">&nbsp;					map.putAll(createConsoleWriter(i, j, k));</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		return map;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Generate a console writer with the configuration.
+&nbsp;	 */
+&nbsp;	public Map&lt;ConsoleWriter, WriterConfig&gt; createConsoleWriter(boolean logTime, boolean logThread, boolean logTrace) {
+<b class="fc">&nbsp;		HashMap&lt;String, String&gt; properties = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;		String ID = String.format(&quot;writer1%s%s%s&quot;, logTime ? &quot;T&quot; : &quot;F&quot;, logThread ? &quot;T&quot; : &quot;F&quot;, logTrace ? &quot;T&quot; : &quot;F&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;		properties.put(&quot;level&quot;, logTrace ? &quot;trace&quot; : &quot;debug&quot;);</b>
+<b class="fc">&nbsp;		Level level = ConfigurationParser.parse(properties.get(&quot;level&quot;), Level.TRACE);</b>
+&nbsp;
+<b class="fc">&nbsp;		properties.put(&quot;format&quot;, String.format(&quot;%s%s[{tag}] {level}: {message}&quot;, logTime ? &quot;{date: HH:mm:ss.SSS} &quot; : &quot;&quot;, logThread ? &quot;[{thread-id}/{thread}] &quot; : &quot;&quot;));</b>
+&nbsp;
+<b class="fc">&nbsp;		properties.put(&quot;ID&quot;, ID);</b>
+<b class="fc">&nbsp;		properties.put(&quot;writingthread&quot;, Boolean.toString(true));</b>
+&nbsp;
+<b class="fc">&nbsp;		return Collections.singletonMap(new ConsoleWriter(properties), new WriterConfig(ID, computeLevelsFromMinimum(level), new TagList(true)));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Creates a new log entry.
+&nbsp;	 * @param stackTraceElement Optional stack trace element of caller
+&nbsp;	 * @param tag Tag name if issued from a tagged logger
+&nbsp;	 * @param level Severity level
+&nbsp;	 * @param exception Caught exception or throwable to log
+&nbsp;	 * @param formatter Formatter for text message
+&nbsp;	 * @param obj Message to log
+&nbsp;	 * @param arguments Arguments for message
+&nbsp;	 * @param required The required log entry value array slice of the tag index of the used tag
+&nbsp;	 * @param contextProvider The context provider
+&nbsp;	 * @return Filled log entry
+&nbsp;	 */
+&nbsp;	public static LogEntry createLogEntry(final StackTraceElement stackTraceElement, final String tag,
+&nbsp;	                                      final Level level, final Throwable exception, final MessageFormatter formatter, final Object obj,
+&nbsp;	                                      final Object[] arguments, final Collection&lt;LogEntryValue&gt; required,
+&nbsp;	                                      final TinylogContextProvider contextProvider) {
+&nbsp;
+<b class="fc">&nbsp;		Timestamp timestamp = RuntimeProvider.createTimestamp();</b>
+<b class="fc">&nbsp;		Thread thread = required.contains(LogEntryValue.THREAD) ? Thread.currentThread() : null;</b>
+<b class="fc">&nbsp;		Map&lt;String, String&gt; context = required.contains(LogEntryValue.CONTEXT) ? contextProvider.getMapping() : null;</b>
+&nbsp;
+&nbsp;		String className;
+&nbsp;		String methodName;
+&nbsp;		String fileName;
+&nbsp;		int lineNumber;
+<b class="fc">&nbsp;		if (stackTraceElement == null) {</b>
+<b class="nc">&nbsp;			className = null;</b>
+<b class="nc">&nbsp;			methodName = null;</b>
+<b class="nc">&nbsp;			fileName = null;</b>
+<b class="nc">&nbsp;			lineNumber = -1;</b>
+&nbsp;		} else {
+<b class="fc">&nbsp;			className = stackTraceElement.getClassName();</b>
+<b class="fc">&nbsp;			methodName = stackTraceElement.getMethodName();</b>
+<b class="fc">&nbsp;			fileName = stackTraceElement.getFileName();</b>
+<b class="fc">&nbsp;			lineNumber = stackTraceElement.getLineNumber();</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		String message;
+<b class="fc">&nbsp;		if (arguments == null || arguments.length == 0) {</b>
+<b class="fc">&nbsp;			Object evaluatedObject = obj instanceof Supplier&lt;?&gt; ? ((Supplier&lt;?&gt;) obj).get() : obj;</b>
+<b class="fc">&nbsp;			message = evaluatedObject == null ? null : evaluatedObject.toString();</b>
+<b class="fc">&nbsp;		} else {</b>
+<b class="fc">&nbsp;			message = formatter.format((String) obj, arguments);</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		return new LogEntry(timestamp, thread, context, className, methodName, fileName, lineNumber, tag, level, message, exception);</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

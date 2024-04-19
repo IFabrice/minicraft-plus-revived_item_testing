@@ -1,0 +1,184 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > StringEntry</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen.entry</a>
+</div>
+
+<h1>Coverage Summary for Class: StringEntry (minicraft.screen.entry)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">StringEntry</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    41.7%
+  </span>
+  <span class="absValue">
+    (5/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    59.3%
+  </span>
+  <span class="absValue">
+    (16/27)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen.entry;
+&nbsp;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Font;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Arrays;
+&nbsp;
+&nbsp;// an unselectable line.
+&nbsp;public class StringEntry extends ListEntry {
+&nbsp;
+<b class="fc">&nbsp;	private static final int DEFAULT_COLOR = Color.WHITE;</b>
+&nbsp;
+&nbsp;	private String text;
+&nbsp;	private int color;
+&nbsp;	private boolean localize;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 *
+&nbsp;	 */
+&nbsp;	public static StringEntry[] useLines(String... lines) {
+<b class="nc">&nbsp;		return useLines(DEFAULT_COLOR, lines);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static StringEntry[] useLines(int color, String... lines) {
+<b class="fc">&nbsp;		return useLines(color, true, lines);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static StringEntry[] useLines(int color, boolean localize, String... lines) {
+<b class="fc">&nbsp;		ArrayList&lt;String&gt; lns = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;		for (String l : lines) {</b>
+<b class="fc">&nbsp;			lns.addAll(Arrays.asList(Font.getLines(localize ? Localization.getLocalized(l) : l, Screen.w - 20, Screen.h * 2, 0)));</b>
+&nbsp;		}
+<b class="fc">&nbsp;		StringEntry[] entries = new StringEntry[lns.size()];</b>
+<b class="fc">&nbsp;		for (int i = 0; i &lt; lns.size(); i++)</b>
+<b class="fc">&nbsp;			entries[i] = new StringEntry(lns.get(i), color, false);</b>
+&nbsp;
+<b class="fc">&nbsp;		return entries;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public StringEntry(String text) {
+<b class="nc">&nbsp;		this(text, DEFAULT_COLOR);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public StringEntry(String text, boolean localize) {
+<b class="nc">&nbsp;		this(text, DEFAULT_COLOR, localize);</b>
+<b class="nc">&nbsp;	} // This might be false as the text might have been localized already.</b>
+&nbsp;
+&nbsp;	public StringEntry(String text, int color) {
+<b class="nc">&nbsp;		this(text, color, true);</b>
+<b class="nc">&nbsp;	} // This should be always true with the new localization IDs.</b>
+&nbsp;
+<b class="fc">&nbsp;	public StringEntry(String text, int color, boolean localize) {</b>
+<b class="fc">&nbsp;		setSelectable(false);</b>
+<b class="fc">&nbsp;		this.text = text;</b>
+<b class="fc">&nbsp;		this.localize = localize;</b>
+<b class="fc">&nbsp;		this.color = color;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void setText(String text) {
+<b class="nc">&nbsp;		this.text = text;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick(InputHandler input) {
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public int getColor(boolean isSelected) {
+<b class="nc">&nbsp;		return color;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public String toString() {
+<b class="fc">&nbsp;		return localize ? Localization.getLocalized(text) : text;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,936 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > LevelGen</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.level</a>
+</div>
+
+<h1>Coverage Summary for Class: LevelGen (minicraft.level)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">LevelGen</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/467)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.level;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.Settings;
+&nbsp;import minicraft.gfx.Rectangle;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;import minicraft.screen.RelPos;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;import org.tinylog.Logger;
+&nbsp;
+&nbsp;import javax.swing.ImageIcon;
+&nbsp;import javax.swing.JOptionPane;
+&nbsp;
+&nbsp;import java.awt.Image;
+&nbsp;import java.awt.image.BufferedImage;
+&nbsp;import java.util.Random;
+&nbsp;
+&nbsp;public class LevelGen {
+<b class="nc">&nbsp;	private static long worldSeed = 0;</b>
+<b class="nc">&nbsp;	private static final Random random = new Random(worldSeed);</b>
+&nbsp;	public double[] values; // An array of doubles, used to help making noise for the map
+&nbsp;	private final int w, h; // Width and height of the map
+&nbsp;	private static final int stairRadius = 15;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This creates noise to create random values for level generation
+&nbsp;	 */
+<b class="nc">&nbsp;	public LevelGen(int w, int h, int featureSize) {</b>
+<b class="nc">&nbsp;		this.w = w;</b>
+<b class="nc">&nbsp;		this.h = h;</b>
+&nbsp;
+<b class="nc">&nbsp;		values = new double[w * h];</b>
+&nbsp;
+&nbsp;		/// Feature size likely determines how big the biomes are, in some way. It tends to be 16 or 32, in the code below.
+<b class="nc">&nbsp;		for (int y = 0; y &lt; w; y += featureSize) {</b>
+<b class="nc">&nbsp;			for (int x = 0; x &lt; w; x += featureSize) {</b>
+<b class="nc">&nbsp;				setSample(x, y, random.nextFloat() * 2 - 1); // This method sets the random value from -1 to 1 at the given coordinate.</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		int stepSize = featureSize;</b>
+<b class="nc">&nbsp;		double scale = 2.0 / w;</b>
+<b class="nc">&nbsp;		double scaleMod = 1;</b>
+&nbsp;		do {
+<b class="nc">&nbsp;			int halfStep = stepSize / 2;</b>
+<b class="nc">&nbsp;			for (int y = 0; y &lt; h; y += stepSize) {</b>
+<b class="nc">&nbsp;				for (int x = 0; x &lt; w; x += stepSize) { // This loops through the values again, by a given increment...</b>
+<b class="nc">&nbsp;					double a = sample(x, y); // Fetches the value at the coordinate set previously (it fetches the exact same ones that were just set above)</b>
+<b class="nc">&nbsp;					double b = sample(x + stepSize, y); // Fetches the value at the next coordinate over. This could possibly loop over at the end, and fetch the first value in the row instead.</b>
+<b class="nc">&nbsp;					double c = sample(x, y + stepSize); // Fetches the next value down, possibly looping back to the top of the column.</b>
+<b class="nc">&nbsp;					double d = sample(x + stepSize, y + stepSize); // Fetches the value one down, one right.</b>
+&nbsp;
+&nbsp;					/*
+&nbsp;					 * This could probably use some explaining... Note: the number values are probably only good the first time around...
+&nbsp;					 *
+&nbsp;					 * This starts with taking the average of the four numbers from before (they form a little square in adjacent tiles), each of which holds a value from -1 to 1.
+&nbsp;					 * Then, it basically adds a 5th number, generated the same way as before. However, this 5th number is multiplied by a few things first...
+&nbsp;					 * ...by stepSize, aka featureSize, and scale, which is 2/size the first time. featureSize is 16 or 32, which is a multiple of the common level size, 128.
+&nbsp;					 * Precisely, it is 128 / 8, or 128 / 4, respectively with 16 and 32. So, the equation becomes size / const * 2 / size, or, simplified, 2 / const.
+&nbsp;					 * For a feature size of 32, stepSize * scale = 2 / 4 = 1/2. featureSize of 16, it&#39;s 2 / 8 = 1/4. Later on, this gets closer to 4 / 4 = 1, so... the 5th value may not change much at all in later iterations for a feature size of 32, which means it has an effect of 1, which is actually quite significant to the value that is set.
+&nbsp;					 * So, it tends to decrease the 5th -1 or 1 number, sometimes making it of equal value to the other 4 numbers, sort of. It will usually change the end result by 0.5 to 0.25, perhaps; at max.
+&nbsp;					 */
+<b class="nc">&nbsp;					double e = (a + b + c + d) / 4.0 + (random.nextFloat() * 2 - 1) * stepSize * scale;</b>
+<b class="nc">&nbsp;					setSample(x + halfStep, y + halfStep, e); // This sets the value that is right in the middle of the other 4 to an average of the four, plus a 5th number, which makes it slightly off, differing by about 0.25 or so on average, the first time around.</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+&nbsp;			// This loop does the same as before, but it takes into account some of the half steps we set in the last loop.
+<b class="nc">&nbsp;			for (int y = 0; y &lt; h; y += stepSize) {</b>
+<b class="nc">&nbsp;				for (int x = 0; x &lt; w; x += stepSize) {</b>
+<b class="nc">&nbsp;					double a = sample(x, y); // middle (current) tile</b>
+<b class="nc">&nbsp;					double b = sample(x + stepSize, y); // right tile</b>
+<b class="nc">&nbsp;					double c = sample(x, y + stepSize); // bottom tile</b>
+<b class="nc">&nbsp;					double d = sample(x + halfStep, y + halfStep); // mid-right, mid-bottom tile</b>
+<b class="nc">&nbsp;					double e = sample(x + halfStep, y - halfStep); // mid-right, mid-top tile</b>
+<b class="nc">&nbsp;					double f = sample(x - halfStep, y + halfStep); // mid-left, mid-bottom tile</b>
+&nbsp;
+&nbsp;					// The 0.5 at the end is because we are going by half-steps..?
+&nbsp;					// The H is for the right and surrounding mids, and g is the bottom and surrounding mids.
+<b class="nc">&nbsp;					double H = (a + b + d + e) / 4.0 + (random.nextFloat() * 2 - 1) * stepSize * scale * 0.5; // Adds middle, right, mr-mb, mr-mt, and random.</b>
+<b class="nc">&nbsp;					double g = (a + c + d + f) / 4.0 + (random.nextFloat() * 2 - 1) * stepSize * scale * 0.5; // Adds middle, bottom, mr-mb, ml-mb, and random.</b>
+<b class="nc">&nbsp;					setSample(x + halfStep, y, H); // Sets the H to the mid-right</b>
+<b class="nc">&nbsp;					setSample(x, y + halfStep, g); // Sets the g to the mid-bottom</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+&nbsp;			/*
+&nbsp;			 * THEN... this stuff is set to repeat the system all over again!
+&nbsp;			 * The featureSize is halved, allowing access to further unset mids, and the scale changes...
+&nbsp;			 * The scale increases the first time, x1.8, but the second time it&#39;s x1.1, and after that probably a little less than 1. So, it generally increases a bit, maybe to 4 / w at tops. This results in the 5th random value being more significant than the first 4 ones in later iterations.
+&nbsp;			 */
+<b class="nc">&nbsp;			stepSize /= 2;</b>
+<b class="nc">&nbsp;			scale *= (scaleMod + 0.8);</b>
+<b class="nc">&nbsp;			scaleMod *= 0.3;</b>
+<b class="nc">&nbsp;		} while (stepSize &gt; 1); // This stops when the stepsize is &lt; 1, aka 0 b/c it&#39;s an int. At this point there are no more mid values.</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private double sample(int x, int y) {
+<b class="nc">&nbsp;		return values[(x &amp; (w - 1)) + (y &amp; (h - 1)) * w];</b>
+&nbsp;	} // This merely returns the value, like Level.getTile(x, y).
+&nbsp;
+&nbsp;	private void setSample(int x, int y, double value) {
+&nbsp;		/*
+&nbsp;		 * This method is short, but difficult to understand. This is what I think it does:
+&nbsp;		 *
+&nbsp;		 * The values array is like a 2D array, but formatted into a 1D array; so the basic &quot;x + y * w&quot; is used to access a given value.
+&nbsp;		 *
+&nbsp;		 * The value parameter is a random number, above set to be a random decimal from -1 to 1.
+&nbsp;		 *
+&nbsp;		 * From above, we can see that the x and y values passed in range from 0 to the width/height, and increment by a certain constant known as the &quot;featureSize&quot;.
+&nbsp;		 * This implies that the locations chosen from this array, to put the random value in, somehow determine the size of biomes, perhaps.
+&nbsp;		 * The x/y value is taken and AND&#39;ed with the size-1, which could be 127. This just caps the value at 127; however, it shouldn&#39;t be higher in the first place, so it is merely a safety measure.
+&nbsp;		 *
+&nbsp;		 * In other words, this is just &quot;values[x + y * w] = value;&quot;
+&nbsp;		 */
+<b class="nc">&nbsp;		values[(x &amp; (w - 1)) + (y &amp; (h - 1)) * w] = value;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	static short[] @Nullable [] createAndValidateMap(int w, int h, int level, long seed) {
+<b class="nc">&nbsp;		worldSeed = seed;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (level == 1)</b>
+<b class="nc">&nbsp;			return createAndValidateSkyMap(w, h);</b>
+<b class="nc">&nbsp;		if (level == 0)</b>
+<b class="nc">&nbsp;			return createAndValidateTopMap(w, h);</b>
+<b class="nc">&nbsp;		if (level == -4)</b>
+<b class="nc">&nbsp;			return createAndValidateDungeon(w, h);</b>
+<b class="nc">&nbsp;		if (level &gt; -4 &amp;&amp; level &lt; 0)</b>
+<b class="nc">&nbsp;			return createAndValidateUndergroundMap(w, h, -level);</b>
+&nbsp;
+<b class="nc">&nbsp;		Logger.tag(&quot;LevelGen&quot;).error(&quot;Level index is not valid. Could not generate a level.&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		return null;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static short[][] createAndValidateTopMap(int w, int h) {
+<b class="nc">&nbsp;		random.setSeed(worldSeed);</b>
+&nbsp;		do {
+<b class="nc">&nbsp;			short[][] result = createTopMap(w, h);</b>
+&nbsp;
+<b class="nc">&nbsp;			int[] count = new int[256];</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h; i++) {</b>
+<b class="nc">&nbsp;				count[result[0][i] &amp; 0xffff]++;</b>
+&nbsp;			}
+<b class="nc">&nbsp;			if (count[Tiles.get(&quot;rock&quot;).id &amp; 0xffff] &lt; 100) continue;</b>
+<b class="nc">&nbsp;			if (count[Tiles.get(&quot;sand&quot;).id &amp; 0xffff] &lt; 100) continue;</b>
+<b class="nc">&nbsp;			if (count[Tiles.get(&quot;grass&quot;).id &amp; 0xffff] &lt; 100) continue;</b>
+<b class="nc">&nbsp;			if (count[Tiles.get(&quot;tree&quot;).id &amp; 0xffff] &lt; 100) continue;</b>
+&nbsp;
+<b class="nc">&nbsp;			if (count[Tiles.get(&quot;Stairs Down&quot;).id &amp; 0xffff] &lt; w / 21)</b>
+<b class="nc">&nbsp;				continue; // Size 128 = 6 stairs min</b>
+&nbsp;
+<b class="nc">&nbsp;			return result;</b>
+&nbsp;
+&nbsp;		} while (true);
+&nbsp;	}
+&nbsp;
+&nbsp;	private static short[] @Nullable [] createAndValidateUndergroundMap(int w, int h, int depth) {
+<b class="nc">&nbsp;		random.setSeed(worldSeed);</b>
+&nbsp;		do {
+<b class="nc">&nbsp;			short[][] result = createUndergroundMap(w, h, depth);</b>
+&nbsp;
+<b class="nc">&nbsp;			int[] count = new int[256];</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h; i++) {</b>
+<b class="nc">&nbsp;				count[result[0][i] &amp; 0xffff]++;</b>
+&nbsp;			}
+<b class="nc">&nbsp;			if (count[Tiles.get(&quot;rock&quot;).id &amp; 0xffff] &lt; 100) continue;</b>
+<b class="nc">&nbsp;			if (count[Tiles.get(&quot;dirt&quot;).id &amp; 0xffff] &lt; 100) continue;</b>
+<b class="nc">&nbsp;			if (count[(Tiles.get(&quot;iron Ore&quot;).id &amp; 0xffff) + depth - 1] &lt; 20) continue;</b>
+&nbsp;
+<b class="nc">&nbsp;			if (depth &lt; 3 &amp;&amp; count[Tiles.get(&quot;Stairs Down&quot;).id &amp; 0xffff] &lt; w / 32)</b>
+<b class="nc">&nbsp;				continue; // Size 128 = 4 stairs min</b>
+&nbsp;
+<b class="nc">&nbsp;			return result;</b>
+&nbsp;
+&nbsp;		} while (true);
+&nbsp;	}
+&nbsp;
+&nbsp;	private static short[][] createAndValidateDungeon(int w, int h) {
+<b class="nc">&nbsp;		random.setSeed(worldSeed);</b>
+&nbsp;
+&nbsp;		do {
+<b class="nc">&nbsp;			short[][] result = createDungeon(w, h);</b>
+&nbsp;
+<b class="nc">&nbsp;			int[] count = new int[256];</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h; i++) {</b>
+<b class="nc">&nbsp;				count[result[0][i] &amp; 0xffff]++;</b>
+&nbsp;			}
+<b class="nc">&nbsp;			if (count[Tiles.get(&quot;Obsidian&quot;).id &amp; 0xffff] + count[Tiles.get(&quot;dirt&quot;).id &amp; 0xffff] &lt; 100) continue;</b>
+<b class="nc">&nbsp;			if (count[Tiles.get(&quot;Obsidian Wall&quot;).id &amp; 0xffff] &lt; 100) continue;</b>
+&nbsp;
+<b class="nc">&nbsp;			return result;</b>
+&nbsp;
+&nbsp;		} while (true);
+&nbsp;	}
+&nbsp;
+&nbsp;	private static short[] @Nullable [] createAndValidateSkyMap(int w, int h) {
+<b class="nc">&nbsp;		random.setSeed(worldSeed);</b>
+&nbsp;
+&nbsp;		do {
+<b class="nc">&nbsp;			short[][] result = createSkyMap(w, h);</b>
+&nbsp;
+<b class="nc">&nbsp;			int[] count = new int[256];</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h; i++) {</b>
+<b class="nc">&nbsp;				count[result[0][i] &amp; 0xffff]++;</b>
+&nbsp;			}
+<b class="nc">&nbsp;			if (count[Tiles.get(&quot;cloud&quot;).id &amp; 0xffff] &lt; 2000) continue;</b>
+<b class="nc">&nbsp;			if (count[Tiles.get(&quot;Stairs Down&quot;).id &amp; 0xffff] &lt; w / 64)</b>
+<b class="nc">&nbsp;				continue; // size 128 = 2 stairs min</b>
+&nbsp;
+<b class="nc">&nbsp;			return result;</b>
+&nbsp;
+&nbsp;		} while (true);
+&nbsp;	}
+&nbsp;
+&nbsp;	private static short[][] createTopMap(int w, int h) { // Create surface map
+&nbsp;		// creates a bunch of value maps, some with small size...
+<b class="nc">&nbsp;		LevelGen mnoise1 = new LevelGen(w, h, 16);</b>
+<b class="nc">&nbsp;		LevelGen mnoise2 = new LevelGen(w, h, 16);</b>
+<b class="nc">&nbsp;		LevelGen mnoise3 = new LevelGen(w, h, 16);</b>
+&nbsp;
+&nbsp;		// ...and some with larger size.
+<b class="nc">&nbsp;		LevelGen noise1 = new LevelGen(w, h, 32);</b>
+<b class="nc">&nbsp;		LevelGen noise2 = new LevelGen(w, h, 32);</b>
+&nbsp;
+<b class="nc">&nbsp;		short[] map = new short[w * h];</b>
+<b class="nc">&nbsp;		short[] data = new short[w * h];</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int y = 0; y &lt; h; y++) {</b>
+<b class="nc">&nbsp;			for (int x = 0; x &lt; w; x++) {</b>
+<b class="nc">&nbsp;				int i = x + y * w;</b>
+&nbsp;
+<b class="nc">&nbsp;				double val = Math.abs(noise1.values[i] - noise2.values[i]) * 3 - 2;</b>
+<b class="nc">&nbsp;				double mval = Math.abs(mnoise1.values[i] - mnoise2.values[i]);</b>
+<b class="nc">&nbsp;				mval = Math.abs(mval - mnoise3.values[i]) * 3 - 2;</b>
+&nbsp;
+&nbsp;				// This calculates a sort of distance based on the current coordinate.
+<b class="nc">&nbsp;				double xd = x / (w - 1.0) * 2 - 1;</b>
+<b class="nc">&nbsp;				double yd = y / (h - 1.0) * 2 - 1;</b>
+<b class="nc">&nbsp;				if (xd &lt; 0) xd = -xd;</b>
+<b class="nc">&nbsp;				if (yd &lt; 0) yd = -yd;</b>
+<b class="nc">&nbsp;				double dist = Math.max(xd, yd);</b>
+<b class="nc">&nbsp;				dist = dist * dist * dist * dist;</b>
+<b class="nc">&nbsp;				dist = dist * dist * dist * dist;</b>
+<b class="nc">&nbsp;				val += 1 - dist * 20;</b>
+&nbsp;
+<b class="nc">&nbsp;				switch ((String) Settings.get(&quot;Type&quot;)) {</b>
+&nbsp;					case &quot;minicraft.settings.type.island&quot;:
+&nbsp;
+<b class="nc">&nbsp;						if (val &lt; -0.5) {</b>
+<b class="nc">&nbsp;							if (Settings.get(&quot;Theme&quot;).equals(&quot;minicraft.settings.theme.hell&quot;))</b>
+<b class="nc">&nbsp;								map[i] = Tiles.get(&quot;lava&quot;).id;</b>
+&nbsp;							else
+<b class="nc">&nbsp;								map[i] = Tiles.get(&quot;water&quot;).id;</b>
+<b class="nc">&nbsp;						} else if (val &gt; 0.5 &amp;&amp; mval &lt; -1.5) {</b>
+<b class="nc">&nbsp;							map[i] = Tiles.get(&quot;rock&quot;).id;</b>
+&nbsp;						} else {
+<b class="nc">&nbsp;							map[i] = Tiles.get(&quot;grass&quot;).id;</b>
+&nbsp;						}
+&nbsp;
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;minicraft.settings.type.box&quot;:
+&nbsp;
+<b class="nc">&nbsp;						if (val &lt; -1.5) {</b>
+<b class="nc">&nbsp;							if (Settings.get(&quot;Theme&quot;).equals(&quot;minicraft.settings.theme.hell&quot;)) {</b>
+<b class="nc">&nbsp;								map[i] = Tiles.get(&quot;lava&quot;).id;</b>
+&nbsp;							} else {
+<b class="nc">&nbsp;								map[i] = Tiles.get(&quot;water&quot;).id;</b>
+&nbsp;							}
+<b class="nc">&nbsp;						} else if (val &gt; 0.5 &amp;&amp; mval &lt; -1.5) {</b>
+<b class="nc">&nbsp;							map[i] = Tiles.get(&quot;rock&quot;).id;</b>
+&nbsp;						} else {
+<b class="nc">&nbsp;							map[i] = Tiles.get(&quot;grass&quot;).id;</b>
+&nbsp;						}
+&nbsp;
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;minicraft.settings.type.mountain&quot;:
+&nbsp;
+<b class="nc">&nbsp;						if (val &lt; -0.4) {</b>
+<b class="nc">&nbsp;							map[i] = Tiles.get(&quot;grass&quot;).id;</b>
+<b class="nc">&nbsp;						} else if (val &gt; 0.5 &amp;&amp; mval &lt; -1.5) {</b>
+<b class="nc">&nbsp;							if (Settings.get(&quot;Theme&quot;).equals(&quot;minicraft.settings.theme.hell&quot;)) {</b>
+<b class="nc">&nbsp;								map[i] = Tiles.get(&quot;lava&quot;).id;</b>
+&nbsp;							} else {
+<b class="nc">&nbsp;								map[i] = Tiles.get(&quot;water&quot;).id;</b>
+&nbsp;							}
+&nbsp;						} else {
+<b class="nc">&nbsp;							map[i] = Tiles.get(&quot;rock&quot;).id;</b>
+&nbsp;						}
+<b class="nc">&nbsp;						break;</b>
+&nbsp;
+&nbsp;					case &quot;minicraft.settings.type.irregular&quot;:
+<b class="nc">&nbsp;						if (val &lt; -0.5 &amp;&amp; mval &lt; -0.5) {</b>
+<b class="nc">&nbsp;							if (Settings.get(&quot;Theme&quot;).equals(&quot;minicraft.settings.theme.hell&quot;)) {</b>
+<b class="nc">&nbsp;								map[i] = Tiles.get(&quot;lava&quot;).id;</b>
+&nbsp;							}
+<b class="nc">&nbsp;							if (!Settings.get(&quot;Theme&quot;).equals(&quot;minicraft.settings.theme.hell&quot;)) {</b>
+<b class="nc">&nbsp;								map[i] = Tiles.get(&quot;water&quot;).id;</b>
+&nbsp;							}
+<b class="nc">&nbsp;						} else if (val &gt; 0.5 &amp;&amp; mval &lt; -1.5) {</b>
+<b class="nc">&nbsp;							map[i] = Tiles.get(&quot;rock&quot;).id;</b>
+&nbsp;						} else {
+<b class="nc">&nbsp;							map[i] = Tiles.get(&quot;grass&quot;).id;</b>
+&nbsp;						}
+&nbsp;						break;
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (Settings.get(&quot;Theme&quot;).equals(&quot;minicraft.settings.theme.desert&quot;)) {</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h / 200; i++) {</b>
+<b class="nc">&nbsp;				int xs = random.nextInt(w);</b>
+<b class="nc">&nbsp;				int ys = random.nextInt(h);</b>
+<b class="nc">&nbsp;				for (int k = 0; k &lt; 10; k++) {</b>
+<b class="nc">&nbsp;					int x = xs + random.nextInt(21) - 10;</b>
+<b class="nc">&nbsp;					int y = ys + random.nextInt(21) - 10;</b>
+<b class="nc">&nbsp;					for (int j = 0; j &lt; 100; j++) {</b>
+<b class="nc">&nbsp;						int xo = x + random.nextInt(5) - random.nextInt(5);</b>
+<b class="nc">&nbsp;						int yo = y + random.nextInt(5) - random.nextInt(5);</b>
+<b class="nc">&nbsp;						for (int yy = yo - 1; yy &lt;= yo + 1; yy++)</b>
+<b class="nc">&nbsp;							for (int xx = xo - 1; xx &lt;= xo + 1; xx++)</b>
+<b class="nc">&nbsp;								if (xx &gt;= 0 &amp;&amp; yy &gt;= 0 &amp;&amp; xx &lt; w &amp;&amp; yy &lt; h) {</b>
+<b class="nc">&nbsp;									if (map[xx + yy * w] == Tiles.get(&quot;grass&quot;).id) {</b>
+<b class="nc">&nbsp;										map[xx + yy * w] = Tiles.get(&quot;sand&quot;).id;</b>
+&nbsp;									}
+&nbsp;								}
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (!Settings.get(&quot;Theme&quot;).equals(&quot;minicraft.settings.theme.desert&quot;)) {</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h / 2800; i++) {</b>
+<b class="nc">&nbsp;				int xs = random.nextInt(w);</b>
+<b class="nc">&nbsp;				int ys = random.nextInt(h);</b>
+<b class="nc">&nbsp;				for (int k = 0; k &lt; 10; k++) {</b>
+<b class="nc">&nbsp;					int x = xs + random.nextInt(21) - 10;</b>
+<b class="nc">&nbsp;					int y = ys + random.nextInt(21) - 10;</b>
+<b class="nc">&nbsp;					for (int j = 0; j &lt; 100; j++) {</b>
+<b class="nc">&nbsp;						int xo = x + random.nextInt(5) - random.nextInt(5);</b>
+<b class="nc">&nbsp;						int yo = y + random.nextInt(5) - random.nextInt(5);</b>
+<b class="nc">&nbsp;						for (int yy = yo - 1; yy &lt;= yo + 1; yy++)</b>
+<b class="nc">&nbsp;							for (int xx = xo - 1; xx &lt;= xo + 1; xx++)</b>
+<b class="nc">&nbsp;								if (xx &gt;= 0 &amp;&amp; yy &gt;= 0 &amp;&amp; xx &lt; w &amp;&amp; yy &lt; h) {</b>
+<b class="nc">&nbsp;									if (map[xx + yy * w] == Tiles.get(&quot;grass&quot;).id) {</b>
+<b class="nc">&nbsp;										map[xx + yy * w] = Tiles.get(&quot;sand&quot;).id;</b>
+&nbsp;									}
+&nbsp;								}
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (Settings.get(&quot;Theme&quot;).equals(&quot;minicraft.settings.theme.forest&quot;)) {</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h / 200; i++) {</b>
+<b class="nc">&nbsp;				int x = random.nextInt(w);</b>
+<b class="nc">&nbsp;				int y = random.nextInt(h);</b>
+<b class="nc">&nbsp;				for (int j = 0; j &lt; 200; j++) {</b>
+<b class="nc">&nbsp;					int xx = x + random.nextInt(15) - random.nextInt(15);</b>
+<b class="nc">&nbsp;					int yy = y + random.nextInt(15) - random.nextInt(15);</b>
+<b class="nc">&nbsp;					if (xx &gt;= 0 &amp;&amp; yy &gt;= 0 &amp;&amp; xx &lt; w &amp;&amp; yy &lt; h) {</b>
+<b class="nc">&nbsp;						if (map[xx + yy * w] == Tiles.get(&quot;grass&quot;).id) {</b>
+<b class="nc">&nbsp;							map[xx + yy * w] = Tiles.get(&quot;tree&quot;).id;</b>
+&nbsp;						}
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;		if (!Settings.get(&quot;Theme&quot;).equals(&quot;minicraft.settings.theme.forest&quot;) &amp;&amp; !Settings.get(&quot;Theme&quot;).equals(&quot;minicraft.settings.theme.plain&quot;)) {</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h / 1200; i++) {</b>
+<b class="nc">&nbsp;				int x = random.nextInt(w);</b>
+<b class="nc">&nbsp;				int y = random.nextInt(h);</b>
+<b class="nc">&nbsp;				for (int j = 0; j &lt; 200; j++) {</b>
+<b class="nc">&nbsp;					int xx = x + random.nextInt(15) - random.nextInt(15);</b>
+<b class="nc">&nbsp;					int yy = y + random.nextInt(15) - random.nextInt(15);</b>
+<b class="nc">&nbsp;					if (xx &gt;= 0 &amp;&amp; yy &gt;= 0 &amp;&amp; xx &lt; w &amp;&amp; yy &lt; h) {</b>
+<b class="nc">&nbsp;						if (map[xx + yy * w] == Tiles.get(&quot;grass&quot;).id) {</b>
+<b class="nc">&nbsp;							map[xx + yy * w] = Tiles.get(&quot;tree&quot;).id;</b>
+&nbsp;						}
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (Settings.get(&quot;Theme&quot;).equals(&quot;minicraft.settings.theme.plain&quot;)) {</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h / 2800; i++) {</b>
+<b class="nc">&nbsp;				int x = random.nextInt(w);</b>
+<b class="nc">&nbsp;				int y = random.nextInt(h);</b>
+<b class="nc">&nbsp;				for (int j = 0; j &lt; 200; j++) {</b>
+<b class="nc">&nbsp;					int xx = x + random.nextInt(15) - random.nextInt(15);</b>
+<b class="nc">&nbsp;					int yy = y + random.nextInt(15) - random.nextInt(15);</b>
+<b class="nc">&nbsp;					if (xx &gt;= 0 &amp;&amp; yy &gt;= 0 &amp;&amp; xx &lt; w &amp;&amp; yy &lt; h) {</b>
+<b class="nc">&nbsp;						if (map[xx + yy * w] == Tiles.get(&quot;grass&quot;).id) {</b>
+<b class="nc">&nbsp;							map[xx + yy * w] = Tiles.get(&quot;tree&quot;).id;</b>
+&nbsp;						}
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;		if (!Settings.get(&quot;Theme&quot;).equals(&quot;minicraft.settings.theme.plain&quot;)) {</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h / 400; i++) {</b>
+<b class="nc">&nbsp;				int x = random.nextInt(w);</b>
+<b class="nc">&nbsp;				int y = random.nextInt(h);</b>
+<b class="nc">&nbsp;				for (int j = 0; j &lt; 200; j++) {</b>
+<b class="nc">&nbsp;					int xx = x + random.nextInt(15) - random.nextInt(15);</b>
+<b class="nc">&nbsp;					int yy = y + random.nextInt(15) - random.nextInt(15);</b>
+<b class="nc">&nbsp;					if (xx &gt;= 0 &amp;&amp; yy &gt;= 0 &amp;&amp; xx &lt; w &amp;&amp; yy &lt; h) {</b>
+<b class="nc">&nbsp;						if (map[xx + yy * w] == Tiles.get(&quot;grass&quot;).id) {</b>
+<b class="nc">&nbsp;							map[xx + yy * w] = Tiles.get(&quot;tree&quot;).id;</b>
+&nbsp;						}
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		for (int i = 0; i &lt; w * h / 400; i++) {</b>
+<b class="nc">&nbsp;			int x = random.nextInt(w);</b>
+<b class="nc">&nbsp;			int y = random.nextInt(h);</b>
+<b class="nc">&nbsp;			int col = random.nextInt(4);</b>
+<b class="nc">&nbsp;			for (int j = 0; j &lt; 30; j++) {</b>
+<b class="nc">&nbsp;				int xx = x + random.nextInt(5) - random.nextInt(5);</b>
+<b class="nc">&nbsp;				int yy = y + random.nextInt(5) - random.nextInt(5);</b>
+<b class="nc">&nbsp;				if (xx &gt;= 0 &amp;&amp; yy &gt;= 0 &amp;&amp; xx &lt; w &amp;&amp; yy &lt; h) {</b>
+<b class="nc">&nbsp;					if (map[xx + yy * w] == Tiles.get(&quot;grass&quot;).id) {</b>
+<b class="nc">&nbsp;						map[xx + yy * w] = Tiles.get(&quot;flower&quot;).id;</b>
+<b class="nc">&nbsp;						data[xx + yy * w] = (short) (col + random.nextInt(4) * 16); // Data determines which way the flower faces</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		for (int i = 0; i &lt; w * h / 100; i++) {</b>
+<b class="nc">&nbsp;			int xx = random.nextInt(w);</b>
+<b class="nc">&nbsp;			int yy = random.nextInt(h);</b>
+<b class="nc">&nbsp;			if (xx &lt; w &amp;&amp; yy &lt; h) {</b>
+<b class="nc">&nbsp;				if (map[xx + yy * w] == Tiles.get(&quot;sand&quot;).id) {</b>
+<b class="nc">&nbsp;					map[xx + yy * w] = Tiles.get(&quot;cactus&quot;).id;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		int count = 0;</b>
+&nbsp;
+&nbsp;		//if (Game.debug) System.out.println(&quot;Generating stairs for surface level...&quot;);
+&nbsp;
+&nbsp;		stairsLoop:
+<b class="nc">&nbsp;		for (int i = 0; i &lt; w * h / 100; i++) { // Loops a certain number of times, more for bigger world sizes.</b>
+<b class="nc">&nbsp;			int x = random.nextInt(w - 2) + 1;</b>
+<b class="nc">&nbsp;			int y = random.nextInt(h - 2) + 1;</b>
+&nbsp;
+&nbsp;			// The first loop, which checks to make sure that a new stairs tile will be completely surrounded by rock.
+<b class="nc">&nbsp;			for (int yy = y - 1; yy &lt;= y + 1; yy++)</b>
+<b class="nc">&nbsp;				for (int xx = x - 1; xx &lt;= x + 1; xx++)</b>
+<b class="nc">&nbsp;					if (map[xx + yy * w] != Tiles.get(&quot;rock&quot;).id)</b>
+<b class="nc">&nbsp;						continue stairsLoop;</b>
+&nbsp;
+&nbsp;			// This should prevent any stairsDown tile from being within 30 tiles of any other stairsDown tile.
+<b class="nc">&nbsp;			for (int yy = Math.max(0, y - stairRadius); yy &lt;= Math.min(h - 1, y + stairRadius); yy++)</b>
+<b class="nc">&nbsp;				for (int xx = Math.max(0, x - stairRadius); xx &lt;= Math.min(w - 1, x + stairRadius); xx++)</b>
+<b class="nc">&nbsp;					if (map[xx + yy * w] == Tiles.get(&quot;Stairs Down&quot;).id)</b>
+<b class="nc">&nbsp;						continue stairsLoop;</b>
+&nbsp;
+<b class="nc">&nbsp;			map[x + y * w] = Tiles.get(&quot;Stairs Down&quot;).id;</b>
+&nbsp;
+<b class="nc">&nbsp;			count++;</b>
+<b class="nc">&nbsp;			if (count &gt;= w / 21) break;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		//System.out.println(&quot;min=&quot;+min);
+&nbsp;		//System.out.println(&quot;max=&quot;+max);
+&nbsp;		//average /= w*h;
+&nbsp;		//System.out.println(average);
+&nbsp;
+<b class="nc">&nbsp;		return new short[][] { map, data };</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static short[][] createDungeon(int w, int h) {
+<b class="nc">&nbsp;		LevelGen noise1 = new LevelGen(w, h, 10);</b>
+<b class="nc">&nbsp;		LevelGen noise2 = new LevelGen(w, h, 10);</b>
+&nbsp;
+<b class="nc">&nbsp;		short[] map = new short[w * h];</b>
+<b class="nc">&nbsp;		short[] data = new short[w * h];</b>
+<b class="nc">&nbsp;		for (int y = 0; y &lt; h; y++) {</b>
+<b class="nc">&nbsp;			for (int x = 0; x &lt; w; x++) {</b>
+<b class="nc">&nbsp;				int i = x + y * w;</b>
+&nbsp;
+<b class="nc">&nbsp;				double val = Math.abs(noise1.values[i] - noise2.values[i]) * 3 - 2;</b>
+&nbsp;
+<b class="nc">&nbsp;				double xd = x / (w - 1.1) * 2 - 1;</b>
+<b class="nc">&nbsp;				double yd = y / (h - 1.1) * 2 - 1;</b>
+<b class="nc">&nbsp;				if (xd &lt; 0) xd = -xd;</b>
+<b class="nc">&nbsp;				if (yd &lt; 0) yd = -yd;</b>
+<b class="nc">&nbsp;				double dist = Math.max(xd, yd);</b>
+<b class="nc">&nbsp;				dist = dist * dist * dist * dist;</b>
+<b class="nc">&nbsp;				dist = dist * dist * dist * dist;</b>
+<b class="nc">&nbsp;				val = -val * 1 - 2.2;</b>
+<b class="nc">&nbsp;				val += 1 - dist * 2;</b>
+&nbsp;
+<b class="nc">&nbsp;				if (val &lt; -0.05) {</b>
+<b class="nc">&nbsp;					map[i] = Tiles.get(&quot;Obsidian Wall&quot;).id;</b>
+<b class="nc">&nbsp;				} else if (val &gt;= -0.05 &amp;&amp; val &lt; -0.03) {</b>
+<b class="nc">&nbsp;					map[i] = Tiles.get(&quot;Lava&quot;).id;</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					if (random.nextInt(2) == 1) {</b>
+<b class="nc">&nbsp;						if (random.nextInt(2) == 1) {</b>
+<b class="nc">&nbsp;							map[i] = Tiles.get(&quot;Obsidian&quot;).id;</b>
+&nbsp;						} else {
+<b class="nc">&nbsp;							map[i] = Tiles.get(&quot;Raw Obsidian&quot;).id;</b>
+&nbsp;						}
+&nbsp;					} else {
+<b class="nc">&nbsp;						map[i] = Tiles.get(&quot;dirt&quot;).id;</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		decorLoop:
+<b class="nc">&nbsp;		for (int i = 0; i &lt; w * h / 450; i++) {</b>
+<b class="nc">&nbsp;			int x = random.nextInt(w - 2) + 1;</b>
+<b class="nc">&nbsp;			int y = random.nextInt(h - 2) + 1;</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int yy = y - 1; yy &lt;= y + 1; yy++) {</b>
+<b class="nc">&nbsp;				for (int xx = x - 1; xx &lt;= x + 1; xx++) {</b>
+<b class="nc">&nbsp;					if (map[xx + yy * w] != Tiles.get(&quot;Obsidian&quot;).id)</b>
+<b class="nc">&nbsp;						continue decorLoop;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (x &gt; 8 &amp;&amp; y &gt; 8) {</b>
+<b class="nc">&nbsp;				if (x &lt; w - 8 &amp;&amp; y &lt; w - 8) {</b>
+<b class="nc">&nbsp;					if (random.nextInt(2) == 0)</b>
+<b class="nc">&nbsp;						Structure.ornateLavaPool.draw(map, x, y, w);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return new short[][] { map, data };</b>
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;	private static short[][] createUndergroundMap(int w, int h, int depth) {
+<b class="nc">&nbsp;		LevelGen mnoise1 = new LevelGen(w, h, 16);</b>
+<b class="nc">&nbsp;		LevelGen mnoise2 = new LevelGen(w, h, 16);</b>
+<b class="nc">&nbsp;		LevelGen mnoise3 = new LevelGen(w, h, 16);</b>
+&nbsp;
+<b class="nc">&nbsp;		LevelGen nnoise1 = new LevelGen(w, h, 16);</b>
+<b class="nc">&nbsp;		LevelGen nnoise2 = new LevelGen(w, h, 16);</b>
+<b class="nc">&nbsp;		LevelGen nnoise3 = new LevelGen(w, h, 16);</b>
+&nbsp;
+<b class="nc">&nbsp;		LevelGen wnoise1 = new LevelGen(w, h, 16);</b>
+<b class="nc">&nbsp;		LevelGen wnoise2 = new LevelGen(w, h, 16);</b>
+<b class="nc">&nbsp;		LevelGen wnoise3 = new LevelGen(w, h, 16);</b>
+&nbsp;
+<b class="nc">&nbsp;		LevelGen noise1 = new LevelGen(w, h, 32);</b>
+<b class="nc">&nbsp;		LevelGen noise2 = new LevelGen(w, h, 32);</b>
+&nbsp;
+<b class="nc">&nbsp;		short[] map = new short[w * h];</b>
+<b class="nc">&nbsp;		short[] data = new short[w * h];</b>
+<b class="nc">&nbsp;		for (int y = 0; y &lt; h; y++) {</b>
+<b class="nc">&nbsp;			for (int x = 0; x &lt; w; x++) {</b>
+<b class="nc">&nbsp;				int i = x + y * w;</b>
+&nbsp;
+&nbsp;				/// for the x=0 or y=0 i&#39;s, values[i] is always between -1 and 1.
+&nbsp;				/// so, val is between -2 and 4.
+&nbsp;				/// the rest are between -2 and 7.
+&nbsp;
+<b class="nc">&nbsp;				double val = Math.abs(noise1.values[i] - noise2.values[i]) * 3 - 2;</b>
+&nbsp;
+<b class="nc">&nbsp;				double mval = Math.abs(mnoise1.values[i] - mnoise2.values[i]);</b>
+<b class="nc">&nbsp;				mval = Math.abs(mval - mnoise3.values[i]) * 3 - 2;</b>
+&nbsp;
+<b class="nc">&nbsp;				double nval = Math.abs(nnoise1.values[i] - nnoise2.values[i]);</b>
+<b class="nc">&nbsp;				nval = Math.abs(nval - nnoise3.values[i]) * 3 - 2;</b>
+&nbsp;
+<b class="nc">&nbsp;				double wval = Math.abs(wnoise1.values[i] - wnoise2.values[i]);</b>
+<b class="nc">&nbsp;				wval = Math.abs(wval - wnoise3.values[i]) * 3 - 2;</b>
+&nbsp;
+<b class="nc">&nbsp;				double xd = x / (w - 1.0) * 2 - 1;</b>
+<b class="nc">&nbsp;				double yd = y / (h - 1.0) * 2 - 1;</b>
+<b class="nc">&nbsp;				if (xd &lt; 0) xd = -xd;</b>
+<b class="nc">&nbsp;				if (yd &lt; 0) yd = -yd;</b>
+<b class="nc">&nbsp;				double dist = Math.max(xd, yd);</b>
+<b class="nc">&nbsp;				dist = Math.pow(dist, 8);</b>
+<b class="nc">&nbsp;				val += 1 - dist * 20;</b>
+&nbsp;
+<b class="nc">&nbsp;				if (val &gt; -1 &amp;&amp; wval &lt; -1 + (depth) / 2.0 * 3) {</b>
+<b class="nc">&nbsp;					if (depth == 3) map[i] = Tiles.get(&quot;lava&quot;).id;</b>
+<b class="nc">&nbsp;					else if (depth == 1) map[i] = Tiles.get(&quot;dirt&quot;).id;</b>
+<b class="nc">&nbsp;					else map[i] = Tiles.get(&quot;water&quot;).id;</b>
+&nbsp;
+<b class="nc">&nbsp;				} else if (val &gt; -2 &amp;&amp; (mval &lt; -1.7 || nval &lt; -1.4)) {</b>
+<b class="nc">&nbsp;					map[i] = Tiles.get(&quot;dirt&quot;).id;</b>
+&nbsp;
+&nbsp;				} else {
+<b class="nc">&nbsp;					map[i] = Tiles.get(&quot;rock&quot;).id;</b>
+&nbsp;
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;		{
+<b class="nc">&nbsp;			int r = 2;</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h / 400; i++) {</b>
+<b class="nc">&nbsp;				int x = random.nextInt(w);</b>
+<b class="nc">&nbsp;				int y = random.nextInt(h);</b>
+<b class="nc">&nbsp;				for (int j = 0; j &lt; 30; j++) {</b>
+<b class="nc">&nbsp;					int xx = x + random.nextInt(5) - random.nextInt(5);</b>
+<b class="nc">&nbsp;					int yy = y + random.nextInt(5) - random.nextInt(5);</b>
+<b class="nc">&nbsp;					if (xx &gt;= r &amp;&amp; yy &gt;= r &amp;&amp; xx &lt; w - r &amp;&amp; yy &lt; h - r) {</b>
+<b class="nc">&nbsp;						if (map[xx + yy * w] == Tiles.get(&quot;rock&quot;).id) {</b>
+<b class="nc">&nbsp;							map[xx + yy * w] = (short) ((Tiles.get(&quot;iron Ore&quot;).id &amp; 0xffff) + depth - 1);</b>
+&nbsp;						}
+&nbsp;					}
+&nbsp;				}
+<b class="nc">&nbsp;				for (int j = 0; j &lt; 10; j++) {</b>
+<b class="nc">&nbsp;					int xx = x + random.nextInt(3) - random.nextInt(2);</b>
+<b class="nc">&nbsp;					int yy = y + random.nextInt(3) - random.nextInt(2);</b>
+<b class="nc">&nbsp;					if (xx &gt;= r &amp;&amp; yy &gt;= r &amp;&amp; xx &lt; w - r &amp;&amp; yy &lt; h - r) {</b>
+<b class="nc">&nbsp;						if (map[xx + yy * w] == Tiles.get(&quot;rock&quot;).id) {</b>
+<b class="nc">&nbsp;							map[xx + yy * w] = (short) (Tiles.get(&quot;Lapis&quot;).id &amp; 0xffff);</b>
+&nbsp;						}
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (depth &gt; 2) { // The level above dungeon.</b>
+<b class="nc">&nbsp;			int r = 1;</b>
+<b class="nc">&nbsp;			int xm = w / 2;</b>
+<b class="nc">&nbsp;			int ym = h / 2;</b>
+<b class="nc">&nbsp;			int side = 6; // The side of the lock is 5, and pluses margin with 1.</b>
+<b class="nc">&nbsp;			int edgeMargin = w / 20; // The distance between the world enge and the lock sides.</b>
+<b class="nc">&nbsp;			Rectangle lockRect = new Rectangle(0, 0, side, side, 0);</b>
+<b class="nc">&nbsp;			Rectangle bossRoomRect = new Rectangle(xm, ym, 20, 20, Rectangle.CENTER_DIMS);</b>
+&nbsp;			do { // Trying to generate a lock not intersecting to the boss room in the dungeon.
+<b class="nc">&nbsp;				int xx = random.nextInt(w);</b>
+<b class="nc">&nbsp;				int yy = random.nextInt(h);</b>
+<b class="nc">&nbsp;				lockRect.setPosition(xx, yy, RelPos.CENTER);</b>
+<b class="nc">&nbsp;				if (lockRect.getTop() &gt; edgeMargin &amp;&amp; lockRect.getLeft() &gt; edgeMargin &amp;&amp;</b>
+<b class="nc">&nbsp;					lockRect.getRight() &lt; w - edgeMargin &amp;&amp; lockRect.getBottom() &lt; h - edgeMargin &amp;&amp;</b>
+<b class="nc">&nbsp;					!lockRect.intersects(bossRoomRect)) {</b>
+&nbsp;
+<b class="nc">&nbsp;					Structure.dungeonLock.draw(map, xx, yy, w);</b>
+&nbsp;
+&nbsp;					/// The &quot;&amp; 0xffff&quot; is a common way to convert a short to an unsigned int, which basically prevents negative values... except... this doesn&#39;t do anything if you flip it back to a short again...
+<b class="nc">&nbsp;					map[xx + yy * w] = (short) (Tiles.get(&quot;Stairs Down&quot;).id &amp; 0xffff);</b>
+<b class="nc">&nbsp;					break; // The generation is successful.</b>
+&nbsp;				}
+<b class="nc">&nbsp;			} while (true);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (depth &lt; 3) {</b>
+<b class="nc">&nbsp;			int count = 0;</b>
+&nbsp;			stairsLoop:
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h / 100; i++) {</b>
+<b class="nc">&nbsp;				int x = random.nextInt(w - 20) + 10;</b>
+<b class="nc">&nbsp;				int y = random.nextInt(h - 20) + 10;</b>
+&nbsp;
+<b class="nc">&nbsp;				for (int yy = y - 1; yy &lt;= y + 1; yy++)</b>
+<b class="nc">&nbsp;					for (int xx = x - 1; xx &lt;= x + 1; xx++)</b>
+<b class="nc">&nbsp;						if (map[xx + yy * w] != Tiles.get(&quot;rock&quot;).id) continue stairsLoop;</b>
+&nbsp;
+&nbsp;				// This should prevent any stairsDown tile from being within 30 tiles of any other stairsDown tile.
+<b class="nc">&nbsp;				for (int yy = Math.max(0, y - stairRadius); yy &lt;= Math.min(h - 1, y + stairRadius); yy++)</b>
+<b class="nc">&nbsp;					for (int xx = Math.max(0, x - stairRadius); xx &lt;= Math.min(w - 1, x + stairRadius); xx++)</b>
+<b class="nc">&nbsp;						if (map[xx + yy * w] == Tiles.get(&quot;Stairs Down&quot;).id) continue stairsLoop;</b>
+&nbsp;
+<b class="nc">&nbsp;				map[x + y * w] = Tiles.get(&quot;Stairs Down&quot;).id;</b>
+<b class="nc">&nbsp;				count++;</b>
+<b class="nc">&nbsp;				if (count &gt;= w / 32) break;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return new short[][] { map, data };</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static short[][] createSkyMap(int w, int h) {
+<b class="nc">&nbsp;		LevelGen noise1 = new LevelGen(w, h, 8);</b>
+<b class="nc">&nbsp;		LevelGen noise2 = new LevelGen(w, h, 8);</b>
+&nbsp;
+<b class="nc">&nbsp;		short[] map = new short[w * h];</b>
+<b class="nc">&nbsp;		short[] data = new short[w * h];</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int y = 0; y &lt; h; y++) {</b>
+<b class="nc">&nbsp;			for (int x = 0; x &lt; w; x++) {</b>
+<b class="nc">&nbsp;				int i = x + y * w;</b>
+&nbsp;
+<b class="nc">&nbsp;				double val = Math.abs(noise1.values[i] - noise2.values[i]) * 3 - 2;</b>
+&nbsp;
+<b class="nc">&nbsp;				double xd = x / (w - 1.0) * 2 - 1;</b>
+<b class="nc">&nbsp;				double yd = y / (h - 1.0) * 2 - 1;</b>
+<b class="nc">&nbsp;				if (xd &lt; 0) xd = -xd;</b>
+<b class="nc">&nbsp;				if (yd &lt; 0) yd = -yd;</b>
+<b class="nc">&nbsp;				double dist = Math.max(xd, yd);</b>
+<b class="nc">&nbsp;				dist = dist * dist * dist * dist;</b>
+<b class="nc">&nbsp;				dist = dist * dist * dist * dist;</b>
+<b class="nc">&nbsp;				val = -val * 1 - 2.2;</b>
+<b class="nc">&nbsp;				val += 1 - dist * 20;</b>
+&nbsp;
+<b class="nc">&nbsp;				if (val &lt; -0.25) {</b>
+<b class="nc">&nbsp;					map[i] = Tiles.get(&quot;Infinite Fall&quot;).id;</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					map[i] = Tiles.get(&quot;cloud&quot;).id;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		stairsLoop:
+<b class="nc">&nbsp;		for (int i = 0; i &lt; w * h / 50; i++) {</b>
+<b class="nc">&nbsp;			int x = random.nextInt(w - 2) + 1;</b>
+<b class="nc">&nbsp;			int y = random.nextInt(h - 2) + 1;</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int yy = y - 1; yy &lt;= y + 1; yy++) {</b>
+<b class="nc">&nbsp;				for (int xx = x - 1; xx &lt;= x + 1; xx++) {</b>
+<b class="nc">&nbsp;					if (map[xx + yy * w] == Tiles.get(&quot;Infinite Fall&quot;).id) continue stairsLoop;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			map[x + y * w] = Tiles.get(&quot;Cloud Cactus&quot;).id;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		int count = 0;</b>
+&nbsp;		stairsLoop:
+<b class="nc">&nbsp;		for (int i = 0; i &lt; w * h; i++) {</b>
+<b class="nc">&nbsp;			int x = random.nextInt(w - 2) + 1;</b>
+<b class="nc">&nbsp;			int y = random.nextInt(h - 2) + 1;</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int yy = y - 1; yy &lt;= y + 1; yy++) {</b>
+<b class="nc">&nbsp;				for (int xx = x - 1; xx &lt;= x + 1; xx++) {</b>
+<b class="nc">&nbsp;					if (map[xx + yy * w] != Tiles.get(&quot;cloud&quot;).id) continue stairsLoop;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+&nbsp;			// This should prevent any stairsDown tile from being within 30 tiles of any other stairsDown tile.
+<b class="nc">&nbsp;			for (int yy = Math.max(0, y - stairRadius); yy &lt;= Math.min(h - 1, y + stairRadius); yy++)</b>
+<b class="nc">&nbsp;				for (int xx = Math.max(0, x - stairRadius); xx &lt;= Math.min(w - 1, x + stairRadius); xx++)</b>
+<b class="nc">&nbsp;					if (map[xx + yy * w] == Tiles.get(&quot;Stairs Down&quot;).id) continue stairsLoop;</b>
+&nbsp;
+<b class="nc">&nbsp;			map[x + y * w] = Tiles.get(&quot;Stairs Down&quot;).id;</b>
+<b class="nc">&nbsp;			count++;</b>
+<b class="nc">&nbsp;			if (count &gt;= w / 64) break;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return new short[][] { map, data };</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static void main(String[] args) {
+<b class="nc">&nbsp;		LevelGen.worldSeed = 0x100;</b>
+&nbsp;
+&nbsp;		// Fixes to get this method to work
+&nbsp;
+&nbsp;		// AirWizard needs this in constructor
+<b class="nc">&nbsp;		Game.gameDir = &quot;&quot;;</b>
+&nbsp;
+<b class="nc">&nbsp;		Tiles.initTileList();</b>
+&nbsp;		// End of fixes
+&nbsp;
+<b class="nc">&nbsp;		int idx = -2;</b>
+&nbsp;
+<b class="nc">&nbsp;		int[] maplvls = new int[args.length];</b>
+<b class="nc">&nbsp;		boolean valid = true;</b>
+<b class="nc">&nbsp;		if (maplvls.length &gt; 0) {</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; args.length; i++) {</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					int lvlnum = Integer.parseInt(args[i]);</b>
+<b class="nc">&nbsp;					maplvls[i] = lvlnum;</b>
+<b class="nc">&nbsp;				} catch (Exception ex) {</b>
+<b class="nc">&nbsp;					valid = false;</b>
+<b class="nc">&nbsp;					break;</b>
+<b class="nc">&nbsp;				}</b>
+&nbsp;			}
+<b class="nc">&nbsp;		} else valid = false;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (!valid) {</b>
+<b class="nc">&nbsp;			maplvls = new int[1];</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		//noinspection InfiniteLoopStatement
+&nbsp;		while (true) {
+<b class="nc">&nbsp;			int w = 128;</b>
+<b class="nc">&nbsp;			int h = 128;</b>
+&nbsp;
+&nbsp;			//noinspection ConstantConditions
+<b class="nc">&nbsp;			int lvl = maplvls[idx++ % maplvls.length];</b>
+<b class="nc">&nbsp;			if (lvl &gt; 1 || lvl &lt; -4) continue;</b>
+&nbsp;
+<b class="nc">&nbsp;			short[][] fullmap = LevelGen.createAndValidateMap(w, h, lvl, LevelGen.worldSeed);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (fullmap == null) continue;</b>
+<b class="nc">&nbsp;			short[] map = fullmap[0];</b>
+&nbsp;
+<b class="nc">&nbsp;			BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);</b>
+<b class="nc">&nbsp;			int[] pixels = new int[w * h];</b>
+<b class="nc">&nbsp;			for (int y = 0; y &lt; h; y++) {</b>
+<b class="nc">&nbsp;				for (int x = 0; x &lt; w; x++) {</b>
+<b class="nc">&nbsp;					int i = x + y * w;</b>
+&nbsp;
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;water&quot;).id) pixels[i] = 0x000080;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;iron Ore&quot;).id) pixels[i] = 0x000080;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;gold Ore&quot;).id) pixels[i] = 0x000080;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;gem Ore&quot;).id) pixels[i] = 0x000080;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;grass&quot;).id) pixels[i] = 0x208020;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;rock&quot;).id) pixels[i] = 0xa0a0a0;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;dirt&quot;).id) pixels[i] = 0x604040;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;sand&quot;).id) pixels[i] = 0xa0a040;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;Stone Bricks&quot;).id) pixels[i] = 0xa0a040;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;tree&quot;).id) pixels[i] = 0x003000;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;Obsidian Wall&quot;).id) pixels[i] = 0x0aa0a0;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;Obsidian&quot;).id) pixels[i] = 0x000000;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;lava&quot;).id) pixels[i] = 0xffff2020;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;cloud&quot;).id) pixels[i] = 0xa0a0a0;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;Stairs Down&quot;).id) pixels[i] = 0xffffffff;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;Stairs Up&quot;).id) pixels[i] = 0xffffffff;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;Cloud Cactus&quot;).id) pixels[i] = 0xffff00ff;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;Ornate Obsidian&quot;).id) pixels[i] = 0x000f0a;</b>
+<b class="nc">&nbsp;					if (map[i] == Tiles.get(&quot;Raw Obsidian&quot;).id) pixels[i] = 0x0a0080;</b>
+&nbsp;				}
+&nbsp;			}
+<b class="nc">&nbsp;			img.setRGB(0, 0, w, h, pixels, 0, w);</b>
+<b class="nc">&nbsp;			int op = JOptionPane.showOptionDialog(null, null, &quot;Map With Seed &quot; + worldSeed, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,</b>
+<b class="nc">&nbsp;				new ImageIcon(img.getScaledInstance(w * 4, h * 4, Image.SCALE_AREA_AVERAGING)), new String[] { &quot;Next&quot;, &quot;0x100&quot;, &quot;0xAAFF20&quot; }, &quot;Next&quot;);</b>
+<b class="nc">&nbsp;			if (op == 1) LevelGen.worldSeed = 0x100;</b>
+<b class="nc">&nbsp;			else if (op == 2) LevelGen.worldSeed = 0xAAFF20;</b>
+<b class="nc">&nbsp;			else LevelGen.worldSeed++;</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,890 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Menu</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen</a>
+</div>
+
+<h1>Coverage Summary for Class: Menu (minicraft.screen)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Menu</td>
+<td class="coverageStat">
+  <span class="percent">
+    25.9%
+  </span>
+  <span class="absValue">
+    (7/27)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    30.3%
+  </span>
+  <span class="absValue">
+    (71/234)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Menu$1</td>
+  </tr>
+  <tr>
+    <td class="name">Menu$Builder</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (12/24)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    59.7%
+  </span>
+  <span class="absValue">
+    (92/154)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    37.3%
+  </span>
+  <span class="absValue">
+    (19/51)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    42%
+  </span>
+  <span class="absValue">
+    (163/388)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen;
+&nbsp;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.core.io.Sound;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Dimension;
+&nbsp;import minicraft.gfx.Font;
+&nbsp;import minicraft.gfx.Insets;
+&nbsp;import minicraft.gfx.MinicraftImage;
+&nbsp;import minicraft.gfx.Point;
+&nbsp;import minicraft.gfx.Rectangle;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.screen.entry.BlankEntry;
+&nbsp;import minicraft.screen.entry.ListEntry;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.Iterator;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Locale;
+&nbsp;
+<b class="fc">&nbsp;public class Menu {</b>
+&nbsp;
+&nbsp;	private static final int LIMIT_TYPING_SEARCHER = 22;
+&nbsp;
+<b class="fc">&nbsp;	@NotNull</b>
+&nbsp;	private final ArrayList&lt;ListEntry&gt; entries = new ArrayList&lt;&gt;();
+&nbsp;
+<b class="fc">&nbsp;	private int spacing = 0;</b>
+<b class="fc">&nbsp;	private Rectangle bounds = null;</b>
+<b class="fc">&nbsp;	private Rectangle entryBounds = null;</b>
+<b class="fc">&nbsp;	private RelPos entryPos = RelPos.CENTER; // the x part of this is re-applied per entry, while the y part is calculated once using the cumulative height of all entries and spacing.</b>
+&nbsp;
+<b class="fc">&nbsp;	private String title = &quot;&quot;;</b>
+&nbsp;	private int titleColor;
+<b class="fc">&nbsp;	private Point titleLoc = null; // standard point is anchor, with anchor.x + SpriteSheet.boxWidth</b>
+<b class="fc">&nbsp;	private boolean drawVertically = false;</b>
+&nbsp;
+&nbsp;	private boolean hasFrame;
+&nbsp;
+<b class="fc">&nbsp;	private boolean selectable = false;</b>
+<b class="fc">&nbsp;	boolean shouldRender = true;</b>
+&nbsp;
+<b class="fc">&nbsp;	private int displayLength = 0;</b>
+<b class="fc">&nbsp;	private int padding = 0;</b>
+<b class="fc">&nbsp;	private boolean wrap = false;</b>
+&nbsp;
+&nbsp;	// menu selection vars
+<b class="fc">&nbsp;	private int selection = 0;</b>
+<b class="fc">&nbsp;	private int dispSelection = 0;</b>
+<b class="fc">&nbsp;	private int offset = 0;</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * If there&#39;s searcher bar in menu
+&nbsp;	 */
+<b class="fc">&nbsp;	private boolean useSearcherBar = false;</b>
+<b class="fc">&nbsp;	private boolean searcherBarActive = false;</b>
+&nbsp;	private List&lt;Integer&gt; listSearcher;
+&nbsp;	private int listPositionSearcher;
+&nbsp;	private int selectionSearcher;
+&nbsp;	/**
+&nbsp;	 * The actual typed word in searcher bar
+&nbsp;	 */
+&nbsp;	private String typingSearcher;
+&nbsp;
+<b class="fc">&nbsp;	private LinkedSprite hudSheet = new LinkedSprite(SpriteType.Gui, &quot;hud&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;	private Menu() {</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+<b class="fc">&nbsp;	protected Menu(Menu m) {</b>
+<b class="fc">&nbsp;		entries.addAll(m.entries);</b>
+<b class="fc">&nbsp;		spacing = m.spacing;</b>
+<b class="fc">&nbsp;		bounds = m.bounds == null ? null : new Rectangle(m.bounds);</b>
+<b class="fc">&nbsp;		entryBounds = m.entryBounds == null ? null : new Rectangle(m.entryBounds);</b>
+<b class="fc">&nbsp;		entryPos = m.entryPos;</b>
+<b class="fc">&nbsp;		title = m.title;</b>
+<b class="fc">&nbsp;		titleColor = m.titleColor;</b>
+<b class="fc">&nbsp;		titleLoc = m.titleLoc;</b>
+<b class="fc">&nbsp;		drawVertically = m.drawVertically;</b>
+<b class="fc">&nbsp;		hasFrame = m.hasFrame;</b>
+<b class="fc">&nbsp;		selectable = m.selectable;</b>
+<b class="fc">&nbsp;		shouldRender = m.shouldRender;</b>
+<b class="fc">&nbsp;		displayLength = m.displayLength;</b>
+<b class="fc">&nbsp;		padding = m.padding;</b>
+<b class="fc">&nbsp;		wrap = m.wrap;</b>
+<b class="fc">&nbsp;		selection = m.selection;</b>
+<b class="fc">&nbsp;		dispSelection = m.dispSelection;</b>
+<b class="fc">&nbsp;		offset = m.offset;</b>
+&nbsp;
+<b class="fc">&nbsp;		useSearcherBar = m.useSearcherBar;</b>
+<b class="fc">&nbsp;		selectionSearcher = 0;</b>
+<b class="fc">&nbsp;		listSearcher = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;		listPositionSearcher = 0;</b>
+<b class="fc">&nbsp;		typingSearcher = &quot;&quot;;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void init() {
+&nbsp;
+<b class="fc">&nbsp;		if (entries.size() == 0) {</b>
+<b class="nc">&nbsp;			selection = 0;</b>
+<b class="nc">&nbsp;			dispSelection = 0;</b>
+<b class="nc">&nbsp;			offset = 0;</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		selection = Math.min(selection, entries.size() - 1);</b>
+<b class="fc">&nbsp;		selection = Math.max(0, selection);</b>
+&nbsp;
+<b class="fc">&nbsp;		if (!entries.get(selection).isSelectable()) {</b>
+<b class="fc">&nbsp;			int prevSel = selection;</b>
+&nbsp;			do {
+<b class="fc">&nbsp;				selection++;</b>
+<b class="fc">&nbsp;				if (selection &lt; 0) selection = entries.size() - 1;</b>
+<b class="fc">&nbsp;				selection = selection % entries.size();</b>
+<b class="fc">&nbsp;			} while (!entries.get(selection).isSelectable() &amp;&amp; selection != prevSel);</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		dispSelection = selection;</b>
+<b class="fc">&nbsp;		dispSelection = Math.min(dispSelection, displayLength - 1);</b>
+<b class="fc">&nbsp;		dispSelection = Math.max(0, dispSelection);</b>
+&nbsp;
+<b class="fc">&nbsp;		doScroll();</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	void setSelection(int idx) {
+<b class="nc">&nbsp;		if (idx &gt;= entries.size())</b>
+<b class="nc">&nbsp;			idx = entries.size() - 1;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (idx &lt; 0) idx = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;		this.selection = idx;</b>
+&nbsp;
+<b class="nc">&nbsp;		doScroll();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	int getSelection() {
+<b class="nc">&nbsp;		return selection;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	int getDispSelection() {
+<b class="nc">&nbsp;		return dispSelection;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	ListEntry[] getEntries() {
+<b class="nc">&nbsp;		return entries.toArray(new ListEntry[0]);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	protected void setEntries(ListEntry[] entries) {
+<b class="nc">&nbsp;		this.entries.clear();</b>
+<b class="nc">&nbsp;		this.entries.addAll(0, Arrays.asList(entries));</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	protected void setEntries(List&lt;ListEntry&gt; entries) {
+<b class="nc">&nbsp;		this.entries.clear();</b>
+<b class="nc">&nbsp;		this.entries.addAll(entries);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Nullable ListEntry getCurEntry() {
+<b class="nc">&nbsp;		return entries.size() == 0 ? null : entries.get(selection);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	int getNumOptions() {
+<b class="nc">&nbsp;		return entries.size();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	Rectangle getBounds() {
+<b class="fc">&nbsp;		return new Rectangle(bounds);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	String getTitle() {
+<b class="nc">&nbsp;		return title;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	boolean isSelectable() {
+<b class="fc">&nbsp;		return selectable;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	boolean shouldRender() {
+<b class="nc">&nbsp;		return shouldRender;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean isSearcherBarActive() {
+<b class="nc">&nbsp;		return searcherBarActive;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * @noinspection SameParameterValue
+&nbsp;	 */
+&nbsp;	void translate(int xoff, int yoff) {
+<b class="nc">&nbsp;		bounds.translate(xoff, yoff);</b>
+<b class="nc">&nbsp;		entryBounds.translate(xoff, yoff);</b>
+<b class="nc">&nbsp;		titleLoc.translate(xoff, yoff);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void tick(InputHandler input) {
+<b class="nc">&nbsp;		if (!selectable || entries.size() == 0) return;</b>
+&nbsp;
+<b class="nc">&nbsp;		int prevSel = selection;</b>
+<b class="nc">&nbsp;		if (input.inputPressed(&quot;cursor-up&quot;)) selection--;</b>
+<b class="nc">&nbsp;		if (input.inputPressed(&quot;cursor-down&quot;)) selection++;</b>
+<b class="nc">&nbsp;		if (input.getMappedKey(&quot;shift+cursor-up&quot;).isClicked() &amp;&amp; selectionSearcher == 0) selectionSearcher -= 2;</b>
+<b class="nc">&nbsp;		if (input.getMappedKey(&quot;shift+cursor-down&quot;).isClicked() &amp;&amp; selectionSearcher == 0) selectionSearcher += 2;</b>
+<b class="nc">&nbsp;		if (prevSel != selection &amp;&amp; selectionSearcher != 0) selection = prevSel;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (useSearcherBar) {</b>
+<b class="nc">&nbsp;			if (input.getMappedKey(&quot;searcher-bar&quot;).isClicked()) {</b>
+<b class="nc">&nbsp;				searcherBarActive = !searcherBarActive;</b>
+<b class="nc">&nbsp;				input.addKeyTyped(&quot;&quot;, null); // clear pressed key</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (!listSearcher.isEmpty() &amp;&amp; selectionSearcher == 0) {</b>
+<b class="nc">&nbsp;				int speed = input.getMappedKey(&quot;PAGE-UP&quot;).isClicked() ? -1 : input.getMappedKey(&quot;PAGE-DOWN&quot;).isClicked() ? 1 : 0;</b>
+<b class="nc">&nbsp;				if (speed != 0) {</b>
+<b class="nc">&nbsp;					int listPosition = listPositionSearcher + speed;</b>
+<b class="nc">&nbsp;					if (listPosition &lt; 0) {</b>
+<b class="nc">&nbsp;						listPosition = listSearcher.size() - 1;</b>
+&nbsp;					}
+<b class="nc">&nbsp;					listPositionSearcher = listPosition % listSearcher.size();</b>
+<b class="nc">&nbsp;					int position = listSearcher.get(listPositionSearcher);</b>
+&nbsp;
+<b class="nc">&nbsp;					int difference = position - selection;</b>
+<b class="nc">&nbsp;					selectionSearcher = difference &gt; position ? -difference : difference;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (searcherBarActive) {</b>
+<b class="nc">&nbsp;				String typingSearcher = input.addKeyTyped(this.typingSearcher, null);</b>
+<b class="nc">&nbsp;				input.maskInput(k -&gt; !k.equals(&quot;ENTER&quot;));</b>
+&nbsp;
+&nbsp;				// check if word was updated
+<b class="nc">&nbsp;				if (typingSearcher.length() &lt;= Menu.LIMIT_TYPING_SEARCHER &amp;&amp; typingSearcher.length() != this.typingSearcher.length()) {</b>
+<b class="nc">&nbsp;					this.typingSearcher = typingSearcher;</b>
+<b class="nc">&nbsp;					listSearcher.clear();</b>
+<b class="nc">&nbsp;					listPositionSearcher = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;					Iterator&lt;ListEntry&gt; entryIt = entries.iterator();</b>
+<b class="nc">&nbsp;					boolean shouldSelect = true;</b>
+<b class="nc">&nbsp;					for (int i = 0; entryIt.hasNext(); i++) {</b>
+<b class="nc">&nbsp;						ListEntry entry = entryIt.next();</b>
+&nbsp;
+<b class="nc">&nbsp;						String stringEntry = entry.toString().toLowerCase(Locale.ENGLISH);</b>
+<b class="nc">&nbsp;						String typingString = typingSearcher.toLowerCase(Locale.ENGLISH);</b>
+&nbsp;
+<b class="nc">&nbsp;						if (stringEntry.contains(typingString)) {</b>
+<b class="nc">&nbsp;							if (shouldSelect) {</b>
+<b class="nc">&nbsp;								int difference = i - selection;</b>
+<b class="nc">&nbsp;								selectionSearcher = difference &gt; i ? -difference : difference;</b>
+&nbsp;
+<b class="nc">&nbsp;								shouldSelect = false;</b>
+&nbsp;							}
+&nbsp;
+<b class="nc">&nbsp;							listSearcher.add(i);</b>
+&nbsp;						}
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (selectionSearcher != 0) {</b>
+<b class="nc">&nbsp;				boolean downDirection = selectionSearcher &gt; 0;</b>
+<b class="nc">&nbsp;				selectionSearcher += downDirection ? -1 : 1;</b>
+<b class="nc">&nbsp;				selection += downDirection ? 1 : -1;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		int delta = selection - prevSel;</b>
+<b class="nc">&nbsp;		selection = prevSel;</b>
+<b class="nc">&nbsp;		if (delta == 0) {</b>
+<b class="nc">&nbsp;			entries.get(selection).tick(input); // only ticks the entry on a frame where the selection cursor has not moved.</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		} else
+<b class="nc">&nbsp;			Sound.play(&quot;select&quot;);</b>
+&nbsp;
+&nbsp;		do {
+<b class="nc">&nbsp;			selection += delta;</b>
+<b class="nc">&nbsp;			if (selection &lt; 0) selection = entries.size() - 1;</b>
+<b class="nc">&nbsp;			selection = selection % entries.size();</b>
+<b class="nc">&nbsp;		} while (!entries.get(selection).isSelectable() &amp;&amp; selection != prevSel);</b>
+&nbsp;
+&nbsp;		// update offset and selection displayed
+<b class="nc">&nbsp;		dispSelection += selection - prevSel;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (dispSelection &lt; 0) dispSelection = 0;</b>
+<b class="nc">&nbsp;		if (dispSelection &gt;= displayLength) dispSelection = displayLength - 1;</b>
+&nbsp;
+<b class="nc">&nbsp;		doScroll();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void doScroll() {
+&nbsp;		// check if dispSelection is past padding point, and if so, bring it back in
+&nbsp;
+<b class="fc">&nbsp;		dispSelection = selection - offset;</b>
+<b class="fc">&nbsp;		int offset = this.offset;</b>
+&nbsp;
+&nbsp;		// for scrolling up
+<b class="fc">&nbsp;		while ((dispSelection &lt; padding || !wrap &amp;&amp; offset + displayLength &gt; entries.size()) &amp;&amp; (wrap || offset &gt; 0)) {</b>
+<b class="nc">&nbsp;			offset--;</b>
+<b class="nc">&nbsp;			dispSelection++;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// for scrolling down
+<b class="fc">&nbsp;		while ((displayLength - dispSelection &lt;= padding || !wrap &amp;&amp; offset &lt; 0) &amp;&amp; (wrap || offset + displayLength &lt; entries.size())) {</b>
+<b class="nc">&nbsp;			offset++;</b>
+<b class="nc">&nbsp;			dispSelection--;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// only useful when wrap is true
+<b class="fc">&nbsp;		if (offset &lt; 0) offset += entries.size();</b>
+<b class="fc">&nbsp;		if (offset &gt; 0) offset = offset % entries.size();</b>
+&nbsp;
+<b class="fc">&nbsp;		this.offset = offset;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void render(Screen screen) {
+<b class="nc">&nbsp;		renderFrame(screen);</b>
+&nbsp;
+&nbsp;		// render the title
+<b class="nc">&nbsp;		if (title.length() &gt; 0) {</b>
+<b class="nc">&nbsp;			if (drawVertically) {</b>
+<b class="nc">&nbsp;				for (int i = 0; i &lt; title.length(); i++) {</b>
+<b class="nc">&nbsp;					if (hasFrame)</b>
+<b class="nc">&nbsp;						screen.render(titleLoc.x, titleLoc.y + i * Font.textHeight(), 3, 6, 0, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;					Font.draw(title.substring(i, i + 1), screen, titleLoc.x, titleLoc.y + i * Font.textHeight(), titleColor);</b>
+&nbsp;				}
+&nbsp;			} else {
+<b class="nc">&nbsp;				for (int i = 0; i &lt; title.length(); i++) {</b>
+<b class="nc">&nbsp;					if (hasFrame)</b>
+<b class="nc">&nbsp;						screen.render(titleLoc.x + i * Font.textWidth(&quot; &quot;), titleLoc.y, 3, 6, 0, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;					Font.draw(title.substring(i, i + 1), screen, titleLoc.x + i * Font.textWidth(&quot; &quot;), titleLoc.y, titleColor);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		// render searcher bar
+<b class="nc">&nbsp;		if (searcherBarActive &amp;&amp; useSearcherBar) {</b>
+<b class="nc">&nbsp;			int spaceWidth = Font.textWidth(&quot; &quot;);</b>
+<b class="nc">&nbsp;			int leading = typingSearcher.length() * spaceWidth / 2;</b>
+&nbsp;			// int xSearcherBar = titleLoc.x + title.length() * spaceWidth / 3 - title.length() / 2;
+<b class="nc">&nbsp;			int xSearcherBar = titleLoc.x + title.length() * 8 / 2 - 16;</b>
+&nbsp;
+<b class="nc">&nbsp;			if (xSearcherBar - leading &lt; 0) {</b>
+<b class="nc">&nbsp;				leading += xSearcherBar - leading;</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			for (int i = 0; i &lt; typingSearcher.length() + 4; i++) {</b>
+<b class="nc">&nbsp;				if (hasFrame) {</b>
+<b class="nc">&nbsp;					screen.render(xSearcherBar + spaceWidth * i - leading, titleLoc.y - 8, 3, 6, 0, hudSheet.getSheet());</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				Font.draw(&quot;&gt; &quot; + typingSearcher + &quot; &lt;&quot;, screen, xSearcherBar - leading, titleLoc.y - 8, typingSearcher.length() &lt; Menu.LIMIT_TYPING_SEARCHER ? Color.YELLOW : Color.RED);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		// render the options
+<b class="nc">&nbsp;		int y = entryBounds.getTop();</b>
+<b class="nc">&nbsp;		boolean special = wrap &amp;&amp; entries.size() &lt; displayLength;</b>
+<b class="nc">&nbsp;		if (special) {</b>
+<b class="nc">&nbsp;			int diff = displayLength - entries.size(); // we have to account for this many entry heights.</b>
+<b class="nc">&nbsp;			int extra = diff * (ListEntry.getHeight() + spacing) / 2;</b>
+<b class="nc">&nbsp;			y += extra;</b>
+&nbsp;		}
+<b class="nc">&nbsp;		for (int i = offset; i &lt; (wrap ? offset + displayLength : Math.min(offset + displayLength, entries.size())); i++) {</b>
+<b class="nc">&nbsp;			if (special &amp;&amp; i - offset &gt;= entries.size()) break;</b>
+&nbsp;
+<b class="nc">&nbsp;			int idx = i % entries.size();</b>
+<b class="nc">&nbsp;			ListEntry entry = entries.get(idx);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (!(entry instanceof BlankEntry)) {</b>
+<b class="nc">&nbsp;				Point pos = entryPos.positionRect(new Dimension(entry.getWidth(), ListEntry.getHeight()), new Rectangle(entryBounds.getLeft(), y, entryBounds.getWidth(), ListEntry.getHeight(), Rectangle.CORNER_DIMS));</b>
+<b class="nc">&nbsp;				boolean selected = idx == selection;</b>
+<b class="nc">&nbsp;				if (searcherBarActive &amp;&amp; useSearcherBar) {</b>
+<b class="nc">&nbsp;					entry.render(screen, pos.x, pos.y, selected, typingSearcher, Color.YELLOW);</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					entry.render(screen, pos.x, pos.y, selected);</b>
+&nbsp;				}
+<b class="nc">&nbsp;				if (selected &amp;&amp; entry.isSelectable()) {</b>
+&nbsp;					// draw the arrows
+<b class="nc">&nbsp;					Font.draw(&quot;&gt; &quot;, screen, pos.x - Font.textWidth(&quot;&gt; &quot;), y, ListEntry.COL_SLCT);</b>
+<b class="nc">&nbsp;					Font.draw(&quot; &lt;&quot;, screen, pos.x + entry.getWidth(), y, ListEntry.COL_SLCT);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			y += ListEntry.getHeight() + spacing;</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	void updateSelectedEntry(ListEntry newEntry) {
+<b class="nc">&nbsp;		updateEntry(selection, newEntry);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	void updateEntry(int idx, ListEntry newEntry) {
+<b class="nc">&nbsp;		if (idx &gt;= 0 &amp;&amp; idx &lt; entries.size())</b>
+<b class="nc">&nbsp;			entries.set(idx, newEntry);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void removeSelectedEntry() {
+<b class="nc">&nbsp;		entries.remove(selection);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (selection &gt;= entries.size())</b>
+<b class="nc">&nbsp;			selection = entries.size() - 1;</b>
+<b class="nc">&nbsp;		if (selection &lt; 0)</b>
+<b class="nc">&nbsp;			selection = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;		doScroll();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void setColors(Menu model) {
+<b class="nc">&nbsp;		titleColor = model.titleColor;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void renderFrame(Screen screen) {
+<b class="nc">&nbsp;		if (!hasFrame) return;</b>
+&nbsp;
+<b class="nc">&nbsp;		int bottom = bounds.getBottom() - MinicraftImage.boxWidth;</b>
+<b class="nc">&nbsp;		int right = bounds.getRight() - MinicraftImage.boxWidth;</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int y = bounds.getTop(); y &lt;= bottom; y += MinicraftImage.boxWidth) { // loop through the height of the bounds</b>
+<b class="nc">&nbsp;			for (int x = bounds.getLeft(); x &lt;= right; x += MinicraftImage.boxWidth) { // loop through the width of the bounds</b>
+&nbsp;
+<b class="nc">&nbsp;				boolean xend = x == bounds.getLeft() || x == right;</b>
+<b class="nc">&nbsp;				boolean yend = y == bounds.getTop() || y == bottom;</b>
+<b class="nc">&nbsp;				int spriteoffset = (xend &amp;&amp; yend ? 0 : (yend ? 1 : (xend ? 2 : 3))); // determines which sprite to use</b>
+<b class="nc">&nbsp;				int mirrors = (x == right ? 1 : 0) + (y == bottom ? 2 : 0); // gets mirroring</b>
+&nbsp;
+<b class="nc">&nbsp;				screen.render(x, y, spriteoffset, 6, mirrors, hudSheet.getSheet());</b>
+&nbsp;
+<b class="nc">&nbsp;				if (x &lt; right &amp;&amp; x + MinicraftImage.boxWidth &gt; right)</b>
+<b class="nc">&nbsp;					x = right - MinicraftImage.boxWidth;</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (y &lt; bottom &amp;&amp; y + MinicraftImage.boxWidth &gt; bottom)</b>
+<b class="nc">&nbsp;				y = bottom - MinicraftImage.boxWidth;</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;
+&nbsp;	// This needs to be in the Menu class, to have access to the private constructor and fields.
+&nbsp;	public static class Builder {
+&nbsp;
+<b class="fc">&nbsp;		private static final Point center = new Point(Screen.w / 2, Screen.h / 2);</b>
+&nbsp;
+&nbsp;		private Menu menu;
+&nbsp;
+<b class="fc">&nbsp;		private boolean setSelectable = false;</b>
+<b class="fc">&nbsp;		private float padding = 1;</b>
+&nbsp;
+<b class="fc">&nbsp;		@NotNull</b>
+&nbsp;		private RelPos titlePos = RelPos.TOP;
+<b class="fc">&nbsp;		private boolean fullTitleColor = false, setTitleColor = false;</b>
+<b class="fc">&nbsp;		private int titleCol = Color.YELLOW;</b>
+&nbsp;
+<b class="fc">&nbsp;		@NotNull</b>
+&nbsp;		private Point anchor = center;
+<b class="fc">&nbsp;		@NotNull</b>
+&nbsp;		private RelPos menuPos = RelPos.CENTER;
+<b class="fc">&nbsp;		private Dimension menuSize = null;</b>
+&nbsp;
+&nbsp;		private boolean searcherBar;
+&nbsp;
+&nbsp;		public Builder(boolean hasFrame, int entrySpacing, RelPos entryPos, ListEntry... entries) {
+<b class="fc">&nbsp;			this(hasFrame, entrySpacing, entryPos, Arrays.asList(entries));</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+<b class="fc">&nbsp;		public Builder(boolean hasFrame, int entrySpacing, RelPos entryPos, List&lt;ListEntry&gt; entries) {</b>
+<b class="fc">&nbsp;			menu = new Menu();</b>
+<b class="fc">&nbsp;			setEntries(entries);</b>
+<b class="fc">&nbsp;			menu.hasFrame = hasFrame;</b>
+<b class="fc">&nbsp;			menu.spacing = entrySpacing;</b>
+<b class="fc">&nbsp;			menu.entryPos = entryPos;</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		public Builder setEntries(ListEntry... entries) {
+<b class="fc">&nbsp;			return setEntries(Arrays.asList(entries));</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setEntries(List&lt;ListEntry&gt; entries) {
+<b class="fc">&nbsp;			menu.entries.clear();</b>
+<b class="fc">&nbsp;			menu.entries.addAll(entries);</b>
+<b class="fc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setPositioning(Point anchor, RelPos menuPos) {
+<b class="fc">&nbsp;			this.anchor = anchor == null ? new Point() : anchor;</b>
+<b class="fc">&nbsp;			this.menuPos = menuPos == null ? RelPos.BOTTOM_RIGHT : menuPos;</b>
+<b class="fc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setSize(int width, int height) {
+<b class="fc">&nbsp;			menuSize = new Dimension(width, height);</b>
+<b class="fc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setMenuSize(Dimension d) {
+<b class="nc">&nbsp;			menuSize = d;</b>
+<b class="nc">&nbsp;			return this;</b>
+&nbsp;		} // can be used to set the size to null
+&nbsp;
+&nbsp;		public Builder setBounds(Rectangle rect) {
+<b class="nc">&nbsp;			menuSize = rect.getSize();</b>
+<b class="nc">&nbsp;			setPositioning(rect.getCenter(), RelPos.CENTER); // because the anchor represents the center of the rectangle.</b>
+<b class="nc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setDisplayLength(int numEntries) {
+<b class="nc">&nbsp;			menu.displayLength = numEntries;</b>
+<b class="nc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;
+&nbsp;		public Builder setTitlePos(RelPos rp) {
+<b class="nc">&nbsp;			titlePos = (rp == null ? RelPos.TOP : rp);</b>
+<b class="nc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setTitle(String title) {
+<b class="nc">&nbsp;			menu.title = title;</b>
+<b class="nc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setTitle(String title, int color) {
+<b class="nc">&nbsp;			return setTitle(title, color, false);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setTitle(String title, int color, boolean fullColor) {
+<b class="nc">&nbsp;			menu.title = title;</b>
+&nbsp;
+<b class="nc">&nbsp;			fullTitleColor = fullColor;</b>
+<b class="nc">&nbsp;			setTitleColor = true;</b>
+<b class="nc">&nbsp;			if (fullColor) // this means that the color is the full 4 parts, abcd. Otherwise, it is assumed it is only the main component, the one that matters.</b>
+<b class="nc">&nbsp;				menu.titleColor = color;</b>
+&nbsp;			else
+<b class="nc">&nbsp;				titleCol = color;</b>
+&nbsp;
+<b class="nc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setFrame(boolean hasFrame) {
+<b class="nc">&nbsp;			menu.hasFrame = hasFrame;</b>
+<b class="nc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;
+&nbsp;		public Builder setScrollPolicies(float padding, boolean wrap) {
+<b class="nc">&nbsp;			this.padding = padding;</b>
+<b class="nc">&nbsp;			menu.wrap = wrap;</b>
+<b class="nc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setShouldRender(boolean render) {
+<b class="fc">&nbsp;			menu.shouldRender = render;</b>
+<b class="fc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setSelectable(boolean selectable) {
+<b class="nc">&nbsp;			setSelectable = true;</b>
+<b class="nc">&nbsp;			menu.selectable = selectable;</b>
+<b class="nc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setSelection(int sel) {
+<b class="fc">&nbsp;			menu.selection = sel;</b>
+<b class="fc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setSelection(int sel, int dispSel) {
+<b class="nc">&nbsp;			menu.selection = sel;</b>
+<b class="nc">&nbsp;			menu.dispSelection = dispSel;</b>
+<b class="nc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Builder setSearcherBar(boolean searcherBar) {
+<b class="nc">&nbsp;			this.searcherBar = searcherBar;</b>
+&nbsp;
+<b class="nc">&nbsp;			return this;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public Menu createMenu() {
+&nbsp;			// this way, I don&#39;t have to reference all the variables to a different var.
+<b class="fc">&nbsp;			return copy().createMenu(this);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		private Menu createMenu(Builder b) {
+<b class="fc">&nbsp;			if (b == this)</b>
+<b class="nc">&nbsp;				return copy().createMenu(this);</b>
+&nbsp;
+<b class="fc">&nbsp;			menu.title = Localization.getLocalized(menu.title);</b>
+&nbsp;
+&nbsp;			// set default selectability
+<b class="fc">&nbsp;			if (!setSelectable) {</b>
+<b class="fc">&nbsp;				for (ListEntry entry : menu.entries) {</b>
+<b class="fc">&nbsp;					menu.selectable = menu.selectable || entry.isSelectable();</b>
+<b class="fc">&nbsp;					if (menu.selectable)</b>
+<b class="nc">&nbsp;						break;</b>
+<b class="fc">&nbsp;				}</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			// check the centering of the title, and find the dimensions of the title&#39;s display space.
+&nbsp;
+<b class="fc">&nbsp;			menu.drawVertically = titlePos == RelPos.LEFT || titlePos == RelPos.RIGHT;</b>
+&nbsp;
+<b class="fc">&nbsp;			Dimension titleDim = menu.drawVertically ?</b>
+<b class="nc">&nbsp;				new Dimension(Font.textHeight() * 2, Font.textWidth(menu.title)) :</b>
+<b class="fc">&nbsp;				new Dimension(Font.textWidth(menu.title), Font.textHeight() * 2);</b>
+&nbsp;
+&nbsp;			// find the area used by the title and/or frame, that can&#39;t be used by the entries
+&nbsp;
+&nbsp;			/* Create an Insets instance, and do the following...
+&nbsp;			 * - if the menu is selectable, add 2 buffer spaces on the left and right, for the selection arrows.
+&nbsp;			 * - if the menu has a frame, then add one buffer space to all 4 sides
+&nbsp;			 * - if the menu has a title AND a frame, do nothing.
+&nbsp;			 * - if the menu has a title and NO frame, add two spaces to whatever side the title is on
+&nbsp;			 *
+&nbsp;			 * Remember to set the title pos one space inside the left/right bounds, so it doesn&#39;t touch the frame corner.
+&nbsp;			 *
+&nbsp;			 * Starting with the entry size figured out, add the insets to get the total size.
+&nbsp;			 * Starting with the menu size set, subtract the insets to get the entry size.
+&nbsp;			 */
+&nbsp;
+&nbsp;			Insets border;
+<b class="fc">&nbsp;			if (menu.hasFrame)</b>
+<b class="fc">&nbsp;				border = new Insets(MinicraftImage.boxWidth); // add frame insets</b>
+&nbsp;			else {
+<b class="nc">&nbsp;				border = new Insets();</b>
+&nbsp;
+&nbsp;				// add title insets
+<b class="nc">&nbsp;				if (menu.title.length() &gt; 0 &amp;&amp; titlePos != RelPos.CENTER) {</b>
+<b class="nc">&nbsp;					RelPos c = titlePos;</b>
+<b class="nc">&nbsp;					int space = MinicraftImage.boxWidth * 2;</b>
+<b class="nc">&nbsp;					if (c.yIndex == 0)</b>
+<b class="nc">&nbsp;						border.top = space;</b>
+<b class="nc">&nbsp;					else if (c.yIndex == 2)</b>
+<b class="nc">&nbsp;						border.bottom = space;</b>
+<b class="nc">&nbsp;					else if (c.xIndex == 0) // must be center left</b>
+<b class="nc">&nbsp;						border.left = space;</b>
+<b class="nc">&nbsp;					else if (c.xIndex == 2) // must be center right</b>
+<b class="nc">&nbsp;						border.right = space;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="fc">&nbsp;			if (menu.isSelectable()) {</b>
+&nbsp;				// add spacing for selection cursors
+<b class="nc">&nbsp;				border.left += MinicraftImage.boxWidth * 2;</b>
+<b class="nc">&nbsp;				border.right += MinicraftImage.boxWidth * 2;</b>
+&nbsp;			}
+&nbsp;
+<b class="fc">&nbsp;			if (menu.wrap &amp;&amp; menu.displayLength &gt; 0)</b>
+<b class="nc">&nbsp;				menu.displayLength = Math.min(menu.displayLength, menu.entries.size());</b>
+&nbsp;
+&nbsp;			// I have anchor and menu&#39;s relative position to it, and may or may not have size.
+&nbsp;			Dimension entrySize;
+&nbsp;
+<b class="fc">&nbsp;			if (menuSize == null) {</b>
+<b class="fc">&nbsp;				int width = titleDim.width;</b>
+<b class="fc">&nbsp;				for (ListEntry entry : menu.entries) {</b>
+<b class="fc">&nbsp;					int entryWidth = entry.getWidth();</b>
+<b class="fc">&nbsp;					if (menu.isSelectable() &amp;&amp; !entry.isSelectable())</b>
+<b class="nc">&nbsp;						entryWidth = Math.max(0, entryWidth - MinicraftImage.boxWidth * 4);</b>
+<b class="fc">&nbsp;					width = Math.max(width, entryWidth);</b>
+<b class="fc">&nbsp;				}</b>
+&nbsp;
+<b class="fc">&nbsp;				if (menu.displayLength &gt; 0) { // has been set; use to determine entry bounds</b>
+<b class="nc">&nbsp;					int height = (ListEntry.getHeight() + menu.spacing) * menu.displayLength - menu.spacing;</b>
+&nbsp;
+<b class="nc">&nbsp;					entrySize = new Dimension(width, height);</b>
+<b class="nc">&nbsp;				} else {</b>
+&nbsp;					// no set size; just keep going to the edges of the screen
+&nbsp;
+&nbsp;					int maxHeight;
+<b class="fc">&nbsp;					if (menuPos.yIndex == 0) // anchor is lowest down coordinate (highest y value)</b>
+<b class="nc">&nbsp;						maxHeight = anchor.y;</b>
+<b class="fc">&nbsp;					else if (menuPos.yIndex == 2)</b>
+<b class="fc">&nbsp;						maxHeight = Screen.h - anchor.y;</b>
+&nbsp;					else // is centered; take the lowest value of the other two, and double it
+<b class="nc">&nbsp;						maxHeight = Math.min(anchor.y, Screen.h - anchor.y) * 2;</b>
+&nbsp;
+<b class="fc">&nbsp;					maxHeight -= border.top + border.bottom; // reserve border space</b>
+&nbsp;
+<b class="fc">&nbsp;					int entryHeight = menu.spacing + ListEntry.getHeight();</b>
+<b class="fc">&nbsp;					int totalHeight = entryHeight * menu.entries.size() - menu.spacing;</b>
+<b class="fc">&nbsp;					maxHeight = ((maxHeight + menu.spacing) / entryHeight) * entryHeight - menu.spacing;</b>
+&nbsp;
+<b class="fc">&nbsp;					entrySize = new Dimension(width, Math.min(maxHeight, totalHeight));</b>
+&nbsp;				}
+&nbsp;
+<b class="fc">&nbsp;				menuSize = border.addTo(entrySize);</b>
+<b class="fc">&nbsp;			} else // menuSize was set manually</b>
+<b class="fc">&nbsp;				entrySize = border.subtractFrom(menuSize);</b>
+&nbsp;
+&nbsp;
+&nbsp;			// set default max display length (needs size first)
+<b class="fc">&nbsp;			if (menu.displayLength &lt;= 0 &amp;&amp; menu.entries.size() &gt; 0)</b>
+<b class="fc">&nbsp;				menu.displayLength = (entrySize.height + menu.spacing) / (ListEntry.getHeight() + menu.spacing);</b>
+&nbsp;
+&nbsp;			// based on the menu centering, and the anchor, determine the upper-left point from which to draw the menu.
+<b class="fc">&nbsp;			menu.bounds = menuPos.positionRect(menuSize, anchor, new Rectangle()); // reset to a value that is actually useful to the menu</b>
+&nbsp;
+<b class="fc">&nbsp;			menu.entryBounds = border.subtractFrom(menu.bounds);</b>
+&nbsp;
+<b class="fc">&nbsp;			menu.titleLoc = titlePos.positionRect(titleDim, menu.bounds);</b>
+&nbsp;
+<b class="fc">&nbsp;			if (titlePos.xIndex == 0 &amp;&amp; titlePos.yIndex != 1)</b>
+<b class="nc">&nbsp;				menu.titleLoc.x += MinicraftImage.boxWidth;</b>
+<b class="fc">&nbsp;			if (titlePos.xIndex == 2 &amp;&amp; titlePos.yIndex != 1)</b>
+<b class="nc">&nbsp;				menu.titleLoc.x -= MinicraftImage.boxWidth;</b>
+&nbsp;
+&nbsp;			// set the menu title color
+<b class="fc">&nbsp;			if (menu.title.length() &gt; 0) {</b>
+<b class="nc">&nbsp;				if (fullTitleColor)</b>
+<b class="nc">&nbsp;					menu.titleColor = titleCol;</b>
+&nbsp;				else {
+<b class="nc">&nbsp;					if (!setTitleColor) titleCol = menu.hasFrame ? Color.YELLOW : Color.WHITE;</b>
+<b class="nc">&nbsp;					menu.titleColor = titleCol; // make it match the frame color, or be transparent</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="fc">&nbsp;			if (padding &lt; 0) padding = 0;</b>
+<b class="fc">&nbsp;			if (padding &gt; 1) padding = 1;</b>
+<b class="fc">&nbsp;			menu.padding = (int) Math.floor(padding * menu.displayLength / 2);</b>
+&nbsp;
+<b class="fc">&nbsp;			menu.useSearcherBar = searcherBar;</b>
+&nbsp;
+&nbsp;			// done setting defaults/values; return the new menu
+&nbsp;
+<b class="fc">&nbsp;			menu.init(); // any setup the menu does by itself right before being finished.</b>
+<b class="fc">&nbsp;			return menu;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// returns a new Builder instance, that can be further modified to create another menu.
+&nbsp;		public Builder copy() {
+<b class="fc">&nbsp;			Builder b = new Builder(menu.hasFrame, menu.spacing, menu.entryPos, menu.entries);</b>
+&nbsp;
+<b class="fc">&nbsp;			b.menu = new Menu(menu);</b>
+&nbsp;
+<b class="fc">&nbsp;			b.anchor = anchor == null ? null : new Point(anchor);</b>
+<b class="fc">&nbsp;			b.menuSize = menuSize == null ? null : new Dimension(menuSize);</b>
+<b class="fc">&nbsp;			b.menuPos = menuPos;</b>
+<b class="fc">&nbsp;			b.setSelectable = setSelectable;</b>
+<b class="fc">&nbsp;			b.padding = padding;</b>
+<b class="fc">&nbsp;			b.titlePos = titlePos;</b>
+<b class="fc">&nbsp;			b.fullTitleColor = fullTitleColor;</b>
+<b class="fc">&nbsp;			b.setTitleColor = setTitleColor;</b>
+<b class="fc">&nbsp;			b.titleCol = titleCol;</b>
+<b class="fc">&nbsp;			b.searcherBar = searcherBar;</b>
+&nbsp;
+<b class="fc">&nbsp;			return b;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	public String toString() {
+<b class="nc">&nbsp;		return title + &quot;-Menu[&quot; + bounds + &quot;]&quot;;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

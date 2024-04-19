@@ -1,0 +1,258 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > EnemyMob</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.entity.mob</a>
+</div>
+
+<h1>Coverage Summary for Class: EnemyMob (minicraft.entity.mob)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">EnemyMob</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    40%
+  </span>
+  <span class="absValue">
+    (4/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    19.2%
+  </span>
+  <span class="absValue">
+    (10/52)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.entity.mob;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.Updater;
+&nbsp;import minicraft.core.io.Settings;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.entity.furniture.Bed;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;
+&nbsp;public class EnemyMob extends MobAi {
+&nbsp;
+&nbsp;	public int lvl;
+&nbsp;	protected LinkedSprite[][][] lvlSprites;
+&nbsp;	public int detectDist;
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void handleDespawn() {
+<b class="nc">&nbsp;		if (level.depth == 0 &amp;&amp; Updater.tickCount &gt;= Updater.dayLength / 4 &amp;&amp; Updater.tickCount &lt;= Updater.dayLength / 2)</b>
+<b class="nc">&nbsp;			if (isWithinLight()) // If it is now morning and on the surface, the mob despawns when it is within light.</b>
+<b class="nc">&nbsp;				super.handleDespawn();</b>
+<b class="nc">&nbsp;			else if (!isWithinLight()) // Otherwise, it despawns when it is not within light.</b>
+<b class="nc">&nbsp;				super.handleDespawn();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Constructor for a hostile (enemy) mob. The level determines what the mob does. sprites contains all the graphics and animations for the mob.
+&nbsp;	 * lvlcols is the different color the mob has depending on its level. isFactor determines if the mob&#39;s health should be affected by the level and
+&nbsp;	 * the difficulty.
+&nbsp;	 * @param lvl The mob&#39;s level.
+&nbsp;	 * @param lvlSprites The mob&#39;s sprites (ordered by level, then direction, then animation frame).
+&nbsp;	 * @param health How much health the mob has.
+&nbsp;	 * @param isFactor false if maxHealth=health, true if maxHealth=health*level*level*difficulty
+&nbsp;	 * @param detectDist The distance where the mob will detect the player and start moving towards him/her.
+&nbsp;	 * @param lifetime How many ticks this mob will live.
+&nbsp;	 * @param rwTime How long the mob will walk in a random direction. (random walk duration)
+&nbsp;	 * @param rwChance The chance of this mob will walk in a random direction (random walk chance)
+&nbsp;	 */
+&nbsp;	public EnemyMob(int lvl, LinkedSprite[][][] lvlSprites, int health, boolean isFactor, int detectDist, int lifetime, int rwTime, int rwChance) {
+<b class="fc">&nbsp;		super(lvlSprites[0], isFactor ? (lvl == 0 ? 1 : lvl * lvl) * health * ((Double) (Math.pow(2, Settings.getIdx(&quot;diff&quot;)))).intValue() : health, lifetime, rwTime, rwChance);</b>
+<b class="fc">&nbsp;		this.lvl = lvl == 0 ? 1 : lvl;</b>
+<b class="fc">&nbsp;		this.lvlSprites = java.util.Arrays.copyOf(lvlSprites, lvlSprites.length);</b>
+<b class="fc">&nbsp;		this.detectDist = detectDist;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Constructor for a hostile (enemy) mob.
+&nbsp;	 * Lifetime will be set to 60 * Game.normSpeed.
+&nbsp;	 * @param lvl The mob&#39;s level.
+&nbsp;	 * @param lvlSprites The mob&#39;s sprites (ordered by level, then direction, then animation frame).
+&nbsp;	 * @param health How much health the mob has.
+&nbsp;	 * @param isFactor false if maxHealth=health, true if maxHealth=health*level*level*difficulty
+&nbsp;	 * @param detectDist The distance where the mob will detect the player and start moving towards him/her.
+&nbsp;	 * @param rwTime How long the mob will walk in a random direction. (random walk duration)
+&nbsp;	 * @param rwChance The chance of this mob will walk in a random direction (random walk chance)
+&nbsp;	 */
+&nbsp;	public EnemyMob(int lvl, LinkedSprite[][][] lvlSprites, int health, boolean isFactor, int detectDist, int rwTime, int rwChance) {
+<b class="fc">&nbsp;		this(lvl, lvlSprites, health, isFactor, detectDist, 60 * Updater.normSpeed, rwTime, rwChance);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Constructor for a hostile (enemy) mob.
+&nbsp;	 * isFactor=true,
+&nbsp;	 * rwTime=60,
+&nbsp;	 * rwChance=200.
+&nbsp;	 * @param lvl The mob&#39;s level.
+&nbsp;	 * @param lvlSprites The mob&#39;s sprites (ordered by level, then direction, then animation frame).
+&nbsp;	 * @param health How much health the mob has.
+&nbsp;	 * @param detectDist The distance where the mob will detect the player and start moving towards him/her.
+&nbsp;	 */
+&nbsp;	public EnemyMob(int lvl, LinkedSprite[][][] lvlSprites, int health, int detectDist) {
+<b class="fc">&nbsp;		this(lvl, lvlSprites, health, true, detectDist, 60, 200);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick() {
+<b class="nc">&nbsp;		super.tick();</b>
+&nbsp;
+<b class="nc">&nbsp;		Player player = getClosestPlayer();</b>
+<b class="nc">&nbsp;		if (player != null &amp;&amp; !Bed.sleeping() &amp;&amp; randomWalkTime &lt;= 0 &amp;&amp; !Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) { // Checks if player is on zombie&#39;s level, if there is no time left on randonimity timer, and if the player is not in creative.</b>
+<b class="nc">&nbsp;			int xd = player.x - x;</b>
+<b class="nc">&nbsp;			int yd = player.y - y;</b>
+<b class="nc">&nbsp;			if (xd * xd + yd * yd &lt; detectDist * detectDist) {</b>
+&nbsp;
+&nbsp;				/// If player is less than 6.25 tiles away, then set move dir towards player
+<b class="nc">&nbsp;				int sig0 = 1; // This prevents too precise estimates, preventing mobs from bobbing up and down.</b>
+<b class="nc">&nbsp;				this.xmov = this.ymov = 0;</b>
+<b class="nc">&nbsp;				if (xd &lt; sig0) this.xmov = -1;</b>
+<b class="nc">&nbsp;				if (xd &gt; sig0) this.xmov = +1;</b>
+<b class="nc">&nbsp;				if (yd &lt; sig0) this.ymov = -1;</b>
+<b class="nc">&nbsp;				if (yd &gt; sig0) this.ymov = +1;</b>
+<b class="nc">&nbsp;			} else {</b>
+&nbsp;				// If the enemy was following the player, but has now lost it, it stops moving.
+&nbsp;				// *That would be nice, but I&#39;ll just make it move randomly instead.
+<b class="nc">&nbsp;				randomizeWalkDir(false);</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen) {
+<b class="nc">&nbsp;		sprites = lvlSprites[lvl - 1];</b>
+<b class="nc">&nbsp;		super.render(screen);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	protected void touchedBy(Entity entity) { // If an entity (like the player) touches the enemy mob
+<b class="nc">&nbsp;		super.touchedBy(entity);</b>
+&nbsp;		// Hurts the player, damage is based on lvl.
+<b class="nc">&nbsp;		if (entity instanceof Player) {</b>
+<b class="nc">&nbsp;			((Player) entity).hurt(this, lvl * (Settings.get(&quot;diff&quot;).equals(&quot;minicraft.settings.difficulty.hard&quot;) ? 2 : 1));</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void die() {
+<b class="nc">&nbsp;		super.die(50 * lvl, 1);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Determines if the mob can spawn at the giving position in the given map.
+&nbsp;	 * @param level The level which the mob wants to spawn in.
+&nbsp;	 * @param x X map spawn coordinate.
+&nbsp;	 * @param y Y map spawn coordinate.
+&nbsp;	 * @return true if the mob can spawn here, false if not.
+&nbsp;	 */
+&nbsp;	public static boolean checkStartPos(Level level, int x, int y) { // Find a place to spawn the mob
+<b class="nc">&nbsp;		int r = (level.depth == -4 ? (Game.isMode(&quot;minicraft.settings.mode.score&quot;) ? 22 : 15) : 13);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (!MobAi.checkStartPos(level, x, y, 60, r))</b>
+<b class="nc">&nbsp;			return false;</b>
+&nbsp;
+<b class="nc">&nbsp;		x = x &gt;&gt; 4;</b>
+<b class="nc">&nbsp;		y = y &gt;&gt; 4;</b>
+&nbsp;
+<b class="nc">&nbsp;		Tile t = level.getTile(x, y);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (level.depth == -4) {</b>
+<b class="nc">&nbsp;			if (t != Tiles.get(&quot;Obsidian&quot;)) return false;</b>
+<b class="nc">&nbsp;		} else if (t != Tiles.get(&quot;Stone Door&quot;) &amp;&amp; t != Tiles.get(&quot;Wood Door&quot;) &amp;&amp; t != Tiles.get(&quot;Obsidian Door&quot;) &amp;&amp; t != Tiles.get(&quot;wheat&quot;) &amp;&amp; t != Tiles.get(&quot;farmland&quot;)) {</b>
+&nbsp;			// Prevents mobs from spawning on lit tiles, farms, or doors (unless in the dungeons)
+<b class="nc">&nbsp;			return !level.isLight(x, y);</b>
+<b class="nc">&nbsp;		} else return false;</b>
+&nbsp;
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public int getMaxLevel() {
+<b class="fc">&nbsp;		return lvlSprites.length;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

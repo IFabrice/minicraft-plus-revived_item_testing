@@ -1,0 +1,298 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Font</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.gfx</a>
+</div>
+
+<h1>Coverage Summary for Class: Font (minicraft.gfx)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Font</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    29.4%
+  </span>
+  <span class="absValue">
+    (5/17)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    35.4%
+  </span>
+  <span class="absValue">
+    (28/79)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.gfx;
+&nbsp;
+&nbsp;import minicraft.core.Renderer;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.List;
+&nbsp;
+<b class="nc">&nbsp;public class Font {</b>
+&nbsp;	// These are all the characters that will be translated to the screen. (The spaces are important)
+&nbsp;	private static final String chars =
+&nbsp;		&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ012345&quot; +
+&nbsp;			&quot;6789.,!?&#39;\&quot;-+=/\\%()&lt;&gt;:;^@ÁÉÍÓÚÑ¿¡&quot; +
+&nbsp;			&quot;ÃÊÇÔÕ?ÇÜ?Ö?ÆØÅ??[]#|{}_?????????&quot; +
+&nbsp;			&quot;????????????????????????ÀÂÄÈÎÌÏÒ&quot; +
+&nbsp;			&quot;ÙÛÝ*«»£$&amp;€§ªºabcdefghijklmnopqrs&quot; +
+&nbsp;			&quot;tuvwxyzáàãâäéèêëíìîïóòõôöúùûüçñý&quot; +
+&nbsp;			&quot;ÿ???????????????????????????????&quot; +
+&nbsp;			&quot;?????&quot;;
+&nbsp;
+&nbsp;	/* The order of the letters in the chars string is represented in the order that they appear in the sprite-sheet. */
+&nbsp;
+&nbsp;	public static void draw(String msg, Screen screen, int x, int y) {
+<b class="nc">&nbsp;		draw(msg, screen, x, y, -1);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Draws the message to the x &amp; y coordinates on the screen.
+&nbsp;	 */
+&nbsp;	public static void
+&nbsp;	draw(String msg, Screen screen, int x, int y, int whiteTint) {
+<b class="nc">&nbsp;		for (int i = 0; i &lt; msg.length(); i++) { // Loops through all the characters that you typed</b>
+<b class="nc">&nbsp;			int ix = chars.indexOf(msg.charAt(i)); // The current letter in the message loop</b>
+<b class="nc">&nbsp;			if (ix &gt;= 0) {</b>
+&nbsp;				// If that character&#39;s position is larger than or equal to 0, then render the character on the screen.
+<b class="nc">&nbsp;				screen.render(x + i * textWidth(msg.substring(i, i + 1)), y, ix % 32, ix / 32, 0, Renderer.spriteLinker.getSheet(SpriteType.Gui, &quot;font&quot;), whiteTint);</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void drawColor(String message, Screen screen, int x, int y) {
+&nbsp;		// Set default color message if it doesn&#39;t have initially
+<b class="nc">&nbsp;		if (message.charAt(0) != Color.COLOR_CHAR) {</b>
+<b class="nc">&nbsp;			message = Color.WHITE_CODE + message;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		int leading = 0;</b>
+<b class="nc">&nbsp;		for (String data : message.split(String.valueOf(Color.COLOR_CHAR))) {</b>
+<b class="nc">&nbsp;			if (data.isEmpty()) {</b>
+<b class="nc">&nbsp;				continue;</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			String text;
+&nbsp;			String color;
+&nbsp;
+&nbsp;			try {
+<b class="nc">&nbsp;				text = data.substring(4);</b>
+<b class="nc">&nbsp;				color = data.substring(0, 4); // ARGB value</b>
+<b class="nc">&nbsp;			} catch (IndexOutOfBoundsException ignored) {</b>
+&nbsp;				// Bad formatted colored string
+<b class="nc">&nbsp;				text = data;</b>
+<b class="nc">&nbsp;				color = Color.WHITE_CODE;</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+<b class="nc">&nbsp;			Font.draw(text, screen, x + leading, y, Color.get(color));</b>
+<b class="nc">&nbsp;			leading += Font.textWidth(text);</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void drawBackground(String msg, Screen screen, int x, int y) {
+<b class="nc">&nbsp;		drawBackground(msg, screen, x, y, -1);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void drawBackground(String msg, Screen screen, int x, int y, int whiteTint) {
+<b class="nc">&nbsp;		for (int i = 0; i &lt; msg.length(); i++) { // Renders the black boxes under the text</b>
+<b class="nc">&nbsp;			screen.render(x + i * textWidth(msg.substring(i, i + 1)), y, 5, 2, 0, Renderer.spriteLinker.getSheet(SpriteType.Gui, &quot;hud&quot;));</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Renders the text
+<b class="nc">&nbsp;		draw(msg, screen, x, y, whiteTint);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static int textWidth(String text) { // Filtering out coloring codes.
+<b class="fc">&nbsp;		return (int) (Math.max(text.length() - text.chars().filter(ch -&gt; ch == Color.COLOR_CHAR).count() * 5, 0) * 8);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static int textWidth(String[] para) {
+&nbsp;		// This returns the maximum length of all the lines.
+<b class="nc">&nbsp;		if (para == null || para.length == 0) return 0;</b>
+&nbsp;
+<b class="nc">&nbsp;		int max = textWidth(para[0]);</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int i = 1; i &lt; para.length; i++)</b>
+<b class="nc">&nbsp;			max = Math.max(max, textWidth(para[i]));</b>
+&nbsp;
+<b class="nc">&nbsp;		return max;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static int textHeight() {//noinspection SuspiciousNameCombination
+<b class="fc">&nbsp;		return MinicraftImage.boxWidth;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static void drawCentered(String msg, Screen screen, int y, int color) {
+<b class="nc">&nbsp;		new FontStyle(color).setYPos(y).draw(msg, screen);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;
+&nbsp;	/// note: the y centering values in the FontStyle object will be used as a paragraph y centering value instead.
+&nbsp;	public static void drawParagraph(String para, Screen screen, FontStyle style, int lineSpacing) {
+<b class="nc">&nbsp;		drawParagraph(para, screen, Screen.w, Screen.h, style, lineSpacing);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void drawParagraph(String para, Screen screen, int w, int h, FontStyle style, int lineSpacing) {
+<b class="nc">&nbsp;		drawParagraph(screen, style, lineSpacing, getLines(para, w, h, lineSpacing));</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/// all the other drawParagraph() methods end up calling this one.
+&nbsp;	public static void drawParagraph(List&lt;String&gt; lines, Screen screen, FontStyle style, int lineSpacing) {
+<b class="nc">&nbsp;		drawParagraph(screen, style, lineSpacing, lines.toArray(new String[0]));</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void drawParagraph(Screen screen, FontStyle style, int lineSpacing, String... lines) {
+<b class="nc">&nbsp;		for (int i = 0; i &lt; lines.length; i++)</b>
+<b class="nc">&nbsp;			style.drawParagraphLine(lines, i, lineSpacing, screen);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static String[] getLines(String para, int w, int h, int lineSpacing) {
+<b class="fc">&nbsp;		return getLines(para, w, h, lineSpacing, false);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static String[] getLines(String para, int w, int h, int lineSpacing, boolean keepEmptyRemainder) {
+<b class="fc">&nbsp;		ArrayList&lt;String&gt; lines = new ArrayList&lt;&gt;();</b>
+&nbsp;
+&nbsp;		// So, I have a paragraph. I give it to getLine, and it returns an index. Cut the string at that index, and add it to the lines list.
+&nbsp;		// check if the index returned by getLine is less than para.length(), and is a space, and if so skip the space character.
+&nbsp;		// then I reset the para String at the index, and do it again until para is an empty string.
+&nbsp;
+<b class="fc">&nbsp;		int height = textHeight();</b>
+<b class="fc">&nbsp;		while (para.length() &gt; 0) { // continues to loop as long as there are more characters to parse.</b>
+&nbsp;
+<b class="fc">&nbsp;			int splitIndex = getLine(para, w); // determine how many letters can be fit on to this line.</b>
+<b class="fc">&nbsp;			lines.add(para.substring(0, splitIndex)); // add the specified number of characters.</b>
+&nbsp;
+<b class="fc">&nbsp;			if (splitIndex &lt; para.length() &amp;&amp; para.substring(splitIndex, splitIndex + 1).matches(&quot;[ \n]&quot;))</b>
+<b class="nc">&nbsp;				splitIndex++; // if there are more characters to do, and the next character is a space or newline, skip it (because the getLine() method will always break before newlines, and will usually otherwise break before spaces.</b>
+<b class="fc">&nbsp;			para = para.substring(splitIndex); // remove the characters that have now been added on to the line</b>
+&nbsp;
+<b class="fc">&nbsp;			height += lineSpacing + textHeight(); // move y pos down a line</b>
+<b class="fc">&nbsp;			if (height &gt; h)</b>
+<b class="nc">&nbsp;				break; // If we&#39;ve run out of space to draw lines, then there&#39;s no point in parsing more characters, so we should break out of the loop.</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+<b class="fc">&nbsp;		if (para.length() &gt; 0 || keepEmptyRemainder)</b>
+<b class="fc">&nbsp;			lines.add(para); // add remainder, but don&#39;t add empty lines unintentionally.</b>
+&nbsp;
+<b class="fc">&nbsp;		return lines.toArray(new String[0]);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// this returns the position index at which the given string should be split so that the first part is the longest line possible.
+&nbsp;	// note, the index returned is exclusive; it should not be included in the line.
+&nbsp;	private static int getLine(String text, int maxWidth) {
+<b class="fc">&nbsp;		if (maxWidth &lt;= 0) return 0; // just to pass the monkey test. :P</b>
+&nbsp;
+<b class="fc">&nbsp;		text = text.replaceAll(&quot; ?\n ?&quot;, &quot; \n &quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;		String[] words = text.split(&quot; &quot;, -1);</b>
+&nbsp;
+<b class="fc">&nbsp;		int curWidth = textWidth(words[0]);</b>
+&nbsp;
+<b class="fc">&nbsp;		if (curWidth &gt; maxWidth) {</b>
+&nbsp;			// we can&#39;t even fit the first word on to the line, even by itself. So we&#39;ll have to fit what we can.
+&nbsp;			int i;
+<b class="fc">&nbsp;			for (i = 1; i &lt; words[0].length(); i++) // find how many characters do fit</b>
+<b class="fc">&nbsp;				if (textWidth(words[0].substring(0, i + 1)) &gt; maxWidth)</b>
+<b class="fc">&nbsp;					break;</b>
+&nbsp;
+<b class="fc">&nbsp;			return i; // stop here and return, because we know we can&#39;t fit more so we can ignore all that&#39;s below</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		int i;
+<b class="fc">&nbsp;		for (i = 1; i &lt; words.length; i++) {</b>
+<b class="nc">&nbsp;			if (words[i].equals(&quot;\n&quot;)) break;</b>
+&nbsp;
+<b class="nc">&nbsp;			curWidth += textWidth(&quot; &quot; + words[i]);</b>
+<b class="nc">&nbsp;			if (curWidth &gt; maxWidth)</b>
+<b class="nc">&nbsp;				break;</b>
+&nbsp;		}
+&nbsp;		// i now contains the number of words that fit on the line.
+&nbsp;
+<b class="fc">&nbsp;		String line = String.join(&quot; &quot;, Arrays.copyOfRange(words, 0, i));</b>
+<b class="fc">&nbsp;		return line.length();</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,199 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Network</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.network</a>
+</div>
+
+<h1>Coverage Summary for Class: Network (minicraft.network)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Network</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/38)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.network;
+&nbsp;
+&nbsp;import kong.unirest.HttpResponse;
+&nbsp;import kong.unirest.JsonNode;
+&nbsp;import kong.unirest.Unirest;
+&nbsp;import kong.unirest.UnirestException;
+&nbsp;import minicraft.core.Action;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.VersionInfo;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;import org.json.JSONObject;
+&nbsp;
+&nbsp;import java.util.Random;
+&nbsp;
+&nbsp;public class Network extends Game {
+&nbsp;	private Network() {
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	private static final Random random = new Random();</b>
+&nbsp;
+<b class="nc">&nbsp;	private static VersionInfo latestVersion = null;</b>
+&nbsp;
+&nbsp;
+&nbsp;	@Nullable
+&nbsp;	public static VersionInfo getLatestVersion() {
+<b class="nc">&nbsp;		return latestVersion;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static void findLatestVersion(Action callback) {
+<b class="nc">&nbsp;		new Thread(() -&gt; {</b>
+<b class="nc">&nbsp;			Logging.NETWORK.debug(&quot;Fetching release list from GitHub...&quot;); // Fetch the latest version from GitHub</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				HttpResponse&lt;JsonNode&gt; response = Unirest.get(&quot;https://api.github.com/repos/chrisj42/minicraft-plus-revived/releases&quot;).asJson();</b>
+<b class="nc">&nbsp;				if (response.getStatus() != 200) {</b>
+<b class="nc">&nbsp;					Logging.NETWORK.error(&quot;Version request returned status code &quot; + response.getStatus() + &quot;: &quot; + response.getStatusText());</b>
+<b class="nc">&nbsp;					Logging.NETWORK.error(&quot;Response body: &quot; + response.getBody());</b>
+<b class="nc">&nbsp;					latestVersion = new VersionInfo(VERSION, &quot;&quot;, &quot;&quot;);</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					latestVersion = new VersionInfo(new JSONObject(response.getBody().getArray().getJSONObject(0).toString()));</b>
+&nbsp;				}
+<b class="nc">&nbsp;			} catch (UnirestException e) {</b>
+<b class="nc">&nbsp;				e.printStackTrace();</b>
+<b class="nc">&nbsp;				latestVersion = new VersionInfo(VERSION, &quot;&quot;, &quot;&quot;);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+<b class="nc">&nbsp;			callback.act(); // finished.</b>
+<b class="nc">&nbsp;		}).start();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Nullable
+&nbsp;	public static Entity getEntity(int eid) {
+<b class="nc">&nbsp;		for (Level level : levels) {</b>
+<b class="nc">&nbsp;			if (level == null) continue;</b>
+<b class="nc">&nbsp;			for (Entity e : level.getEntityArray())</b>
+<b class="nc">&nbsp;				if (e.eid == eid)</b>
+<b class="nc">&nbsp;					return e;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return null;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static int generateUniqueEntityId() {
+&nbsp;		int eid;
+<b class="nc">&nbsp;		int tries = 0; // Just in case it gets out of hand.</b>
+&nbsp;		do {
+<b class="nc">&nbsp;			tries++;</b>
+<b class="nc">&nbsp;			if (tries == 1000)</b>
+<b class="nc">&nbsp;				Logging.NETWORK.info(&quot;Note: Trying 1000th time to find valid entity id...(Will continue)&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;			eid = random.nextInt();</b>
+<b class="nc">&nbsp;		} while (!idIsAvailable(eid));</b>
+&nbsp;
+<b class="nc">&nbsp;		return eid;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static boolean idIsAvailable(int eid) {
+<b class="nc">&nbsp;		if (eid == 0) return false; // This is reserved for the main player... kind of...</b>
+<b class="nc">&nbsp;		if (eid &lt; 0) return false; // ID&#39;s must be positive numbers.</b>
+&nbsp;
+<b class="nc">&nbsp;		for (Level level : levels) {</b>
+<b class="nc">&nbsp;			if (level == null) continue;</b>
+<b class="nc">&nbsp;			for (Entity e : level.getEntityArray()) {</b>
+<b class="nc">&nbsp;				if (e.eid == eid)</b>
+<b class="nc">&nbsp;					return false;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

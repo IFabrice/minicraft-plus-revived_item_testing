@@ -1,0 +1,238 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Game</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.core</a>
+</div>
+
+<h1>Coverage Summary for Class: Game (minicraft.core)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Game</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    33.3%
+  </span>
+  <span class="absValue">
+    (3/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    23.1%
+  </span>
+  <span class="absValue">
+    (12/52)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.core;
+&nbsp;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.core.io.Settings;
+&nbsp;import minicraft.core.io.Sound;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;import minicraft.network.Analytics;
+&nbsp;import minicraft.saveload.Load;
+&nbsp;import minicraft.saveload.Version;
+&nbsp;import minicraft.screen.Display;
+&nbsp;import minicraft.screen.ResourcePackDisplay;
+&nbsp;import minicraft.screen.TitleDisplay;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;
+&nbsp;import java.util.ArrayDeque;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;public class Game {
+<b class="nc">&nbsp;	protected Game() {</b>
+<b class="nc">&nbsp;	} // Can&#39;t instantiate the Game class.</b>
+&nbsp;
+&nbsp;	public static final String NAME = &quot;Minicraft Plus&quot;; // This is the name on the application window.
+&nbsp;
+<b class="fc">&nbsp;	public static final Version VERSION = new Version(&quot;2.2.0-dev7&quot;);</b>
+&nbsp;
+&nbsp;	public static InputHandler input; // Input used in Game, Player, and just about all the *Menu classes.
+&nbsp;	public static Player player;
+&nbsp;
+<b class="fc">&nbsp;	public static List&lt;String&gt; notifications = new ArrayList&lt;&gt;();</b>
+&nbsp;
+&nbsp;	public static int MAX_FPS;
+&nbsp;
+&nbsp;	// DISPLAY
+<b class="fc">&nbsp;	static Display currentDisplay = null;</b>
+<b class="fc">&nbsp;	static final ArrayDeque&lt;Display&gt; displayQuery = new ArrayDeque&lt;&gt;();</b>
+&nbsp;
+&nbsp;	public static void setDisplay(@Nullable Display display) {
+<b class="fc">&nbsp;		if (display == null)</b>
+<b class="nc">&nbsp;			displayQuery.clear();</b>
+&nbsp;		else
+<b class="fc">&nbsp;			displayQuery.add(display);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void exitDisplay() {
+<b class="nc">&nbsp;		exitDisplay(1);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void exitDisplay(int depth) {
+<b class="nc">&nbsp;		if (depth &lt; 1) return; // There is nothing needed to exit.</b>
+<b class="nc">&nbsp;		if (displayQuery.isEmpty()) {</b>
+<b class="nc">&nbsp;			Logging.GAMEHANDLER.warn(&quot;Game tried to exit display, but no menu is open.&quot;);</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+<b class="nc">&nbsp;		Sound.play(&quot;craft&quot;);</b>
+&nbsp;		// Exiting the display remaining and checking if there are more displays available.
+&nbsp;		// If there are more displays, displays with maximum amount exit.
+<b class="nc">&nbsp;		for (int i = 0; i &lt; depth &amp;&amp; !displayQuery.isEmpty(); i++) {</b>
+<b class="nc">&nbsp;			Display parent = displayQuery.peekLast().getParent();</b>
+<b class="nc">&nbsp;			if (parent == null)</b>
+<b class="nc">&nbsp;				displayQuery.clear();</b>
+&nbsp;			else
+<b class="nc">&nbsp;				displayQuery.add(parent);</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Nullable
+&nbsp;	public static Display getDisplay() {
+<b class="nc">&nbsp;		return displayQuery.isEmpty() ? null : displayQuery.peekLast();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// GAMEMODE
+&nbsp;	public static boolean isMode(String mode) {
+<b class="fc">&nbsp;		return ((String) Settings.get(&quot;mode&quot;)).equalsIgnoreCase(mode);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// LEVEL
+<b class="fc">&nbsp;	public static Level[] levels = new Level[6]; // This array stores the different levels.</b>
+<b class="fc">&nbsp;	public static int currentLevel = 3; // This is the level the player is on. It defaults to 3, the surface.</b>
+&nbsp;
+&nbsp;	// GAME
+&nbsp;	public static String gameDir; // The directory in which all the game files are stored
+<b class="fc">&nbsp;	static boolean gameOver = false; // If the player wins this is set to true.</b>
+&nbsp;
+<b class="fc">&nbsp;	static boolean running = true;</b>
+&nbsp;
+&nbsp;	public static void quit() {
+<b class="nc">&nbsp;		running = false;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;
+&nbsp;	public static void main(String[] args) {
+<b class="nc">&nbsp;		Thread.setDefaultUncaughtExceptionHandler(CrashHandler::crashHandle);</b>
+&nbsp;
+<b class="nc">&nbsp;		Initializer.parseArgs(args); // Parses the command line arguments</b>
+&nbsp;		// Applying Game#debug first.
+&nbsp;
+<b class="nc">&nbsp;		Analytics.GameStartup.ping();</b>
+&nbsp;
+<b class="nc">&nbsp;		input = new InputHandler(Renderer.canvas);</b>
+&nbsp;
+<b class="nc">&nbsp;		ResourcePackDisplay.initPacks();</b>
+<b class="nc">&nbsp;		ResourcePackDisplay.reloadResources();</b>
+&nbsp;
+<b class="nc">&nbsp;		Tiles.initTileList();</b>
+&nbsp;
+&nbsp;		// Load the selected language.
+<b class="nc">&nbsp;		Initializer.createAndDisplayFrame();</b>
+&nbsp;
+<b class="nc">&nbsp;		setDisplay(new TitleDisplay()); // Sets menu to the title screen.</b>
+&nbsp;
+<b class="nc">&nbsp;		Renderer.initScreen();</b>
+&nbsp;
+<b class="nc">&nbsp;		World.resetGame(); // &quot;half&quot;-starts a new game, to set up initial variables</b>
+<b class="nc">&nbsp;		player.eid = 0;</b>
+<b class="nc">&nbsp;		new Load(true); // This loads any saved preferences.</b>
+<b class="nc">&nbsp;		MAX_FPS = (int) Settings.get(&quot;fps&quot;); // DO NOT put this above.</b>
+&nbsp;
+&nbsp;		// Update fullscreen frame if Updater.FULLSCREEN was updated previously
+<b class="nc">&nbsp;		if (Updater.FULLSCREEN) {</b>
+<b class="nc">&nbsp;			Updater.updateFullscreen();</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Initializer.launchWindow();</b>
+&nbsp;		// Actually start the game.
+<b class="nc">&nbsp;		Initializer.run();</b>
+&nbsp;
+<b class="nc">&nbsp;		Logging.GAMEHANDLER.debug(&quot;Main game loop ended; Terminating application...&quot;);</b>
+<b class="nc">&nbsp;		System.exit(0);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

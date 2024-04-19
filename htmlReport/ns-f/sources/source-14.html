@@ -1,0 +1,181 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > PauseDisplay</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen</a>
+</div>
+
+<h1>Coverage Summary for Class: PauseDisplay (minicraft.screen)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PauseDisplay</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/34)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.World;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.saveload.Save;
+&nbsp;import minicraft.screen.entry.BlankEntry;
+&nbsp;import minicraft.screen.entry.ListEntry;
+&nbsp;import minicraft.screen.entry.SelectEntry;
+&nbsp;import minicraft.screen.entry.StringEntry;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Arrays;
+&nbsp;
+&nbsp;public class PauseDisplay extends Display {
+&nbsp;
+<b class="nc">&nbsp;	public PauseDisplay() {</b>
+<b class="nc">&nbsp;		String upString = Localization.getLocalized(&quot;minicraft.displays.pause.display.help.scroll&quot;, Game.input.getMapping(&quot;cursor-up&quot;), Game.input.getMapping(&quot;cursor-down&quot;));</b>
+<b class="nc">&nbsp;		String selectString = Localization.getLocalized(&quot;minicraft.displays.pause.display.help.choose&quot;, Game.input.getMapping(&quot;select&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;		ArrayList&lt;ListEntry&gt; entries = new ArrayList&lt;&gt;(Arrays.asList(</b>
+&nbsp;			new BlankEntry(),
+<b class="nc">&nbsp;			new SelectEntry(&quot;minicraft.displays.pause.return&quot;, () -&gt; Game.setDisplay(null)),</b>
+<b class="nc">&nbsp;			new SelectEntry(&quot;minicraft.display.options_display&quot;, () -&gt; Game.setDisplay(new OptionsWorldDisplay())),</b>
+<b class="nc">&nbsp;			new SelectEntry(&quot;minicraft.displays.achievements&quot;, () -&gt; Game.setDisplay(new AchievementsDisplay()))</b>
+&nbsp;		));
+&nbsp;
+<b class="nc">&nbsp;		if (TutorialDisplayHandler.inQuests())</b>
+<b class="nc">&nbsp;			entries.add(new SelectEntry(&quot;minicraft.displays.quests&quot;, () -&gt; Game.setDisplay(new QuestsDisplay())));</b>
+&nbsp;
+<b class="nc">&nbsp;		entries.add(new SelectEntry(&quot;minicraft.displays.pause.save&quot;, () -&gt; {</b>
+<b class="nc">&nbsp;			Game.setDisplay(null);</b>
+<b class="nc">&nbsp;			new Save(WorldSelectDisplay.getWorldName());</b>
+<b class="nc">&nbsp;		}));</b>
+&nbsp;
+<b class="nc">&nbsp;		entries.addAll(Arrays.asList(</b>
+&nbsp;			new SelectEntry(&quot;minicraft.displays.pause.menu&quot;, () -&gt; {
+<b class="nc">&nbsp;				ArrayList&lt;ListEntry&gt; items = new ArrayList&lt;&gt;(Arrays.asList(StringEntry.useLines(&quot;minicraft.displays.pause.display.exit_popup.0&quot;)));</b>
+&nbsp;
+<b class="nc">&nbsp;				items.addAll(Arrays.asList(StringEntry.useLines(Color.RED, &quot;minicraft.displays.pause.display.exit_popup.1&quot;)));</b>
+<b class="nc">&nbsp;				items.add(new BlankEntry());</b>
+<b class="nc">&nbsp;				items.add(new SelectEntry(&quot;minicraft.displays.pause.display.exit_popup.cancel&quot;, Game::exitDisplay));</b>
+<b class="nc">&nbsp;				items.add(new SelectEntry(&quot;minicraft.displays.pause.display.exit_popup.quit&quot;, () -&gt; {</b>
+<b class="nc">&nbsp;					Game.setDisplay(new TitleDisplay());</b>
+<b class="nc">&nbsp;					World.onWorldExits();</b>
+<b class="nc">&nbsp;				}));</b>
+&nbsp;
+<b class="nc">&nbsp;				Game.setDisplay(new PopupDisplay(new PopupDisplay.PopupConfig(null, null, 8), items.toArray(new ListEntry[0])));</b>
+<b class="nc">&nbsp;			}),</b>
+&nbsp;
+&nbsp;			new BlankEntry(),
+&nbsp;
+&nbsp;			new StringEntry(upString, Color.GRAY, false),
+&nbsp;			new StringEntry(selectString, Color.GRAY, false)
+&nbsp;		));
+&nbsp;
+<b class="nc">&nbsp;		menus = new Menu[] {</b>
+&nbsp;			new Menu.Builder(true, 4, RelPos.CENTER, entries)
+<b class="nc">&nbsp;				.setTitle(&quot;minicraft.displays.pause&quot;, Color.YELLOW)</b>
+<b class="nc">&nbsp;				.createMenu()</b>
+&nbsp;		};
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void init(Display parent) {
+<b class="nc">&nbsp;		super.init(null); // ignore; pause menus always lead back to the game</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick(InputHandler input) {
+<b class="nc">&nbsp;		super.tick(input);</b>
+<b class="nc">&nbsp;		if (input.inputPressed(&quot;pause&quot;))</b>
+<b class="nc">&nbsp;			Game.exitDisplay();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>

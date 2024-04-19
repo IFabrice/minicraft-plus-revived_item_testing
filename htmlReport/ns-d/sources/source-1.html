@@ -1,0 +1,209 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Analytics</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.network</a>
+</div>
+
+<h1>Coverage Summary for Class: Analytics (minicraft.network)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Analytics</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/23)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Analytics$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/27)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.network;
+&nbsp;
+&nbsp;import kong.unirest.Callback;
+&nbsp;import kong.unirest.Empty;
+&nbsp;import kong.unirest.HttpResponse;
+&nbsp;import kong.unirest.Unirest;
+&nbsp;import kong.unirest.UnirestException;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;import org.tinylog.Logger;
+&nbsp;
+&nbsp;import java.util.concurrent.Future;
+&nbsp;
+<b class="nc">&nbsp;public enum Analytics {</b>
+&nbsp;
+<b class="nc">&nbsp;	GameStartup(&quot;4ZBgx4TBdNvBBVBB&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	SaveFileUpdate(&quot;NCFgx4TBXrv46fpZ&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	SinglePlayerGame(&quot;kSPgx4TBXGn6Kvw5&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	MultiplayerGame(&quot;HwLgx4TBV1pvmsdV&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	LocalSession(&quot;sLQgx4TBrWSP1Q7m&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	WorldCreation(&quot;mQbgx4TB7DC5XqMP&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	LoginAttempt(&quot;5fWgx4TBXwbq7vKc&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	LoginSuccess(&quot;Czggx4TB27KrgQxN&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	SessionAttempt(&quot;P5ggx4TBbrq3NTvt&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	SessionJoin(&quot;Kvjgx4TBH2TZ33Sf&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	FirstAirWizardDeath(&quot;k50gx4TBjnB7bzp3&quot;),</b>
+<b class="nc">&nbsp;	FirstAirWizardIIDeath(&quot;XFngx4TB1tFF0jZ5&quot;),</b>
+<b class="nc">&nbsp;	AirWizardDeath(&quot;WRGgx4TB5NkmZt5m&quot;),</b>
+<b class="nc">&nbsp;	AirWizardIIDeath(&quot;3v3gx4TBMf730gZl&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	Crashes(&quot;Fr1gx4TB2tZVBkcK&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	SinglePlayerDeath(&quot;n8ggx4TBqnWw2hfT&quot;),</b>
+&nbsp;
+<b class="nc">&nbsp;	MultiplayerDeath(&quot;T7Cgx4TB6n2rPzBB&quot;);</b>
+&nbsp;
+&nbsp;
+&nbsp;	private final String token;
+&nbsp;
+<b class="nc">&nbsp;	Analytics(String token) {</b>
+<b class="nc">&nbsp;		this.token = token;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Nullable
+&nbsp;	public Future&lt;HttpResponse&lt;Empty&gt;&gt; ping() {
+<b class="nc">&nbsp;		return ping(1);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Nullable
+&nbsp;	public Future&lt;HttpResponse&lt;Empty&gt;&gt; ping(int value) {
+<b class="nc">&nbsp;		final String url = &quot;https://pingdat.io?t=&quot; + token + &quot;&amp;v=&quot; + value;</b>
+&nbsp;
+<b class="nc">&nbsp;		return Unirest.get(url).asEmptyAsync(new Callback&lt;Empty&gt;() {</b>
+&nbsp;			@Override
+&nbsp;			public void completed(HttpResponse&lt;Empty&gt; response) {
+<b class="nc">&nbsp;				Logger.tag(&quot;Analytics&quot;).trace(&quot;Ping success for {}, with value {}.&quot;, name(), value);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			@Override
+&nbsp;			public void failed(UnirestException e) {
+<b class="nc">&nbsp;				Logger.tag(&quot;Analytics&quot;).warn(&quot;Ping failed for {}, with value {}.&quot;, name(), value);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			@Override
+&nbsp;			public void cancelled() {
+<b class="nc">&nbsp;				Logger.tag(&quot;Analytics&quot;).warn(&quot;Ping cancelled for {}, with value {}.&quot;, name(), value);</b>
+&nbsp;			}
+&nbsp;		});
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-18 20:02</div>
+</div>
+</body>
+</html>
