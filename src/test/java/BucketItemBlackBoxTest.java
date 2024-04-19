@@ -1,15 +1,11 @@
 import minicraft.entity.Direction;
 import minicraft.entity.mob.Player;
-import minicraft.gfx.SpriteLinker;
-import minicraft.item.BookItem;
 import minicraft.item.BucketItem;
 import minicraft.item.Item;
 import minicraft.item.Items;
 import minicraft.level.Level;
-import minicraft.level.tile.LavaTile;
 import minicraft.level.tile.Tile;
-import minicraft.level.tile.Tiles;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -17,14 +13,12 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class BucketItemBlackBoxTest {
 	private static final ArrayList<BucketItem> bucketItems = new ArrayList<>();
 
-	// assume null and broken armor values will cause issues
-	@BeforeEach
-	public void setUp() {
+	@BeforeAll
+	public static void setUp() {
         ArrayList<Item> items = Items.getAll();
 		for (Item item : items) {
 			if (item instanceof BucketItem) {
@@ -33,7 +27,7 @@ public class BucketItemBlackBoxTest {
 		}
 	}
 
-	// empty bucket should have different behavior than lava/water buckets
+	// Confirming that all three bucket states are collected
 	@Test
 	public void testBucketItemHasAllThreeStates() {
 		assert(bucketItems.size() == 3);
@@ -41,6 +35,7 @@ public class BucketItemBlackBoxTest {
 
 	}
 
+	// Error guessing on bucket properties
 	@Test
 	public void testBucketItemHasExpectedProperties() {
 		for (BucketItem bucket : bucketItems) {

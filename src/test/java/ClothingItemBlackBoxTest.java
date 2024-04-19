@@ -1,12 +1,9 @@
 import minicraft.entity.Direction;
 import minicraft.entity.mob.Player;
-import minicraft.item.BucketItem;
 import minicraft.item.ClothingItem;
 import minicraft.item.Item;
 import minicraft.item.Items;
-import minicraft.level.Level;
-import minicraft.level.tile.Tile;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -18,8 +15,8 @@ import static org.mockito.Mockito.mock;
 public class ClothingItemBlackBoxTest {
 	private static final ArrayList<ClothingItem> clothingItems = new ArrayList<>();
 
-	@BeforeEach
-	public void setUp() {
+	@BeforeAll
+	public static void setUp() {
 		ArrayList<Item> items = Items.getAll();
 		for (Item item : items) {
 			if (item instanceof ClothingItem) {
@@ -28,6 +25,7 @@ public class ClothingItemBlackBoxTest {
 		}
 	}
 
+	// Error guessing on expected behavior
 	@Test
 	public void testClothingItemsHaveExpectedBehavior() {
 		for (ClothingItem clothing : clothingItems) {
@@ -36,13 +34,13 @@ public class ClothingItemBlackBoxTest {
 		}
 	}
 
+
+	// testing expected behavior; player should be able to change clothes
 	@Test
 	public void testClothingSuccessfullyChanged() {
 		Player mockPlayer = mock(Player.class);
-		Tile mockTile = mock(Tile.class);
-		Level mockLevel = mock(Level.class);
 		for (ClothingItem clothing : clothingItems) {
-			assertTrue(clothing.interactOn(mockTile, mockLevel, 0, 0, mockPlayer, Direction.NONE));
+			assertTrue(clothing.interactOn(null, null, 0, 0, mockPlayer, Direction.NONE));
 		}
 
 

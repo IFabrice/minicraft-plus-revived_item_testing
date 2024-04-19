@@ -1,5 +1,4 @@
 import minicraft.entity.mob.Player;
-import minicraft.gfx.SpriteLinker;
 import minicraft.item.BookItem;
 import minicraft.item.Item;
 import minicraft.item.Items;
@@ -9,14 +8,12 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class BookItemBlackBoxTest {
 	private static final ArrayList<BookItem> bookItems = new ArrayList<>();
 
-	// assume null and broken armor values will cause issues
+
 	@BeforeEach
 	public void setUp() {
 		ArrayList<Item> items = Items.getAll();
@@ -27,6 +24,7 @@ public class BookItemBlackBoxTest {
 		}
 	}
 
+	// Error guessing on book properties
 	@Test
 	public void testBookHasExpectedProperties() {
 		for (BookItem book : bookItems) {
@@ -35,6 +33,7 @@ public class BookItemBlackBoxTest {
 		}
 	}
 
+	// Tests interaction between player and books; should be able to read books
 	@Test
 	public void testBookCanBeInteractedWithByPlayer() {
 		Player mockPlayer = mock(Player.class);
