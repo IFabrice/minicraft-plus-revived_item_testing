@@ -1,0 +1,309 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TinylogLoggingProvider</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.util</a>
+</div>
+
+<h1>Coverage Summary for Class: TinylogLoggingProvider (minicraft.util)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TinylogLoggingProvider</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    53.8%
+  </span>
+  <span class="absValue">
+    (7/13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    69.6%
+  </span>
+  <span class="absValue">
+    (55/79)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.util;
+&nbsp;
+&nbsp;import minicraft.util.TinylogLoggingConfiguration.WriterConfig;
+&nbsp;import org.tinylog.Level;
+&nbsp;import org.tinylog.core.ConfigurationParser;
+&nbsp;import org.tinylog.core.LogEntry;
+&nbsp;import org.tinylog.core.LogEntryValue;
+&nbsp;import org.tinylog.core.TinylogContextProvider;
+&nbsp;import org.tinylog.core.WritingThread;
+&nbsp;import org.tinylog.format.MessageFormatter;
+&nbsp;import org.tinylog.provider.ContextProvider;
+&nbsp;import org.tinylog.provider.InternalLogger;
+&nbsp;import org.tinylog.provider.LoggingProvider;
+&nbsp;import org.tinylog.runtime.RuntimeProvider;
+&nbsp;import org.tinylog.writers.ConsoleWriter;
+&nbsp;import org.tinylog.writers.FileWriter;
+&nbsp;import org.tinylog.writers.Writer;
+&nbsp;
+&nbsp;import java.lang.reflect.Constructor;
+&nbsp;import java.lang.reflect.InvocationTargetException;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Collection;
+&nbsp;import java.util.EnumSet;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.function.Consumer;
+&nbsp;
+&nbsp;/**
+&nbsp; * Originally copied from {@link org.tinylog.core.TinylogLoggingProvider}
+&nbsp; */
+&nbsp;public class TinylogLoggingProvider implements LoggingProvider {
+&nbsp;
+&nbsp;	private final TinylogContextProvider context;
+&nbsp;	private final WritingThread writingThread;
+&nbsp;	private final HashMap&lt;Writer, WriterConfig&gt; writers;
+&nbsp;	private final EnumSet&lt;LogEntryValue&gt; requiredLogEntryValues;
+&nbsp;	private final HashMap&lt;Writer, Boolean&gt; fullStackTraceRequired;
+&nbsp;	private final HashMap&lt;String, ConsoleWriter&gt; consoleWriters;
+&nbsp;	private final HashMap&lt;String, FileWriter&gt; fileWriters; // Excluding the localization logger
+&nbsp;	private final ArrayList&lt;Writer&gt; otherWriters;
+&nbsp;
+&nbsp;	private ConsoleWriter currentConsoleWriter;
+&nbsp;	private FileWriter currentFileWriter;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 *
+&nbsp;	 */
+<b class="fc">&nbsp;	public TinylogLoggingProvider() {</b>
+<b class="fc">&nbsp;		TinylogLoggingConfiguration config = new TinylogLoggingConfiguration();</b>
+<b class="fc">&nbsp;		context = new TinylogContextProvider();</b>
+&nbsp;
+<b class="fc">&nbsp;		writers = config.createWriters();</b>
+<b class="fc">&nbsp;		requiredLogEntryValues = EnumSet.noneOf(LogEntryValue.class);</b>
+<b class="fc">&nbsp;		fullStackTraceRequired = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;		consoleWriters = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;		fileWriters = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;		otherWriters = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;		for (Writer writer : writers.keySet()) {</b>
+<b class="fc">&nbsp;			if (writer instanceof ConsoleWriter) {</b>
+<b class="fc">&nbsp;				consoleWriters.put(writers.get(writer).ID, (ConsoleWriter) writer);</b>
+<b class="fc">&nbsp;			} else if (writer instanceof FileWriter &amp;&amp; writers.get(writer).ID.startsWith(&quot;writer2&quot;)) {</b>
+<b class="fc">&nbsp;				fileWriters.put(writers.get(writer).ID, (FileWriter) writer);</b>
+&nbsp;			} else {
+<b class="fc">&nbsp;				otherWriters.add(writer);</b>
+&nbsp;			}
+&nbsp;
+<b class="fc">&nbsp;			Collection&lt;LogEntryValue&gt; logEntryValues = writer.getRequiredLogEntryValues();</b>
+<b class="fc">&nbsp;			requiredLogEntryValues.addAll(logEntryValues);</b>
+<b class="fc">&nbsp;			fullStackTraceRequired.put(writer, logEntryValues.contains(LogEntryValue.METHOD) || logEntryValues.contains(LogEntryValue.FILE) || logEntryValues.contains(LogEntryValue.LINE));</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+<b class="fc">&nbsp;		currentConsoleWriter = consoleWriters.get(&quot;writer1FFF&quot;);</b>
+<b class="fc">&nbsp;		currentFileWriter = fileWriters.get(&quot;writer2&quot;);</b>
+&nbsp;
+&nbsp;		try {
+&nbsp;			@SuppressWarnings(&quot;unchecked&quot;)
+<b class="fc">&nbsp;			Constructor&lt;WritingThread&gt; ctr = (Constructor&lt;WritingThread&gt;) Class.forName(&quot;org.tinylog.core.WritingThread&quot;).getDeclaredConstructor(Collection.class);</b>
+<b class="fc">&nbsp;			ctr.setAccessible(true);</b>
+<b class="fc">&nbsp;			writingThread = ctr.newInstance(writers.keySet());</b>
+<b class="nc">&nbsp;		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException</b>
+&nbsp;		         | NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+<b class="nc">&nbsp;			throw new RuntimeException(e);</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+<b class="fc">&nbsp;		writingThread.start();</b>
+&nbsp;
+<b class="fc">&nbsp;		if (ConfigurationParser.isAutoShutdownEnabled()) {</b>
+<b class="fc">&nbsp;			Runtime.getRuntime().addShutdownHook(new Thread(() -&gt; {</b>
+&nbsp;				try {
+<b class="fc">&nbsp;					shutdown();</b>
+<b class="nc">&nbsp;				} catch (InterruptedException ex) {</b>
+<b class="nc">&nbsp;					InternalLogger.log(Level.ERROR, ex, &quot;Interrupted while waiting for shutdown&quot;);</b>
+<b class="fc">&nbsp;				}</b>
+<b class="fc">&nbsp;			}));</b>
+&nbsp;		}
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Applying the configuration in {@link Logging}
+&nbsp;	 */
+&nbsp;	public void init() {
+<b class="nc">&nbsp;		currentConsoleWriter = consoleWriters.get(String.format(&quot;writer1%s%s%s&quot;, Logging.logTime ? &quot;T&quot; : &quot;F&quot;, Logging.logThread ? &quot;T&quot; : &quot;F&quot;, Logging.logTrace ? &quot;T&quot; : &quot;F&quot;));</b>
+<b class="nc">&nbsp;		currentFileWriter = fileWriters.get(&quot;writer2&quot; + (Logging.fileLogFull ? &quot;Full&quot; : &quot;&quot;));</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public ContextProvider getContextProvider() {
+<b class="nc">&nbsp;		return context;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Level getMinimumLevel() {
+<b class="nc">&nbsp;		return Level.TRACE;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Level getMinimumLevel(final String tag) {
+<b class="fc">&nbsp;		return Level.TRACE; // All tags and levels are logged with writer2.</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean isEnabled(final int depth, final String tag, final Level level) {
+<b class="nc">&nbsp;		return true; // Always enabled.</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void log(final int depth, final String tag, final Level level, final Throwable exception, final MessageFormatter formatter,
+&nbsp;	                final Object obj, final Object... arguments) {
+&nbsp;		StackTraceElement stackTraceElement;
+<b class="fc">&nbsp;		if (fullStackTraceRequired.get(currentConsoleWriter) || tag.equals(&quot;LOC&quot;)) {</b>
+<b class="fc">&nbsp;			stackTraceElement = RuntimeProvider.getCallerStackTraceElement(depth + 1);</b>
+&nbsp;		} else {
+<b class="fc">&nbsp;			stackTraceElement = null;</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		if (stackTraceElement == null) {</b>
+<b class="fc">&nbsp;			stackTraceElement = new StackTraceElement(RuntimeProvider.getCallerClassName(depth + 1), &quot;&lt;unknown&gt;&quot;, null, -1);</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		output(stackTraceElement, tag, level, exception, formatter, obj, arguments);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void log(final String loggerClassName, final String tag, final Level level, final Throwable exception,
+&nbsp;	                final MessageFormatter formatter, final Object obj, final Object... arguments) {
+&nbsp;		StackTraceElement stackTraceElement;
+<b class="nc">&nbsp;		if (fullStackTraceRequired.get(currentConsoleWriter) || tag.equals(&quot;LOC&quot;)) {</b>
+<b class="nc">&nbsp;			stackTraceElement = RuntimeProvider.getCallerStackTraceElement(loggerClassName);</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			stackTraceElement = null;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (stackTraceElement == null) {</b>
+<b class="nc">&nbsp;			stackTraceElement = new StackTraceElement(RuntimeProvider.getCallerClassName(loggerClassName), &quot;&lt;unknown&gt;&quot;, null, -1);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		output(stackTraceElement, tag, level, exception, formatter, obj, arguments);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void shutdown() throws InterruptedException {
+<b class="fc">&nbsp;		if (writingThread == null) {</b>
+<b class="nc">&nbsp;			for (Writer writer : writers.keySet()) {</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					writer.close();</b>
+<b class="nc">&nbsp;				} catch (Exception ex) {</b>
+<b class="nc">&nbsp;					InternalLogger.log(Level.ERROR, ex, &quot;Failed to close writer&quot;);</b>
+<b class="nc">&nbsp;				}</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		} else {
+<b class="fc">&nbsp;			writingThread.shutdown();</b>
+<b class="fc">&nbsp;			writingThread.join();</b>
+&nbsp;		}
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Outputs a log entry to all passed writers.
+&nbsp;	 */
+&nbsp;	private void output(final StackTraceElement stackTraceElement, final String tag,
+&nbsp;	                    final Level level, final Throwable exception, final MessageFormatter formatter, final Object obj,
+&nbsp;	                    final Object[] arguments) {
+&nbsp;
+<b class="fc">&nbsp;		LogEntry logEntry = TinylogLoggingConfiguration.createLogEntry(stackTraceElement, tag, level, exception, formatter,</b>
+&nbsp;			obj, arguments, requiredLogEntryValues, context);
+&nbsp;
+<b class="fc">&nbsp;		Consumer&lt;Writer&gt; addToThread = writer -&gt; {</b>
+<b class="fc">&nbsp;			WriterConfig cfg = writers.get(writer);</b>
+<b class="fc">&nbsp;			if (cfg.levels.contains(level) &amp;&amp; cfg.tags.contains(tag))</b>
+<b class="fc">&nbsp;				writingThread.add(writer, logEntry);</b>
+<b class="fc">&nbsp;		};</b>
+&nbsp;
+<b class="fc">&nbsp;		addToThread.accept(currentConsoleWriter);</b>
+<b class="fc">&nbsp;		addToThread.accept(currentFileWriter);</b>
+<b class="fc">&nbsp;		for (Writer writer : otherWriters)</b>
+<b class="fc">&nbsp;			addToThread.accept(writer);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Gets all writers of the provider.
+&nbsp;	 * @return All writers
+&nbsp;	 */
+&nbsp;	public Collection&lt;Writer&gt; getWriters() {
+<b class="nc">&nbsp;		return writers.keySet();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,203 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > StackableItem</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.item</a>
+</div>
+
+<h1>Coverage Summary for Class: StackableItem (minicraft.item)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">StackableItem</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    60%
+  </span>
+  <span class="absValue">
+    (6/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    88.6%
+  </span>
+  <span class="absValue">
+    (39/44)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.gfx.SpriteLinker;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;
+&nbsp;// Some items are direct instances of this class; those instances are the true &quot;items&quot;, like stone, wood, wheat, or coal; you can&#39;t do anything with them besides use them to make something else.
+&nbsp;
+&nbsp;public class StackableItem extends Item {
+&nbsp;
+&nbsp;	protected static ArrayList&lt;Item&gt; getAllInstances() {
+<b class="fc">&nbsp;		ArrayList&lt;Item&gt; items = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Wood&quot;, new LinkedSprite(SpriteType.Item, &quot;wood&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Leather&quot;, new LinkedSprite(SpriteType.Item, &quot;leather&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Wheat&quot;, new LinkedSprite(SpriteType.Item, &quot;wheat&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Key&quot;, new LinkedSprite(SpriteType.Item, &quot;key&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Arrow&quot;, new LinkedSprite(SpriteType.Item, &quot;arrow&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;String&quot;, new LinkedSprite(SpriteType.Item, &quot;string&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Coal&quot;, new LinkedSprite(SpriteType.Item, &quot;coal&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Iron Ore&quot;, new LinkedSprite(SpriteType.Item, &quot;iron_ore&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Lapis&quot;, new LinkedSprite(SpriteType.Item, &quot;lapis&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Gold Ore&quot;, new LinkedSprite(SpriteType.Item, &quot;gold_ore&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Iron&quot;, new LinkedSprite(SpriteType.Item, &quot;iron_ingot&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Gold&quot;, new LinkedSprite(SpriteType.Item, &quot;gold_ingot&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Rose&quot;, new LinkedSprite(SpriteType.Item, &quot;red_flower&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Gunpowder&quot;, new LinkedSprite(SpriteType.Item, &quot;gunpowder&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Slime&quot;, new LinkedSprite(SpriteType.Item, &quot;slime&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Glass&quot;, new LinkedSprite(SpriteType.Item, &quot;glass&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Cloth&quot;, new LinkedSprite(SpriteType.Item, &quot;cloth&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Gem&quot;, new LinkedSprite(SpriteType.Item, &quot;gem&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Scale&quot;, new LinkedSprite(SpriteType.Item, &quot;scale&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Shard&quot;, new LinkedSprite(SpriteType.Item, &quot;shard&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Cloud Ore&quot;, new LinkedSprite(SpriteType.Item, &quot;cloud_ore&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Glass Bottle&quot;, new LinkedSprite(SpriteType.Item, &quot;glass_bottle&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Tomato&quot;, new LinkedSprite(SpriteType.Item, &quot;tomato&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Bone&quot;, new LinkedSprite(SpriteType.Item, &quot;bone&quot;)));</b>
+<b class="fc">&nbsp;		items.add(new StackableItem(&quot;Fertilizer&quot;, new SpriteLinker.LinkedSprite(SpriteLinker.SpriteType.Item, &quot;fertilizer&quot;)));</b>
+&nbsp;
+<b class="fc">&nbsp;		return items;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public int count;
+<b class="fc">&nbsp;	public int maxCount = 100;</b>
+&nbsp;
+&nbsp;	protected StackableItem(String name, LinkedSprite sprite) {
+<b class="fc">&nbsp;		super(name, sprite);</b>
+<b class="fc">&nbsp;		count = 1;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	protected StackableItem(String name, LinkedSprite sprite, int count) {
+<b class="fc">&nbsp;		this(name, sprite);</b>
+<b class="fc">&nbsp;		this.count = count;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean stacksWith(Item other) {
+<b class="fc">&nbsp;		return other instanceof StackableItem &amp;&amp; other.getName().equals(getName());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// This is used by (most) subclasses, to standardize the count decrement behavior. This is not the normal interactOn method.
+&nbsp;	protected boolean interactOn(boolean subClassSuccess) {
+<b class="fc">&nbsp;		if (subClassSuccess &amp;&amp; !Game.isMode(&quot;minicraft.settings.mode.creative&quot;))</b>
+<b class="fc">&nbsp;			count--;</b>
+<b class="fc">&nbsp;		return subClassSuccess;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Called to determine if this item should be removed from an inventory.
+&nbsp;	 */
+&nbsp;	@Override
+&nbsp;	public boolean isDepleted() {
+<b class="nc">&nbsp;		return count &lt;= 0;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public @NotNull StackableItem copy() {
+<b class="fc">&nbsp;		return new StackableItem(getName(), sprite, count);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public String toString() {
+<b class="nc">&nbsp;		return super.toString() + &quot;-Stack_Size:&quot; + count;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public String getData() {
+<b class="nc">&nbsp;		return getName() + &quot;_&quot; + count;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public String getDisplayName() {
+<b class="nc">&nbsp;		String amt = (Math.min(count, 999)) + &quot; &quot;;</b>
+<b class="nc">&nbsp;		return &quot; &quot; + amt + Localization.getLocalized(getName());</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

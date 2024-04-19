@@ -107,6 +107,7 @@ public class Inventory {
 							}
 						}
 					} else {
+						// Unreachable in tests as no way to get access to private variable or mock it
 						stack.count += toTake.count;
 						return total;
 					}
@@ -129,6 +130,7 @@ public class Inventory {
 					return total - toTake.count;
 				}
 			} else {
+				// Unreachable in tests as no way to get access to private variable or mock it
 				items.add(slot, toTake);
 				return total;
 			}
@@ -142,6 +144,7 @@ public class Inventory {
 				return 0;
 			}
 		} else {
+			// Unreachable in tests as no way to get access to private variable or mock it
 			items.add(slot, item);
 			return 1;
 		}
@@ -166,6 +169,7 @@ public class Inventory {
 			removed += amountRemoving;
 			if (removed == count) break;
 			if (removed > count) { // Just in case...
+				// Unreachable if conditions prevent reaching this branch
 				Logging.INVENTORY.info("SCREW UP while removing items from stack: " + (removed - count) + " too many.");
 				break;
 			}
@@ -197,10 +201,15 @@ public class Inventory {
 		if (given instanceof StackableItem)
 			count -= removeFromStack((StackableItem) given, count);
 		else {
-			for (int i = 0; i < items.size(); i++) {
+			// A better approach would be to store original length and use that to terminate loop
+			// int oldSize = items.size()
+			// for (int i = 0; i < oldSize; i++) {
+			// loop logic
+			//}
+			for (int i = 0; i < items.size(); i++) { // Fault for terminating loop
 				Item curItem = items.get(i);
 				if (curItem.equals(given)) {
-					remove(i);
+					remove(i); // remove decrements items.size()
 					count--;
 					if (count == 0) break;
 				}

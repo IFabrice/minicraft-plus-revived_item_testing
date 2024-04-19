@@ -1,0 +1,183 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Sprite</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.gfx</a>
+</div>
+
+<h1>Coverage Summary for Class: Sprite (minicraft.gfx)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Sprite</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Sprite$Px</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/16)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.gfx;
+&nbsp;
+&nbsp;/**
+&nbsp; * This class represents a group of pixels on their sprite sheet(s).
+&nbsp; */
+&nbsp;public class Sprite {
+&nbsp;	/**
+&nbsp;	 * This class needs to store a list of similar segments that make up a sprite, just once for everything. There&#39;s usually four groups, but the components are:
+&nbsp;	 * -spritesheet location (x, y)
+&nbsp;	 * -mirror type
+&nbsp;	 * &lt;p&gt;
+&nbsp;	 * That&#39;s it!
+&nbsp;	 * The screen&#39;s render method only draws one 8x8 pixel of the spritesheet at a time, so the &quot;sprite size&quot; will be determined by how many repetitions of the above group there are.
+&nbsp;	 */
+&nbsp;
+&nbsp;	public Px[][] spritePixels;
+<b class="nc">&nbsp;	public int color = -1;</b>
+&nbsp;	// spritePixels is arranged so that the pixels are in their correct positions relative to the top left of the full sprite. This means that their render positions are built-in to the array.
+&nbsp;
+<b class="nc">&nbsp;	public Sprite(Px[][] pixels) {</b>
+<b class="nc">&nbsp;		spritePixels = pixels;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public String toString() {
+<b class="nc">&nbsp;		StringBuilder out = new StringBuilder(getClass().getName().replace(&quot;minicraft.gfx.&quot;, &quot;&quot;) + &quot;; pixels:&quot;);</b>
+<b class="nc">&nbsp;		for (Px[] row : spritePixels)</b>
+<b class="nc">&nbsp;			for (Px pixel : row)</b>
+<b class="nc">&nbsp;				out.append(&quot;\n&quot;).append(pixel.toString());</b>
+<b class="nc">&nbsp;		out.append(&quot;\n&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		return out.toString();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This class represents a pixel on the sprite sheet.
+&nbsp;	 */
+&nbsp;	public static class Px {
+&nbsp;		protected int x, y, mirror;
+&nbsp;		protected MinicraftImage sheet;
+&nbsp;
+<b class="nc">&nbsp;		public Px(int sheetX, int sheetY, int mirroring, MinicraftImage sheet) {</b>
+&nbsp;			// pixelX and pixelY are the relative positions each pixel should have relative to the top-left-most pixel of the sprite.
+<b class="nc">&nbsp;			x = sheetX;</b>
+<b class="nc">&nbsp;			y = sheetY;</b>
+<b class="nc">&nbsp;			mirror = mirroring;</b>
+<b class="nc">&nbsp;			this.sheet = sheet;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public String toString() {
+<b class="nc">&nbsp;			return &quot;SpritePixel:x=&quot; + x + &quot;;y=&quot; + y + &quot;;mirror=&quot; + mirror;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,281 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CropTile</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.level.tile.farming</a>
+</div>
+
+<h1>Coverage Summary for Class: CropTile (minicraft.level.tile.farming)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CropTile</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25%
+  </span>
+  <span class="absValue">
+    (2/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    5.4%
+  </span>
+  <span class="absValue">
+    (5/93)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.level.tile.farming;
+&nbsp;
+&nbsp;import minicraft.core.io.Sound;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.entity.mob.Mob;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.entity.particle.Particle;
+&nbsp;import minicraft.gfx.SpriteLinker;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.item.Items;
+&nbsp;import minicraft.item.StackableItem;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;import minicraft.level.tile.WaterTile;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.Random;
+&nbsp;
+&nbsp;public class CropTile extends FarmTile {
+&nbsp;	protected final @Nullable String seed;
+&nbsp;
+<b class="fc">&nbsp;	protected int maxAge = 0b111; // Must be a bit mask.</b>
+&nbsp;
+&nbsp;	protected CropTile(String name, @Nullable String seed) {
+<b class="fc">&nbsp;		super(name, null);</b>
+<b class="fc">&nbsp;		this.seed = seed;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean hurt(Level level, int x, int y, Mob source, int dmg, Direction attackDir) {
+<b class="nc">&nbsp;		harvest(level, x, y, source);</b>
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean tick(Level level, int xt, int yt) {
+<b class="nc">&nbsp;		int data = level.getData(xt, yt);</b>
+<b class="nc">&nbsp;		int moisture = data &amp; 0b111;</b>
+<b class="nc">&nbsp;		boolean successful = false;</b>
+<b class="nc">&nbsp;		if (Arrays.stream(level.getAreaTiles(xt, yt, 4)).anyMatch(t -&gt; t instanceof WaterTile)) { // Contains water.</b>
+<b class="nc">&nbsp;			if (moisture &lt; 7 &amp;&amp; random.nextInt(10) == 0) { // hydrating</b>
+<b class="nc">&nbsp;				level.setData(xt, yt, data = (data &amp; ~0b111) + moisture++);</b>
+<b class="nc">&nbsp;				successful = true;</b>
+&nbsp;			}
+<b class="nc">&nbsp;		} else if (moisture &gt; 0 &amp;&amp; random.nextInt(10) == 0) { // drying</b>
+<b class="nc">&nbsp;			level.setData(xt, yt, data = (data &amp; ~0b111) + moisture--);</b>
+<b class="nc">&nbsp;			successful = true;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		int fertilization = getFertilization(data);</b>
+<b class="nc">&nbsp;		int stage = (data &gt;&gt; 3) &amp; maxAge;</b>
+<b class="nc">&nbsp;		if (stage &lt; maxAge) {</b>
+<b class="nc">&nbsp;			double points = moisture &gt; 0 ? 4 : 2;</b>
+<b class="nc">&nbsp;			for (int i = -1; i &lt; 2; i++)</b>
+<b class="nc">&nbsp;				for (int j = -1; j &lt; 2; j++) {</b>
+<b class="nc">&nbsp;					Tile t = level.getTile(xt + i, yt + j);</b>
+<b class="nc">&nbsp;					if ((i != 0 || j != 0) &amp;&amp; t instanceof FarmTile) {</b>
+<b class="nc">&nbsp;						points += (level.getData(xt + i, yt + j) &amp; 0b111) &gt; 0 ? 0.75 : 0.25;</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;
+&nbsp;			// Checking whether the target direction has targeted the same CropTile
+<b class="nc">&nbsp;			boolean up = level.getTile(xt, yt - 1) == this;</b>
+<b class="nc">&nbsp;			boolean down = level.getTile(xt, yt + 1) == this;</b>
+<b class="nc">&nbsp;			boolean left = level.getTile(xt - 1, yt) == this;</b>
+<b class="nc">&nbsp;			boolean right = level.getTile(xt + 1, yt) == this;</b>
+<b class="nc">&nbsp;			boolean upLeft = level.getTile(xt - 1, yt - 1) == this;</b>
+<b class="nc">&nbsp;			boolean downLeft = level.getTile(xt - 1, yt + 1) == this;</b>
+<b class="nc">&nbsp;			boolean upRight = level.getTile(xt + 1, yt - 1) == this;</b>
+<b class="nc">&nbsp;			boolean downRight = level.getTile(xt + 1, yt + 1) == this;</b>
+<b class="nc">&nbsp;			if (up &amp;&amp; down &amp;&amp; left &amp;&amp; right &amp;&amp; upLeft &amp;&amp; downLeft &amp;&amp; upRight &amp;&amp; downRight)</b>
+<b class="nc">&nbsp;				points /= 2;</b>
+&nbsp;			else {
+<b class="nc">&nbsp;				if (up &amp;&amp; down &amp;&amp; left &amp;&amp; right)</b>
+<b class="nc">&nbsp;					points *= 0.75;</b>
+<b class="nc">&nbsp;				if (up &amp;&amp; (down &amp;&amp; (left || right) || left &amp;&amp; right) || down &amp;&amp; left &amp;&amp; right) // Either 3 of 4 directions.</b>
+<b class="nc">&nbsp;					points *= 0.85;</b>
+<b class="nc">&nbsp;				if (upLeft &amp;&amp; (downRight || downLeft || upRight) || downLeft &amp;&amp; (upRight || downRight) || upRight &amp;&amp; downRight) // Either 2 of 4 directions.</b>
+<b class="nc">&nbsp;					points *= 0.9;</b>
+<b class="nc">&nbsp;				if (upLeft) points *= 0.98125;</b>
+<b class="nc">&nbsp;				if (downLeft) points *= 0.98125;</b>
+<b class="nc">&nbsp;				if (upRight) points *= 0.98125;</b>
+<b class="nc">&nbsp;				if (downRight) points *= 0.98125;</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (random.nextInt((int) (100 / points) + 1) &lt; (fertilization / 30 + 1)) // fertilization &gt;= 0</b>
+<b class="nc">&nbsp;				level.setData(xt, yt, data = (data &amp; ~(maxAge &lt;&lt; 3)) + ((stage + 1) &lt;&lt; 3)); // Incrementing the stage by 1.</b>
+<b class="nc">&nbsp;			successful = true;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (fertilization &gt; 0) {</b>
+<b class="nc">&nbsp;			level.setData(xt, yt, (data &amp; (0b111 + (maxAge &lt;&lt; 3))) + ((fertilization - 1) &lt;&lt; (3 + (maxAge + 1) / 2)));</b>
+<b class="nc">&nbsp;			successful = true;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return successful;</b>
+&nbsp;	}
+&nbsp;
+<b class="fc">&nbsp;	private static final SpriteLinker.LinkedSprite particleSprite = new SpriteLinker.LinkedSprite(SpriteLinker.SpriteType.Entity, &quot;glint&quot;);</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean interact(Level level, int xt, int yt, Player player, Item item, Direction attackDir) {
+<b class="nc">&nbsp;		if (item instanceof StackableItem &amp;&amp; item.getName().equalsIgnoreCase(&quot;Fertilizer&quot;)) {</b>
+<b class="nc">&nbsp;			((StackableItem) item).count--;</b>
+<b class="nc">&nbsp;			Random random = new Random();</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; 2; ++i) {</b>
+<b class="nc">&nbsp;				double x = (double) xt * 16 + 8 + (random.nextGaussian() * 0.5) * 8;</b>
+<b class="nc">&nbsp;				double y = (double) yt * 16 + 8 + (random.nextGaussian() * 0.5) * 8;</b>
+<b class="nc">&nbsp;				level.add(new Particle((int) x, (int) y, 120 + random.nextInt(21) - 40, particleSprite));</b>
+&nbsp;			}
+<b class="nc">&nbsp;			int fertilization = getFertilization(level.getData(xt, yt));</b>
+<b class="nc">&nbsp;			if (fertilization &lt; 100) { // More fertilization, lower the buffer is applied.</b>
+<b class="nc">&nbsp;				fertilize(level, xt, yt, 40);</b>
+<b class="nc">&nbsp;			} else if (fertilization &lt; 200) {</b>
+<b class="nc">&nbsp;				fertilize(level, xt, yt, 30);</b>
+<b class="nc">&nbsp;			} else if (fertilization &lt; 300) {</b>
+<b class="nc">&nbsp;				fertilize(level, xt, yt, 25);</b>
+<b class="nc">&nbsp;			} else if (fertilization &lt; 400) {</b>
+<b class="nc">&nbsp;				fertilize(level, xt, yt, 20);</b>
+&nbsp;			} else {
+<b class="nc">&nbsp;				fertilize(level, xt, yt, 10);</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			return true;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return super.interact(level, xt, yt, player, item, attackDir);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Default harvest method, used for everything that doesn&#39;t really need any special behavior.
+&nbsp;	 */
+&nbsp;	protected void harvest(Level level, int x, int y, Entity entity) {
+<b class="nc">&nbsp;		int data = level.getData(x, y);</b>
+<b class="nc">&nbsp;		int age = (data &gt;&gt; 3) &amp; maxAge;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (seed != null)</b>
+<b class="nc">&nbsp;			level.dropItem(x * 16 + 8, y * 16 + 8, 1, Items.get(seed));</b>
+&nbsp;
+<b class="nc">&nbsp;		if (age == maxAge) {</b>
+<b class="nc">&nbsp;			level.dropItem(x * 16 + 8, y * 16 + 8, random.nextInt(3) + 2, Items.get(name));</b>
+<b class="nc">&nbsp;		} else if (seed == null) {</b>
+<b class="nc">&nbsp;			level.dropItem(x * 16 + 8, y * 16 + 8, 1, Items.get(name));</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (age == maxAge &amp;&amp; entity instanceof Player) {</b>
+<b class="nc">&nbsp;			((Player) entity).addScore(random.nextInt(5) + 1);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Play sound.
+<b class="nc">&nbsp;		Sound.play(&quot;monsterhurt&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		level.setTile(x, y, Tiles.get(&quot;farmland&quot;), data &amp; 0b111);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public int getFertilization(int data) {
+<b class="nc">&nbsp;		return data &gt;&gt; (3 + (maxAge + 1) / 2);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Fertilization: Each magnitude of fertilization (by 1) increases the chance of growth by 1/30.
+&nbsp;	 * (The addition by fertilization is rounded down to the nearest integer in chance calculation)
+&nbsp;	 * For example, if the chance is originally 10% (1/10), the final chance with 30 fertilization will be 20% (2/10).
+&nbsp;	 */
+&nbsp;	public void fertilize(Level level, int x, int y, int amount) {
+<b class="nc">&nbsp;		int data = level.getData(x, y);</b>
+<b class="nc">&nbsp;		int fertilization = getFertilization(data);</b>
+<b class="nc">&nbsp;		fertilization += amount;</b>
+<b class="nc">&nbsp;		if (fertilization &lt; 0) fertilization = 0;</b>
+<b class="nc">&nbsp;		if (fertilization &gt; 511) fertilization = 511; // The maximum possible value to be reached.</b>
+&nbsp;		// If this value exceeds 511, the final value would be greater than the hard maximum value that short can be.
+<b class="nc">&nbsp;		level.setData(x, y, (data &amp; (0b111 + (maxAge &lt;&lt; 3))) + (fertilization &lt;&lt; (3 + (maxAge + 1) / 2)));</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

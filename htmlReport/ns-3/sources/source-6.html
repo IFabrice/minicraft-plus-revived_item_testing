@@ -1,0 +1,258 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ItemEntity</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.entity</a>
+</div>
+
+<h1>Coverage Summary for Class: ItemEntity (minicraft.entity)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ItemEntity</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/64)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.entity;
+&nbsp;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.item.Item;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;public class ItemEntity extends Entity implements ClientTickable {
+&nbsp;	private int lifeTime; // The life time of this entity in the level
+&nbsp;	private double xa, ya, za; // The x, y, and z accelerations.
+&nbsp;	private double xx, yy, zz; // The x, y, and z coordinates; in double precision.
+&nbsp;	public Item item; // The item that this entity is based off of.
+<b class="nc">&nbsp;	private int time = 0; // Time it has lasted in the level</b>
+&nbsp;
+&nbsp;	// Solely for multiplayer use.
+<b class="nc">&nbsp;	private boolean pickedUp = false;</b>
+&nbsp;	private long pickupTimestamp;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Creates an item entity of the item item at position (x,y) with size 2*2.
+&nbsp;	 * @param item Item to add as item entity
+&nbsp;	 * @param x position on map
+&nbsp;	 * @param y position on map
+&nbsp;	 */
+&nbsp;	public ItemEntity(Item item, int x, int y) {
+<b class="nc">&nbsp;		super(2, 2);</b>
+&nbsp;
+<b class="nc">&nbsp;		this.item = item.copy();</b>
+<b class="nc">&nbsp;		this.x = x;</b>
+<b class="nc">&nbsp;		this.y = y;</b>
+<b class="nc">&nbsp;		xx = x;</b>
+<b class="nc">&nbsp;		yy = y;</b>
+&nbsp;
+<b class="nc">&nbsp;		zz = 2;</b>
+&nbsp;		// Random direction for each acceleration
+<b class="nc">&nbsp;		xa = random.nextGaussian() * 0.3;</b>
+<b class="nc">&nbsp;		ya = random.nextGaussian() * 0.2;</b>
+<b class="nc">&nbsp;		za = random.nextFloat() * 0.7 + 1;</b>
+&nbsp;
+<b class="nc">&nbsp;		lifeTime = 60 * 10 + random.nextInt(70); // Sets the lifetime of the item. min = 600 ticks, max = 669 ticks.</b>
+&nbsp;		// The idea was to have it last 10-11 seconds, I think.
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Creates an item entity of the item item at position (x,y) with size 2*2.
+&nbsp;	 * @param item Item to add as item entity.
+&nbsp;	 * @param x position on map
+&nbsp;	 * @param y position on map
+&nbsp;	 * @param zz z position?
+&nbsp;	 * @param lifetime lifetime (in ticks) of the entity.
+&nbsp;	 * @param time starting time (in ticks) of the entity.
+&nbsp;	 * @param xa x velocity
+&nbsp;	 * @param ya y velocity
+&nbsp;	 * @param za z velocity?
+&nbsp;	 */
+&nbsp;	public ItemEntity(Item item, int x, int y, double zz, int lifetime, int time, double xa, double ya, double za) {
+<b class="nc">&nbsp;		this(item, x, y);</b>
+<b class="nc">&nbsp;		this.lifeTime = lifetime;</b>
+<b class="nc">&nbsp;		this.time = time;</b>
+<b class="nc">&nbsp;		this.zz = zz;</b>
+<b class="nc">&nbsp;		this.xa = xa;</b>
+<b class="nc">&nbsp;		this.ya = ya;</b>
+<b class="nc">&nbsp;		this.za = za;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns a string representation of the itementity
+&nbsp;	 * @return string representation of this entity
+&nbsp;	 */
+&nbsp;	public String getData() {
+<b class="nc">&nbsp;		return String.join(&quot;:&quot;, (new String[] { item.getData(), zz + &quot;&quot;, lifeTime + &quot;&quot;, time + &quot;&quot;, xa + &quot;&quot;, ya + &quot;&quot;, za + &quot;&quot; }));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick() {
+<b class="nc">&nbsp;		time++;</b>
+<b class="nc">&nbsp;		if (time &gt;= lifeTime) { // If the time is larger or equal to lifeTime then...</b>
+<b class="nc">&nbsp;			remove(); // Remove from the world</b>
+<b class="nc">&nbsp;			return; // Skip the rest of the code</b>
+&nbsp;		}
+&nbsp;		// Moves each coordinate by the its acceleration
+<b class="nc">&nbsp;		xx += xa;</b>
+<b class="nc">&nbsp;		yy += ya;</b>
+<b class="nc">&nbsp;		zz += za;</b>
+<b class="nc">&nbsp;		if (zz &lt; 0) { // If z pos is smaller than 0 (which probably marks hitting the ground)</b>
+<b class="nc">&nbsp;			zz = 0; // Set it to zero</b>
+&nbsp;			// Multiply the accelerations by an amount:
+<b class="nc">&nbsp;			za *= -0.5;</b>
+<b class="nc">&nbsp;			xa *= 0.6;</b>
+<b class="nc">&nbsp;			ya *= 0.6;</b>
+&nbsp;		}
+<b class="nc">&nbsp;		za -= 0.15; // Decrease z acceleration by 0.15</b>
+&nbsp;
+&nbsp;		// Storage of x and y positions before move
+<b class="nc">&nbsp;		int ox = x;</b>
+<b class="nc">&nbsp;		int oy = y;</b>
+&nbsp;
+&nbsp;		// Integer conversion of the double x and y postions (which have already been updated):
+<b class="nc">&nbsp;		int nx = (int) xx;</b>
+<b class="nc">&nbsp;		int ny = (int) yy;</b>
+&nbsp;
+&nbsp;		// The difference between the double-&gt;int new positions, and the inherited x and y positions:
+<b class="nc">&nbsp;		int expectedx = nx - x; // Expected movement distance</b>
+<b class="nc">&nbsp;		int expectedy = ny - y;</b>
+&nbsp;
+&nbsp;		/// THIS is where x and y are changed.
+<b class="nc">&nbsp;		move(expectedx, expectedy); // Move the ItemEntity.</b>
+&nbsp;
+&nbsp;		// Finds the difference between the inherited before and after positions
+<b class="nc">&nbsp;		int gotx = x - ox;</b>
+<b class="nc">&nbsp;		int goty = y - oy;</b>
+&nbsp;
+&nbsp;		// Basically, this accounts for any error in the whole double-to-int position conversion thing:
+<b class="nc">&nbsp;		xx += gotx - expectedx;</b>
+<b class="nc">&nbsp;		yy += goty - expectedy;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean isSolid() {
+<b class="nc">&nbsp;		return false; // Mobs cannot block this</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen) {
+&nbsp;		/* This first part is for the blinking effect */
+<b class="nc">&nbsp;		if (time &gt;= lifeTime - 6 * 20) {</b>
+<b class="nc">&nbsp;			if (time / 6 % 2 == 0) return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		screen.render(x - 4, y - 4, item.sprite.getSprite(), 0, false, Color.get(0, 31)); // Item shadow</b>
+<b class="nc">&nbsp;		screen.render(x - 4, y - 4 - (int) zz, item.sprite); // Item</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	protected void touchedBy(Entity entity) {
+<b class="nc">&nbsp;		if (!(entity instanceof Player)) return; // For the time being, we only care when a player touches an item.</b>
+&nbsp;
+<b class="nc">&nbsp;		if (time &gt; 30) { // Conditional prevents this from being collected immediately.</b>
+<b class="nc">&nbsp;			if (!pickedUp) {// Don&#39;t register if we are online and a player touches it; the client will register that.</b>
+<b class="nc">&nbsp;				pickedUp = true;</b>
+<b class="nc">&nbsp;				((Player) entity).pickupItem(this);</b>
+<b class="nc">&nbsp;				pickedUp = isRemoved();</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	protected List&lt;String&gt; getDataPrints() {
+<b class="nc">&nbsp;		List&lt;String&gt; prints = super.getDataPrints();</b>
+<b class="nc">&nbsp;		prints.add(0, item.toString());</b>
+<b class="nc">&nbsp;		return prints;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

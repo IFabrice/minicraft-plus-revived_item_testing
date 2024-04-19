@@ -1,0 +1,217 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ListEntry</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen.entry</a>
+</div>
+
+<h1>Coverage Summary for Class: ListEntry (minicraft.screen.entry)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ListEntry</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    63.6%
+  </span>
+  <span class="absValue">
+    (7/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    40.7%
+  </span>
+  <span class="absValue">
+    (11/27)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen.entry;
+&nbsp;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Font;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;
+<b class="fc">&nbsp;public abstract class ListEntry {</b>
+&nbsp;
+<b class="fc">&nbsp;	public static final int COL_UNSLCT = Color.GRAY;</b>
+<b class="fc">&nbsp;	public static final int COL_SLCT = Color.WHITE;</b>
+&nbsp;
+<b class="fc">&nbsp;	private boolean selectable = true, visible = true;</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Ticks the entry. Used to handle input from the InputHandler
+&nbsp;	 * @param input InputHandler used to get player input.
+&nbsp;	 */
+&nbsp;	public abstract void tick(InputHandler input);
+&nbsp;
+&nbsp;	public void render(Screen screen, int x, int y, boolean isSelected, String contain, int containColor) {
+<b class="nc">&nbsp;		if (!visible) {</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		render(screen, x, y, isSelected);</b>
+<b class="nc">&nbsp;		if (contain == null || contain.isEmpty()) {</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		String string = toString();</b>
+&nbsp;
+<b class="nc">&nbsp;		Font.drawColor(string.replace(contain, Color.toStringCode(containColor) + contain + Color.WHITE_CODE), screen, x, y);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Renders the entry to the given screen.
+&nbsp;	 * Coordinate origin is in the top left corner of the entry space.
+&nbsp;	 * @param screen Screen to render the entry to
+&nbsp;	 * @param x X coordinate
+&nbsp;	 * @param y Y coordinate
+&nbsp;	 * @param isSelected true if the entry is selected, false otherwise
+&nbsp;	 */
+&nbsp;	public void render(Screen screen, int x, int y, boolean isSelected) {
+<b class="nc">&nbsp;		if (visible) {</b>
+<b class="nc">&nbsp;			String text = toString().replace(Color.WHITE_CODE + Color.GRAY_CODE, Color.toStringCode(getColor(isSelected)));</b>
+<b class="nc">&nbsp;			if (text.contains(String.valueOf(Color.COLOR_CHAR)))</b>
+<b class="nc">&nbsp;				Font.drawColor(Color.toStringCode(getColor(isSelected)) + text, screen, x, y);</b>
+&nbsp;			else
+<b class="nc">&nbsp;				Font.draw(text, screen, x, y, getColor(isSelected));</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns the current color depending on if the entry is selected.
+&nbsp;	 * @param isSelected true if the entry is selected, false otherwise
+&nbsp;	 * @return the current entry color
+&nbsp;	 */
+&nbsp;	public int getColor(boolean isSelected) {
+<b class="nc">&nbsp;		return isSelected ? COL_SLCT : COL_UNSLCT;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Calculates the width of the entry.
+&nbsp;	 * @return the entry&#39;s width
+&nbsp;	 */
+&nbsp;	public int getWidth() {
+<b class="fc">&nbsp;		return Font.textWidth(toString());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Calculates the height of the entry.
+&nbsp;	 * @return the entry&#39;s height
+&nbsp;	 */
+&nbsp;	public static int getHeight() {
+<b class="fc">&nbsp;		return Font.textHeight();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Determines if this entry can be selected.
+&nbsp;	 * @return true if it is visible and can be selected, false otherwise.
+&nbsp;	 */
+&nbsp;	public final boolean isSelectable() {
+<b class="fc">&nbsp;		return selectable &amp;&amp; visible;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns whether the entry is visible or not.
+&nbsp;	 * @return true if the entry is visible, false otherwise
+&nbsp;	 */
+&nbsp;	public final boolean isVisible() {
+<b class="nc">&nbsp;		return visible;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Changes if the entry can be selected or not.
+&nbsp;	 * @param selectable true if the entry can be selected, false if not
+&nbsp;	 */
+&nbsp;	public final void setSelectable(boolean selectable) {
+<b class="fc">&nbsp;		this.selectable = selectable;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Changes if the entry is visible or not.
+&nbsp;	 * @param visible true if the entry should be visible, false if not
+&nbsp;	 */
+&nbsp;	public final void setVisible(boolean visible) {
+<b class="fc">&nbsp;		this.visible = visible;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public abstract String toString();
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

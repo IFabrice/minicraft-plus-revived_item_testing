@@ -1,0 +1,1375 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Load</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.saveload</a>
+</div>
+
+<h1>Coverage Summary for Class: Load (minicraft.saveload)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Load</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    3.2%
+  </span>
+  <span class="absValue">
+    (1/31)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0.3%
+  </span>
+  <span class="absValue">
+    (2/726)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.saveload;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.Updater;
+&nbsp;import minicraft.core.World;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.core.io.Settings;
+&nbsp;import minicraft.entity.Arrow;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.entity.FireSpark;
+&nbsp;import minicraft.entity.ItemEntity;
+&nbsp;import minicraft.entity.Spark;
+&nbsp;import minicraft.entity.furniture.Bed;
+&nbsp;import minicraft.entity.furniture.Chest;
+&nbsp;import minicraft.entity.furniture.Crafter;
+&nbsp;import minicraft.entity.furniture.DeathChest;
+&nbsp;import minicraft.entity.furniture.DungeonChest;
+&nbsp;import minicraft.entity.furniture.KnightStatue;
+&nbsp;import minicraft.entity.furniture.Lantern;
+&nbsp;import minicraft.entity.furniture.Spawner;
+&nbsp;import minicraft.entity.furniture.Tnt;
+&nbsp;import minicraft.entity.mob.AirWizard;
+&nbsp;import minicraft.entity.mob.Cow;
+&nbsp;import minicraft.entity.mob.Creeper;
+&nbsp;import minicraft.entity.mob.EnemyMob;
+&nbsp;import minicraft.entity.mob.Knight;
+&nbsp;import minicraft.entity.mob.Mob;
+&nbsp;import minicraft.entity.mob.MobAi;
+&nbsp;import minicraft.entity.mob.ObsidianKnight;
+&nbsp;import minicraft.entity.mob.Pig;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.entity.mob.Sheep;
+&nbsp;import minicraft.entity.mob.Skeleton;
+&nbsp;import minicraft.entity.mob.Slime;
+&nbsp;import minicraft.entity.mob.Snake;
+&nbsp;import minicraft.entity.mob.Zombie;
+&nbsp;import minicraft.entity.particle.FireParticle;
+&nbsp;import minicraft.entity.particle.SmashParticle;
+&nbsp;import minicraft.entity.particle.TextParticle;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Point;
+&nbsp;import minicraft.item.ArmorItem;
+&nbsp;import minicraft.item.Inventory;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.item.Items;
+&nbsp;import minicraft.item.PotionItem;
+&nbsp;import minicraft.item.PotionType;
+&nbsp;import minicraft.item.Recipe;
+&nbsp;import minicraft.item.StackableItem;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;import minicraft.network.Network;
+&nbsp;import minicraft.screen.AchievementsDisplay;
+&nbsp;import minicraft.screen.CraftingDisplay;
+&nbsp;import minicraft.screen.LoadingDisplay;
+&nbsp;import minicraft.screen.MultiplayerDisplay;
+&nbsp;import minicraft.screen.PopupDisplay;
+&nbsp;import minicraft.screen.QuestsDisplay;
+&nbsp;import minicraft.screen.ResourcePackDisplay;
+&nbsp;import minicraft.screen.SignDisplay;
+&nbsp;import minicraft.screen.SkinDisplay;
+&nbsp;import minicraft.screen.TutorialDisplayHandler;
+&nbsp;import minicraft.screen.entry.ListEntry;
+&nbsp;import minicraft.screen.entry.StringEntry;
+&nbsp;import minicraft.util.AdvancementElement;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;import org.json.JSONArray;
+&nbsp;import org.json.JSONException;
+&nbsp;import org.json.JSONObject;
+&nbsp;
+&nbsp;import java.io.BufferedReader;
+&nbsp;import java.io.File;
+&nbsp;import java.io.FileReader;
+&nbsp;import java.io.IOException;
+&nbsp;import java.io.InputStream;
+&nbsp;import java.io.InputStreamReader;
+&nbsp;import java.nio.file.Files;
+&nbsp;import java.nio.file.Paths;
+&nbsp;import java.nio.file.StandardCopyOption;
+&nbsp;import java.util.AbstractMap;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.Stack;
+&nbsp;import java.util.concurrent.atomic.AtomicBoolean;
+&nbsp;import java.util.function.Predicate;
+&nbsp;import java.util.regex.Matcher;
+&nbsp;import java.util.regex.Pattern;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;public class Load {
+&nbsp;
+<b class="nc">&nbsp;	private String location = Game.gameDir;</b>
+&nbsp;
+<b class="fc">&nbsp;	private static final String extension = Save.extension;</b>
+&nbsp;	private float percentInc;
+&nbsp;
+&nbsp;	private ArrayList&lt;String&gt; data;
+&nbsp;	private ArrayList&lt;String&gt; extradata; // These two are changed when loading a new file. (see loadFromFile())
+&nbsp;
+&nbsp;	private Version worldVer;
+&nbsp;
+&nbsp;	private DeathChest deathChest;
+&nbsp;
+&nbsp;	{
+<b class="nc">&nbsp;		worldVer = null;</b>
+&nbsp;
+<b class="nc">&nbsp;		data = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;		extradata = new ArrayList&lt;&gt;();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Load(String worldname) {
+<b class="nc">&nbsp;		this(worldname, true);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+<b class="nc">&nbsp;	public Load(String worldname, boolean loadGame) {</b>
+<b class="nc">&nbsp;		loadFromFile(location + &quot;/saves/&quot; + worldname + &quot;/Game&quot; + extension);</b>
+<b class="nc">&nbsp;		if (data.get(0).contains(&quot;.&quot;)) worldVer = new Version(data.get(0));</b>
+<b class="nc">&nbsp;		if (worldVer == null) worldVer = new Version(&quot;1.8&quot;);</b>
+&nbsp;
+&nbsp;		//if (!hasGlobalPrefs)
+&nbsp;		//	hasGlobalPrefs = worldVer.compareTo(new Version(&quot;1.9.2&quot;)) &gt;= 0;
+&nbsp;
+<b class="nc">&nbsp;		if (!loadGame) return;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;1.9.2&quot;)) &lt; 0)</b>
+<b class="nc">&nbsp;			new LegacyLoad(worldname);</b>
+&nbsp;		else {
+<b class="nc">&nbsp;			location += &quot;/saves/&quot; + worldname + &quot;/&quot;;</b>
+&nbsp;
+<b class="nc">&nbsp;			percentInc = 5 + World.levels.length - 1; // For the methods below, and world.</b>
+&nbsp;
+<b class="nc">&nbsp;			percentInc = 100f / percentInc;</b>
+&nbsp;
+<b class="nc">&nbsp;			LoadingDisplay.setPercentage(0);</b>
+<b class="nc">&nbsp;			loadGame(&quot;Game&quot;); // More of the version will be determined here</b>
+<b class="nc">&nbsp;			loadWorld(&quot;Level&quot;);</b>
+<b class="nc">&nbsp;			loadEntities(&quot;Entities&quot;);</b>
+<b class="nc">&nbsp;			loadInventory(&quot;Inventory&quot;, Game.player.getInventory());</b>
+<b class="nc">&nbsp;			loadPlayer(&quot;Player&quot;, Game.player);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (deathChest != null &amp;&amp; deathChest.getInventory().invSize() &gt; 0) {</b>
+<b class="nc">&nbsp;				Game.player.getLevel().add(deathChest, Game.player.x, Game.player.y);</b>
+<b class="nc">&nbsp;				Logging.SAVELOAD.debug(&quot;Added DeathChest which contains exceed items.&quot;);</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (worldVer.compareTo(new Version(&quot;2.2.0-dev3&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;				Logging.SAVELOAD.trace(&quot;Old version dungeon detected.&quot;);</b>
+<b class="nc">&nbsp;				ArrayList&lt;ListEntry&gt; entries = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;				entries.addAll(Arrays.asList(StringEntry.useLines(Color.RED,</b>
+<b class="nc">&nbsp;					Localization.getLocalized(&quot;minicraft.displays.loading.regeneration_popup.display.0&quot;),</b>
+<b class="nc">&nbsp;					Localization.getLocalized(&quot;minicraft.displays.loading.regeneration_popup.display.1&quot;),</b>
+<b class="nc">&nbsp;					Localization.getLocalized(&quot;minicraft.displays.loading.regeneration_popup.display.2&quot;)</b>
+&nbsp;				)));
+&nbsp;
+<b class="nc">&nbsp;				entries.addAll(Arrays.asList(StringEntry.useLines(Color.WHITE, &quot;&quot;,</b>
+<b class="nc">&nbsp;					Localization.getLocalized(&quot;minicraft.displays.loading.regeneration_popup.display.3&quot;, Game.input.getMapping(&quot;select&quot;)),</b>
+<b class="nc">&nbsp;					Localization.getLocalized(&quot;minicraft.displays.loading.regeneration_popup.display.4&quot;, Game.input.getMapping(&quot;exit&quot;))</b>
+&nbsp;				)));
+&nbsp;
+<b class="nc">&nbsp;				AtomicBoolean acted = new AtomicBoolean(false);</b>
+<b class="nc">&nbsp;				AtomicBoolean continues = new AtomicBoolean(false);</b>
+&nbsp;
+<b class="nc">&nbsp;				ArrayList&lt;PopupDisplay.PopupActionCallback&gt; callbacks = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;				callbacks.add(new PopupDisplay.PopupActionCallback(&quot;select&quot;, popup -&gt; {</b>
+<b class="nc">&nbsp;					Game.exitDisplay();</b>
+<b class="nc">&nbsp;					acted.set(true);</b>
+<b class="nc">&nbsp;					continues.set(true);</b>
+<b class="nc">&nbsp;					return true;</b>
+&nbsp;				}));
+&nbsp;
+<b class="nc">&nbsp;				callbacks.add(new PopupDisplay.PopupActionCallback(&quot;exit&quot;, popup -&gt; {</b>
+<b class="nc">&nbsp;					Game.exitDisplay();</b>
+<b class="nc">&nbsp;					acted.set(true);</b>
+<b class="nc">&nbsp;					return true;</b>
+&nbsp;				}));
+&nbsp;
+<b class="nc">&nbsp;				Game.setDisplay(new PopupDisplay(new PopupDisplay.PopupConfig(null, callbacks, 0), entries.toArray(new ListEntry[0])));</b>
+&nbsp;
+&nbsp;				while (true) {
+<b class="nc">&nbsp;					if (acted.get()) {</b>
+<b class="nc">&nbsp;						if (continues.get()) {</b>
+<b class="nc">&nbsp;							Logging.SAVELOAD.trace(&quot;Regenerating dungeon (B4)...&quot;);</b>
+<b class="nc">&nbsp;							LoadingDisplay.setMessage(&quot;minicraft.displays.loading.message.dungeon_regeneration&quot;);</b>
+<b class="nc">&nbsp;							int lvlidx = World.lvlIdx(-4);</b>
+<b class="nc">&nbsp;							boolean reAdd = Game.player.getLevel().depth == -4;</b>
+<b class="nc">&nbsp;							Level oriLevel = World.levels[lvlidx];</b>
+<b class="nc">&nbsp;							World.levels[lvlidx] = new Level(oriLevel.w, oriLevel.h, oriLevel.getSeed(), -4, World.levels[World.lvlIdx(-3)], true);</b>
+<b class="nc">&nbsp;							if (reAdd) World.levels[lvlidx].add(Game.player);</b>
+<b class="nc">&nbsp;						} else {</b>
+<b class="nc">&nbsp;							throw new RuntimeException(new InterruptedException(&quot;World loading interrupted.&quot;));</b>
+&nbsp;						}
+&nbsp;
+&nbsp;						break;
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Load() {
+<b class="nc">&nbsp;		this(Game.VERSION);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Load(Version worldVersion) {
+<b class="nc">&nbsp;		this(false);</b>
+<b class="nc">&nbsp;		worldVer = worldVersion;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+<b class="nc">&nbsp;	public Load(boolean loadConfig) {</b>
+<b class="nc">&nbsp;		if (!loadConfig) return;</b>
+<b class="nc">&nbsp;		boolean resave = false;</b>
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;		location += &quot;/&quot;;</b>
+&nbsp;
+&nbsp;		// Check if Preferences.json exists. (new version)
+<b class="nc">&nbsp;		if (new File(location + &quot;Preferences.json&quot;).exists()) {</b>
+<b class="nc">&nbsp;			loadPrefs(&quot;Preferences&quot;);</b>
+&nbsp;
+&nbsp;			// Check if Preferences.miniplussave exists. (old version)
+<b class="nc">&nbsp;		} else if (new File(location + &quot;Preferences&quot; + extension).exists()) {</b>
+<b class="nc">&nbsp;			loadPrefsOld(&quot;Preferences&quot;);</b>
+<b class="nc">&nbsp;			Logging.SAVELOAD.info(&quot;Upgrading preferences to JSON.&quot;);</b>
+<b class="nc">&nbsp;			resave = true;</b>
+&nbsp;
+&nbsp;			// No preferences file found.
+&nbsp;		} else {
+<b class="nc">&nbsp;			Logging.SAVELOAD.warn(&quot;No preferences found, creating new file.&quot;);</b>
+<b class="nc">&nbsp;			resave = true;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Load unlocks. (new version)
+<b class="nc">&nbsp;		File testFileOld = new File(location + &quot;unlocks&quot; + extension);</b>
+<b class="nc">&nbsp;		File testFile = new File(location + &quot;Unlocks&quot; + extension);</b>
+<b class="nc">&nbsp;		if (new File(location + &quot;Unlocks.json&quot;).exists()) {</b>
+<b class="nc">&nbsp;			loadUnlocks(&quot;Unlocks&quot;);</b>
+<b class="nc">&nbsp;		} else if (testFile.exists() || testFileOld.exists()) { // Load old version</b>
+<b class="nc">&nbsp;			if (testFileOld.exists() &amp;&amp; !testFile.exists()) {</b>
+<b class="nc">&nbsp;				if (testFileOld.renameTo(testFile)) {</b>
+<b class="nc">&nbsp;					new LegacyLoad(testFile);</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					Logging.SAVELOAD.info(&quot;Failed to rename unlocks to Unlocks; loading old version.&quot;);</b>
+<b class="nc">&nbsp;					new LegacyLoad(testFileOld);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			loadUnlocksOld(&quot;Unlocks&quot;);</b>
+<b class="nc">&nbsp;			resave = true;</b>
+<b class="nc">&nbsp;			Logging.SAVELOAD.info(&quot;Upgrading unlocks to JSON.&quot;);</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			Logging.SAVELOAD.warn(&quot;No unlocks found, creating new file.&quot;);</b>
+<b class="nc">&nbsp;			resave = true;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// We need to load everything before we save, so it doesn&#39;t overwrite anything.
+<b class="nc">&nbsp;		if (resave) {</b>
+<b class="nc">&nbsp;			new Save();</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Version getWorldVersion() {
+<b class="nc">&nbsp;		return worldVer;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static ArrayList&lt;String&gt; loadFile(String filename) throws IOException {
+<b class="nc">&nbsp;		ArrayList&lt;String&gt; lines = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;		InputStream fileStream = Load.class.getResourceAsStream(filename);</b>
+&nbsp;
+<b class="nc">&nbsp;		try (BufferedReader br = new BufferedReader(new InputStreamReader(fileStream))) {</b>
+&nbsp;
+&nbsp;			String line;
+<b class="nc">&nbsp;			while ((line = br.readLine()) != null)</b>
+<b class="nc">&nbsp;				lines.add(line);</b>
+&nbsp;
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		return lines;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void loadFromFile(String filename) {
+<b class="nc">&nbsp;		data.clear();</b>
+<b class="nc">&nbsp;		extradata.clear();</b>
+&nbsp;
+&nbsp;		String total;
+&nbsp;		try {
+<b class="nc">&nbsp;			total = loadFromFile(filename, true);</b>
+<b class="nc">&nbsp;			if (total.length() &gt; 0) { // Safe splitting with JSON styled element.</b>
+<b class="nc">&nbsp;				data.addAll(splitUnwrappedCommas(total));</b>
+&nbsp;			}
+<b class="nc">&nbsp;		} catch (IOException ex) {</b>
+<b class="nc">&nbsp;			ex.printStackTrace();</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		if (filename.contains(&quot;Level&quot;)) {</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				total = Load.loadFromFile(filename.substring(0, filename.lastIndexOf(&quot;/&quot;) + 7) + &quot;data&quot; + extension, true);</b>
+<b class="nc">&nbsp;				extradata.addAll(Arrays.asList(total.split(&quot;,&quot;)));</b>
+<b class="nc">&nbsp;			} catch (IOException ex) {</b>
+<b class="nc">&nbsp;				ex.printStackTrace();</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		LoadingDisplay.progress(percentInc);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Source: Note: This method is copied from MiniMods.
+&nbsp;	 */
+&nbsp;	private static ArrayList&lt;String&gt; splitUnwrappedCommas(String input) {
+<b class="nc">&nbsp;		ArrayList&lt;String&gt; out = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;		int lastIdx = 0;</b>
+&nbsp;		// 0 {}; 1 []; 2 ()
+<b class="nc">&nbsp;		Stack&lt;Integer&gt; bracketCounter = new Stack&lt;&gt;();</b>
+<b class="nc">&nbsp;		char openBracket0 = &#39;{&#39;;</b>
+<b class="nc">&nbsp;		char openBracket1 = &#39;[&#39;;</b>
+<b class="nc">&nbsp;		char openBracket2 = &#39;(&#39;;</b>
+<b class="nc">&nbsp;		char closeBracket0 = &#39;}&#39;;</b>
+<b class="nc">&nbsp;		char closeBracket1 = &#39;]&#39;;</b>
+<b class="nc">&nbsp;		char closeBracket2 = &#39;)&#39;;</b>
+<b class="nc">&nbsp;		char commaChar = &#39;,&#39;;</b>
+<b class="nc">&nbsp;		Predicate&lt;Integer&gt; checkDiff = ch -&gt; {</b>
+<b class="nc">&nbsp;			if (bracketCounter.isEmpty()) return true;</b>
+<b class="nc">&nbsp;			return !bracketCounter.peek().equals(ch);</b>
+&nbsp;		};
+&nbsp;
+<b class="nc">&nbsp;		for (int i = 0; i &lt; input.length(); i++) {</b>
+<b class="nc">&nbsp;			char ch = input.charAt(i);</b>
+<b class="nc">&nbsp;			if (ch == commaChar &amp;&amp; bracketCounter.isEmpty()) {</b>
+<b class="nc">&nbsp;				String str = input.substring(lastIdx + (input.charAt(lastIdx) == commaChar ? 1 : 0), i).trim();</b>
+<b class="nc">&nbsp;				lastIdx = i;</b>
+<b class="nc">&nbsp;				out.add(str); // Empty strings are expected.</b>
+<b class="nc">&nbsp;			} else if (ch == openBracket0) {</b>
+<b class="nc">&nbsp;				bracketCounter.push(0);</b>
+<b class="nc">&nbsp;			} else if (ch == closeBracket0) {</b>
+<b class="nc">&nbsp;				if (checkDiff.test(0))</b>
+<b class="nc">&nbsp;					throw new RuntimeException(String.format(&quot;Invalid closing char %s index %s. Input: \&quot;%s\&quot;&quot;, ch, i, input));</b>
+<b class="nc">&nbsp;				bracketCounter.pop();</b>
+<b class="nc">&nbsp;			} else if (ch == openBracket1) {</b>
+<b class="nc">&nbsp;				bracketCounter.push(1);</b>
+<b class="nc">&nbsp;			} else if (ch == closeBracket1) {</b>
+<b class="nc">&nbsp;				if (checkDiff.test(1))</b>
+<b class="nc">&nbsp;					throw new RuntimeException(String.format(&quot;Invalid closing char %s index %s. Input: \&quot;%s\&quot;&quot;, ch, i, input));</b>
+<b class="nc">&nbsp;				bracketCounter.pop();</b>
+<b class="nc">&nbsp;			} else if (ch == openBracket2) {</b>
+<b class="nc">&nbsp;				bracketCounter.push(2);</b>
+<b class="nc">&nbsp;			} else if (ch == closeBracket2) {</b>
+<b class="nc">&nbsp;				if (checkDiff.test(2))</b>
+<b class="nc">&nbsp;					throw new RuntimeException(String.format(&quot;Invalid closing char %s index %s. Input: \&quot;%s\&quot;&quot;, ch, i, input));</b>
+<b class="nc">&nbsp;				bracketCounter.pop();</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		String str = input.substring(lastIdx).trim();</b>
+<b class="nc">&nbsp;		if (!str.isEmpty() &amp;&amp; !str.chars().allMatch(Character::isWhitespace) &amp;&amp;</b>
+<b class="nc">&nbsp;			!(str.length() == 1 &amp;&amp; str.charAt(0) == commaChar)) {</b>
+<b class="nc">&nbsp;			out.add(str);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (bracketCounter.size() &gt; 0)</b>
+<b class="nc">&nbsp;			throw new RuntimeException(String.format(&quot;Bracket not closed. Input: \&quot;%s\&quot;&quot;, input));</b>
+&nbsp;
+<b class="nc">&nbsp;		return out;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static String loadFromFile(String filename, boolean isWorldSave) throws IOException {
+<b class="nc">&nbsp;		StringBuilder total = new StringBuilder();</b>
+&nbsp;
+<b class="nc">&nbsp;		try (BufferedReader br = new BufferedReader(new FileReader(filename))) {</b>
+&nbsp;			String curLine;
+<b class="nc">&nbsp;			while ((curLine = br.readLine()) != null)</b>
+<b class="nc">&nbsp;				total.append(curLine).append(isWorldSave ? &quot;&quot; : &quot;\n&quot;);</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		return total.toString();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void loadGame(String filename) {
+<b class="nc">&nbsp;		loadFromFile(location + filename + extension);</b>
+&nbsp;
+<b class="nc">&nbsp;		worldVer = new Version(data.remove(0)); // Gets the world version</b>
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.2.0-dev1&quot;)) &gt;= 0)</b>
+<b class="nc">&nbsp;			World.setWorldSeed(Long.parseLong(data.remove(0)));</b>
+&nbsp;		else
+<b class="nc">&nbsp;			World.setWorldSeed(0);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.0.4-dev8&quot;)) &gt;= 0)</b>
+<b class="nc">&nbsp;			loadMode(data.remove(0));</b>
+&nbsp;
+<b class="nc">&nbsp;		Updater.setTime(Integer.parseInt(data.remove(0)));</b>
+&nbsp;
+<b class="nc">&nbsp;		Updater.gameTime = Integer.parseInt(data.remove(0));</b>
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;1.9.3-dev2&quot;)) &gt;= 0) {</b>
+<b class="nc">&nbsp;			Updater.pastDay1 = Updater.gameTime &gt; 65000;</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			Updater.gameTime = 65000; // Prevents time cheating.</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		int diffIdx = Integer.parseInt(data.remove(0));</b>
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;1.9.3-dev3&quot;)) &lt; 0)</b>
+<b class="nc">&nbsp;			diffIdx--; // Account for change in difficulty</b>
+&nbsp;
+<b class="nc">&nbsp;		Settings.setIdx(&quot;diff&quot;, diffIdx);</b>
+&nbsp;
+<b class="nc">&nbsp;		AirWizard.beaten = Boolean.parseBoolean(data.remove(0));</b>
+&nbsp;
+&nbsp;		// Check if the AirWizard was beaten in versions prior to 2.1.0
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.1.0-dev2&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			if (AirWizard.beaten) {</b>
+<b class="nc">&nbsp;				Logging.SAVELOAD.debug(&quot;AirWizard was beaten in an old version, giving achievement...&quot;);</b>
+<b class="nc">&nbsp;				AchievementsDisplay.setAchievement(&quot;minicraft.achievement.airwizard&quot;, true);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.2.0-dev1&quot;)) &gt;= 0) {</b>
+<b class="nc">&nbsp;			Settings.set(&quot;quests&quot;, Boolean.parseBoolean(data.remove(0)));</b>
+<b class="nc">&nbsp;			Settings.set(&quot;tutorials&quot;, Boolean.parseBoolean(data.remove(0)));</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void loadMode(String modedata) {
+&nbsp;		int mode;
+<b class="nc">&nbsp;		if (modedata.contains(&quot;;&quot;)) {</b>
+<b class="nc">&nbsp;			String[] modeinfo = modedata.split(&quot;;&quot;);</b>
+<b class="nc">&nbsp;			mode = Integer.parseInt(modeinfo[0]);</b>
+<b class="nc">&nbsp;			if (worldVer.compareTo(new Version(&quot;2.0.3&quot;)) &lt;= 0)</b>
+<b class="nc">&nbsp;				mode--; // We changed the min mode idx from 1 to 0.</b>
+<b class="nc">&nbsp;			if (mode == 3) {</b>
+<b class="nc">&nbsp;				Updater.scoreTime = Integer.parseInt(modeinfo[1]);</b>
+<b class="nc">&nbsp;				if (worldVer.compareTo(new Version(&quot;1.9.4&quot;)) &gt;= 0)</b>
+<b class="nc">&nbsp;					Settings.set(&quot;scoretime&quot;, modeinfo[2]);</b>
+&nbsp;			}
+<b class="nc">&nbsp;		} else {</b>
+<b class="nc">&nbsp;			mode = Integer.parseInt(modedata);</b>
+<b class="nc">&nbsp;			if (worldVer.compareTo(new Version(&quot;2.0.3&quot;)) &lt;= 0)</b>
+<b class="nc">&nbsp;				mode--; // We changed the min mode idx from 1 to 0.</b>
+&nbsp;
+<b class="nc">&nbsp;			if (mode == 3) Updater.scoreTime = 300;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Settings.setIdx(&quot;mode&quot;, mode);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void loadPrefsOld(String filename) {
+<b class="nc">&nbsp;		loadFromFile(location + filename + extension);</b>
+<b class="nc">&nbsp;		Version prefVer = new Version(&quot;2.0.2&quot;); // the default, b/c this doesn&#39;t really matter much being specific past this if it&#39;s not set below.</b>
+&nbsp;
+<b class="nc">&nbsp;		if (!data.get(2).contains(&quot;;&quot;)) // signifies that this file was last written to by a version after 2.0.2.</b>
+<b class="nc">&nbsp;			prefVer = new Version(data.remove(0));</b>
+&nbsp;
+<b class="nc">&nbsp;		Settings.set(&quot;sound&quot;, Boolean.parseBoolean(data.remove(0)));</b>
+<b class="nc">&nbsp;		Settings.set(&quot;autosave&quot;, Boolean.parseBoolean(data.remove(0)));</b>
+&nbsp;
+<b class="nc">&nbsp;		if (prefVer.compareTo(new Version(&quot;2.0.4-dev2&quot;)) &gt;= 0)</b>
+<b class="nc">&nbsp;			Settings.set(&quot;fps&quot;, Integer.parseInt(data.remove(0)));</b>
+&nbsp;
+<b class="nc">&nbsp;		if (prefVer.compareTo(new Version(&quot;2.0.7-dev5&quot;)) &gt;= 0)</b>
+<b class="nc">&nbsp;			data.remove(0); // Numeral skin indices are replaced.</b>
+&nbsp;
+&nbsp;		List&lt;String&gt; subdata;
+<b class="nc">&nbsp;		if (prefVer.compareTo(new Version(&quot;2.0.3-dev1&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			subdata = data;</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			MultiplayerDisplay.savedIP = data.remove(0);</b>
+<b class="nc">&nbsp;			if (prefVer.compareTo(new Version(&quot;2.0.3-dev3&quot;)) &gt; 0) {</b>
+<b class="nc">&nbsp;				MultiplayerDisplay.savedUUID = data.remove(0);</b>
+<b class="nc">&nbsp;				MultiplayerDisplay.savedUsername = data.remove(0);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			// Get legacy language and convert it into the current format.
+<b class="nc">&nbsp;			if (prefVer.compareTo(new Version(&quot;2.0.4-dev3&quot;)) &gt;= 0) {</b>
+&nbsp;				// Get language and convert into locale.
+&nbsp;				String lang;
+<b class="nc">&nbsp;				switch (data.remove(0)) {</b>
+&nbsp;					case &quot;english&quot;:
+<b class="nc">&nbsp;						lang = &quot;en-us&quot;;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;french&quot;:
+<b class="nc">&nbsp;						lang = &quot;fr-fr&quot;;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;hungarian&quot;:
+<b class="nc">&nbsp;						lang = &quot;hu-hu&quot;;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;indonesia&quot;:
+<b class="nc">&nbsp;						lang = &quot;id-id&quot;;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;italiano&quot;:
+<b class="nc">&nbsp;						lang = &quot;it-it&quot;;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;norwegian&quot;:
+<b class="nc">&nbsp;						lang = &quot;nb-no&quot;;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;portugues&quot;:
+<b class="nc">&nbsp;						lang = &quot;pt-pt&quot;;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;spanish&quot;:
+<b class="nc">&nbsp;						lang = &quot;es-es&quot;;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;turkish&quot;:
+<b class="nc">&nbsp;						lang = &quot;tr-tr&quot;;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					default:
+<b class="nc">&nbsp;						lang = null;</b>
+&nbsp;						break;
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				if (lang != null) {</b>
+<b class="nc">&nbsp;					Localization.changeLanguage(lang);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			String keyData = data.get(0);</b>
+<b class="nc">&nbsp;			subdata = Arrays.asList(keyData.split(&quot;:&quot;));</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		for (String keymap : subdata) {</b>
+<b class="nc">&nbsp;			String[] map = keymap.split(&quot;;&quot;);</b>
+<b class="nc">&nbsp;			Game.input.setKey(map[0], map[1]);</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void loadPrefs(String filename) {
+&nbsp;		JSONObject json;
+&nbsp;		try {
+<b class="nc">&nbsp;			json = new JSONObject(loadFromFile(location + filename + &quot;.json&quot;, false));</b>
+<b class="nc">&nbsp;		} catch (JSONException | IOException ex) {</b>
+<b class="nc">&nbsp;			ex.printStackTrace();</b>
+<b class="nc">&nbsp;			return;</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		/* Start of the parsing */
+<b class="nc">&nbsp;		Version prefVer = new Version(json.getString(&quot;version&quot;));</b>
+&nbsp;
+&nbsp;		// Settings
+<b class="nc">&nbsp;		Settings.set(&quot;sound&quot;, json.getBoolean(&quot;sound&quot;));</b>
+<b class="nc">&nbsp;		Settings.set(&quot;autosave&quot;, json.getBoolean(&quot;autosave&quot;));</b>
+<b class="nc">&nbsp;		Settings.set(&quot;fps&quot;, json.getInt(&quot;fps&quot;));</b>
+<b class="nc">&nbsp;		Settings.set(&quot;showquests&quot;, json.optBoolean(&quot;showquests&quot;, true));</b>
+&nbsp;
+<b class="nc">&nbsp;		if (json.has(&quot;lang&quot;)) {</b>
+<b class="nc">&nbsp;			String lang = json.getString(&quot;lang&quot;);</b>
+<b class="nc">&nbsp;			Localization.changeLanguage(lang);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		SkinDisplay.setSelectedSkin(json.optString(&quot;skin&quot;, &quot;minicraft.skin.paul&quot;));</b>
+<b class="nc">&nbsp;		SkinDisplay.releaseSkins();</b>
+&nbsp;
+&nbsp;		// Load keymap
+<b class="nc">&nbsp;		JSONArray keyData = json.getJSONArray(&quot;keymap&quot;);</b>
+<b class="nc">&nbsp;		List&lt;Object&gt; subdata = keyData.toList();</b>
+&nbsp;
+<b class="nc">&nbsp;		for (Object key : subdata) {</b>
+<b class="nc">&nbsp;			String str = key.toString();</b>
+&nbsp;
+&nbsp;			// Split key and value
+<b class="nc">&nbsp;			String[] map = str.split(&quot;;&quot;);</b>
+<b class="nc">&nbsp;			Game.input.setKey(map[0], map[1]);</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		JSONArray packsJSON = json.optJSONArray(&quot;resourcePacks&quot;);</b>
+<b class="nc">&nbsp;		if (packsJSON != null) {</b>
+<b class="nc">&nbsp;			String[] packs = new String[packsJSON.length()];</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; packs.length; i++) {</b>
+<b class="nc">&nbsp;				packs[i] = packsJSON.getString(i);</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			ResourcePackDisplay.loadResourcePacks(packs);</b>
+<b class="nc">&nbsp;			ResourcePackDisplay.reloadResources();</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		ResourcePackDisplay.releaseUnloadedPacks();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void loadUnlocksOld(String filename) {
+<b class="nc">&nbsp;		loadFromFile(location + filename + extension);</b>
+&nbsp;
+<b class="nc">&nbsp;		for (String unlock : data) {</b>
+<b class="nc">&nbsp;			unlock = unlock.replace(&quot;HOURMODE&quot;, &quot;H_ScoreTime&quot;).replace(&quot;MINUTEMODE&quot;, &quot;M_ScoreTime&quot;).replace(&quot;M_ScoreTime&quot;, &quot;_ScoreTime&quot;).replace(&quot;2H_ScoreTime&quot;, &quot;120_ScoreTime&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (unlock.contains(&quot;_ScoreTime&quot;))</b>
+<b class="nc">&nbsp;				Settings.getEntry(&quot;scoretime&quot;).setValueVisibility(Integer.parseInt(unlock.substring(0, unlock.indexOf(&quot;_&quot;))), true);</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void loadUnlocks(String filename) {
+&nbsp;		JSONObject json;
+&nbsp;		try {
+<b class="nc">&nbsp;			json = new JSONObject(loadFromFile(location + filename + &quot;.json&quot;, false));</b>
+<b class="nc">&nbsp;		} catch (JSONException | IOException ex) {</b>
+<b class="nc">&nbsp;			ex.printStackTrace();</b>
+<b class="nc">&nbsp;			return;</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		for (Object i : json.getJSONArray(&quot;visibleScoreTimes&quot;)) {</b>
+<b class="nc">&nbsp;			Settings.getEntry(&quot;scoretime&quot;).setValueVisibility(i, true); // Minutes</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		// Load unlocked achievements.
+<b class="nc">&nbsp;		if (json.has(&quot;unlockedAchievements&quot;))</b>
+<b class="nc">&nbsp;			AchievementsDisplay.unlockAchievements(json.getJSONArray(&quot;unlockedAchievements&quot;));</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void loadWorld(String filename) {
+<b class="nc">&nbsp;		for (int l = World.maxLevelDepth; l &gt;= World.minLevelDepth; l--) {</b>
+<b class="nc">&nbsp;			LoadingDisplay.setMessage(Level.getDepthString(l), false);</b>
+<b class="nc">&nbsp;			int lvlidx = World.lvlIdx(l);</b>
+<b class="nc">&nbsp;			loadFromFile(location + filename + lvlidx + extension);</b>
+&nbsp;
+<b class="nc">&nbsp;			int lvlw = Integer.parseInt(data.get(0));</b>
+<b class="nc">&nbsp;			int lvlh = Integer.parseInt(data.get(1));</b>
+&nbsp;
+<b class="nc">&nbsp;			boolean hasSeed = worldVer.compareTo(new Version(&quot;2.0.7-dev2&quot;)) &gt;= 0;</b>
+<b class="nc">&nbsp;			long seed = hasSeed ? Long.parseLong(data.get(2)) : 0;</b>
+<b class="nc">&nbsp;			Settings.set(&quot;size&quot;, lvlw);</b>
+&nbsp;
+<b class="nc">&nbsp;			short[] tiles = new short[lvlw * lvlh];</b>
+<b class="nc">&nbsp;			short[] tdata = new short[lvlw * lvlh];</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int x = 0; x &lt; lvlw; x++) {</b>
+<b class="nc">&nbsp;				for (int y = 0; y &lt; lvlh; y++) {</b>
+<b class="nc">&nbsp;					int tileArrIdx = y + x * lvlw;</b>
+<b class="nc">&nbsp;					int tileidx = x + y * lvlw; // the tiles are saved with x outer loop, and y inner loop, meaning that the list reads down, then right one, rather than right, then down one.</b>
+<b class="nc">&nbsp;					String tilename = data.get(tileidx + (hasSeed ? 4 : 3));</b>
+<b class="nc">&nbsp;					if (worldVer.compareTo(new Version(&quot;1.9.4-dev6&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;						int tileID = Integer.parseInt(tilename); // they were id numbers, not names, at this point</b>
+<b class="nc">&nbsp;						if (Tiles.oldids.get(tileID) != null)</b>
+<b class="nc">&nbsp;							tilename = Tiles.oldids.get(tileID);</b>
+&nbsp;						else {
+<b class="nc">&nbsp;							Logging.SAVELOAD.warn(&quot;Tile list doesn&#39;t contain tile &quot; + tileID);</b>
+<b class="nc">&nbsp;							tilename = &quot;grass&quot;;</b>
+&nbsp;						}
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					if (tilename.equalsIgnoreCase(&quot;Wool&quot;) &amp;&amp; worldVer.compareTo(new Version(&quot;2.0.6-dev4&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;						switch (Integer.parseInt(extradata.get(tileidx))) {</b>
+&nbsp;							case 1:
+<b class="nc">&nbsp;								tilename = &quot;Red Wool&quot;;</b>
+<b class="nc">&nbsp;								break;</b>
+&nbsp;							case 2:
+<b class="nc">&nbsp;								tilename = &quot;Yellow Wool&quot;;</b>
+<b class="nc">&nbsp;								break;</b>
+&nbsp;							case 3:
+<b class="nc">&nbsp;								tilename = &quot;Green Wool&quot;;</b>
+<b class="nc">&nbsp;								break;</b>
+&nbsp;							case 4:
+<b class="nc">&nbsp;								tilename = &quot;Blue Wool&quot;;</b>
+<b class="nc">&nbsp;								break;</b>
+&nbsp;							case 5:
+<b class="nc">&nbsp;								tilename = &quot;Black Wool&quot;;</b>
+<b class="nc">&nbsp;								break;</b>
+&nbsp;							default:
+<b class="nc">&nbsp;								tilename = &quot;Wool&quot;;</b>
+&nbsp;						}
+<b class="nc">&nbsp;					} else if (l == World.minLevelDepth + 1 &amp;&amp; tilename.equalsIgnoreCase(&quot;Lapis&quot;) &amp;&amp; worldVer.compareTo(new Version(&quot;2.0.3-dev6&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;						if (Math.random() &lt; 0.8) // don&#39;t replace *all* the lapis</b>
+<b class="nc">&nbsp;							tilename = &quot;Gem Ore&quot;;</b>
+<b class="nc">&nbsp;					} else if (tilename.equalsIgnoreCase(&quot;Cloud Cactus&quot;)) {</b>
+&nbsp;
+&nbsp;						// Check the eight tiles around the cloud cactus to see if it is empty.
+<b class="nc">&nbsp;						for (int yy = y - 1; yy &lt;= y + 1; yy++) {</b>
+<b class="nc">&nbsp;							for (int xx = x - 1; xx &lt;= x + 1; xx++) {</b>
+<b class="nc">&nbsp;								if (data.get(xx + yy * lvlw + (hasSeed ? 4 : 3)).equalsIgnoreCase(&quot;Infinite Fall&quot;)) {</b>
+<b class="nc">&nbsp;									tilename = &quot;Infinite Fall&quot;;</b>
+<b class="nc">&nbsp;									break;</b>
+&nbsp;								}
+&nbsp;							}
+&nbsp;						}
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					loadTile(tiles, tdata, tileArrIdx, tilename, extradata.get(tileidx));</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			Level parent = World.levels[World.lvlIdx(l + 1)];</b>
+<b class="nc">&nbsp;			World.levels[lvlidx] = new Level(lvlw, lvlh, seed, l, parent, false);</b>
+&nbsp;
+<b class="nc">&nbsp;			Level curLevel = World.levels[lvlidx];</b>
+<b class="nc">&nbsp;			curLevel.tiles = tiles;</b>
+<b class="nc">&nbsp;			curLevel.data = tdata;</b>
+&nbsp;
+&nbsp;			// Tile initialization
+<b class="nc">&nbsp;			for (int x = 0; x &lt; curLevel.w; ++x) {</b>
+<b class="nc">&nbsp;				for (int y = 0; y &lt; curLevel.h; ++y) {</b>
+<b class="nc">&nbsp;					Tiles.get(curLevel.tiles[x + y * curLevel.w]).onTileSet(curLevel, x, y);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (Logging.logLevel) curLevel.printTileLocs(Tiles.get(&quot;Stairs Down&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;			if (parent == null) continue;</b>
+&nbsp;			/// confirm that there are stairs in all the places that should have stairs.
+<b class="nc">&nbsp;			for (minicraft.gfx.Point p : parent.getMatchingTiles(Tiles.get(&quot;Stairs Down&quot;))) {</b>
+<b class="nc">&nbsp;				if (curLevel.getTile(p.x, p.y) != Tiles.get(&quot;Stairs Up&quot;)) {</b>
+<b class="nc">&nbsp;					curLevel.printLevelLoc(&quot;INCONSISTENT STAIRS detected; placing stairsUp&quot;, p.x, p.y);</b>
+<b class="nc">&nbsp;					curLevel.setTile(p.x, p.y, Tiles.get(&quot;Stairs Up&quot;));</b>
+&nbsp;				}
+<b class="nc">&nbsp;			}</b>
+<b class="nc">&nbsp;			for (minicraft.gfx.Point p : curLevel.getMatchingTiles(Tiles.get(&quot;Stairs Up&quot;))) {</b>
+<b class="nc">&nbsp;				if (parent.getTile(p.x, p.y) != Tiles.get(&quot;Stairs Down&quot;)) {</b>
+<b class="nc">&nbsp;					parent.printLevelLoc(&quot;INCONSISTENT STAIRS detected; placing stairsDown&quot;, p.x, p.y);</b>
+<b class="nc">&nbsp;					parent.setTile(p.x, p.y, Tiles.get(&quot;Stairs Down&quot;));</b>
+&nbsp;				}
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		LoadingDisplay.setMessage(&quot;minicraft.displays.loading.message.quests&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (new File(location + &quot;Quests.json&quot;).exists()) {</b>
+<b class="nc">&nbsp;			Logging.SAVELOAD.warn(&quot;Quest.json exists and it has been deprecated; renaming...&quot;);</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				Files.move(Paths.get(location, &quot;Quests.json&quot;), Paths.get(location, &quot;Quests.json_old&quot;), StandardCopyOption.REPLACE_EXISTING);</b>
+<b class="nc">&nbsp;			} catch (IOException e) {</b>
+<b class="nc">&nbsp;				Logging.SAVELOAD.warn(&quot;Quest.json renamed failed.&quot;);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		boolean advancementsLoadSucceeded = false;</b>
+<b class="nc">&nbsp;		if (new File(location + &quot;advancements.json&quot;).exists()) {</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				JSONObject questsObj = new JSONObject(loadFromFile(location + &quot;advancements.json&quot;, true));</b>
+&nbsp;				@SuppressWarnings(&quot;unused&quot;)
+<b class="nc">&nbsp;				Version dataVersion = new Version(questsObj.getString(&quot;Version&quot;));</b>
+<b class="nc">&nbsp;				TutorialDisplayHandler.load(questsObj);</b>
+<b class="nc">&nbsp;				AdvancementElement.loadRecipeUnlockingElements(questsObj);</b>
+<b class="nc">&nbsp;				QuestsDisplay.load(questsObj);</b>
+<b class="nc">&nbsp;				advancementsLoadSucceeded = true;</b>
+<b class="nc">&nbsp;			} catch (IOException e) {</b>
+<b class="nc">&nbsp;				Logging.SAVELOAD.error(e, &quot;Unable to load advancements.json, loading default quests instead.&quot;);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			Logging.SAVELOAD.debug(&quot;advancements.json not found, loading default quests instead.&quot;);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (!advancementsLoadSucceeded) {</b>
+<b class="nc">&nbsp;			TutorialDisplayHandler.reset(false);</b>
+<b class="nc">&nbsp;			AdvancementElement.resetRecipeUnlockingElements();</b>
+<b class="nc">&nbsp;			QuestsDisplay.resetGameQuests();</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		boolean signsLoadSucceeded = false;</b>
+<b class="nc">&nbsp;		if (new File(location+&quot;signs.json&quot;).exists()) {</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				JSONObject fileObj = new JSONObject(loadFromFile(location + &quot;signs.json&quot;, true));</b>
+&nbsp;				@SuppressWarnings(&quot;unused&quot;)
+<b class="nc">&nbsp;				Version dataVersion = new Version(fileObj.getString(&quot;Version&quot;));</b>
+<b class="nc">&nbsp;				JSONArray dataObj = fileObj.getJSONArray(&quot;signs&quot;);</b>
+<b class="nc">&nbsp;				HashMap&lt;Map.Entry&lt;Integer, Point&gt;, List&lt;String&gt;&gt; signTexts = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;				for (int i = 0; i &lt; dataObj.length(); i++) {</b>
+<b class="nc">&nbsp;					JSONObject signObj = dataObj.getJSONObject(i);</b>
+<b class="nc">&nbsp;					signTexts.put(</b>
+<b class="nc">&nbsp;						new AbstractMap.SimpleImmutableEntry&lt;&gt;(signObj.getInt(&quot;level&quot;), new Point(signObj.getInt(&quot;x&quot;), signObj.getInt(&quot;y&quot;))),</b>
+<b class="nc">&nbsp;						signObj.getJSONArray(&quot;lines&quot;).toList().stream().map(e -&gt; (String) e).collect(Collectors.toList())</b>
+&nbsp;					);
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				SignDisplay.loadSignTexts(signTexts);</b>
+<b class="nc">&nbsp;				signsLoadSucceeded = true;</b>
+<b class="nc">&nbsp;			} catch (IOException e) {</b>
+<b class="nc">&nbsp;				Logging.SAVELOAD.error(e, &quot;Unable to load signs.json, reset sign data instead.&quot;);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			Logging.SAVELOAD.debug(&quot;signs.json not found, reset sign data instead.&quot;);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (!signsLoadSucceeded) {</b>
+<b class="nc">&nbsp;			SignDisplay.resetSignTexts();</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+<b class="fc">&nbsp;	private static final Pattern OLD_TORCH_TILE_REGEX = Pattern.compile(&quot;TORCH ([\\w ]+)&quot;);</b>
+&nbsp;
+&nbsp;	public static void loadTile(short[] tiles, short[] data, int idx, String tileName, String tileData) {
+&nbsp;		Matcher matcher;
+<b class="nc">&nbsp;		if ((matcher = OLD_TORCH_TILE_REGEX.matcher(tileName.toUpperCase())).matches()) {</b>
+<b class="nc">&nbsp;			tiles[idx] = 57; // ID of TORCH tile</b>
+<b class="nc">&nbsp;			data[idx] = Tiles.get(matcher.group(1)).id;</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			tiles[idx] = Tiles.get(tileName).id;</b>
+<b class="nc">&nbsp;			data[idx] = Short.parseShort(tileData);</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void loadPlayer(String filename, Player player) {
+<b class="nc">&nbsp;		LoadingDisplay.setMessage(&quot;Player&quot;);</b>
+<b class="nc">&nbsp;		loadFromFile(location + filename + extension);</b>
+<b class="nc">&nbsp;		loadPlayer(player, data);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void loadPlayer(Player player, List&lt;String&gt; origData) {
+<b class="nc">&nbsp;		List&lt;String&gt; data = new ArrayList&lt;&gt;(origData);</b>
+<b class="nc">&nbsp;		player.x = Integer.parseInt(data.remove(0));</b>
+<b class="nc">&nbsp;		player.y = Integer.parseInt(data.remove(0));</b>
+<b class="nc">&nbsp;		player.spawnx = Integer.parseInt(data.remove(0));</b>
+<b class="nc">&nbsp;		player.spawny = Integer.parseInt(data.remove(0));</b>
+<b class="nc">&nbsp;		player.health = Integer.parseInt(data.remove(0));</b>
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.2.0-dev3&quot;)) &gt;= 0)</b>
+<b class="nc">&nbsp;			player.extraHealth = Integer.parseInt(data.remove(0));</b>
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.0.4-dev7&quot;)) &gt;= 0)</b>
+<b class="nc">&nbsp;			player.hunger = Integer.parseInt(data.remove(0));</b>
+<b class="nc">&nbsp;		player.armor = Integer.parseInt(data.remove(0));</b>
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.0.5-dev5&quot;)) &gt;= 0 || player.armor &gt; 0 || worldVer.compareTo(new Version(&quot;2.0.5-dev4&quot;)) == 0 &amp;&amp; data.size() &gt; 5) {</b>
+<b class="nc">&nbsp;			if (worldVer.compareTo(new Version(&quot;2.0.4-dev7&quot;)) &lt; 0) {</b>
+&nbsp;				// Reverse order b/c we are taking from the end
+<b class="nc">&nbsp;				player.curArmor = (ArmorItem) Items.get(data.remove(data.size() - 1));</b>
+<b class="nc">&nbsp;				player.armorDamageBuffer = Integer.parseInt(data.remove(data.size() - 1));</b>
+&nbsp;			} else {
+<b class="nc">&nbsp;				player.armorDamageBuffer = Integer.parseInt(data.remove(0));</b>
+<b class="nc">&nbsp;				player.curArmor = (ArmorItem) Items.get(data.remove(0), true);</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;		player.setScore(Integer.parseInt(data.remove(0)));</b>
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.0.4-dev7&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			int arrowCount = Integer.parseInt(data.remove(0));</b>
+<b class="nc">&nbsp;			if (worldVer.compareTo(new Version(&quot;2.0.1-dev1&quot;)) &lt; 0)</b>
+<b class="nc">&nbsp;				player.getInventory().add(Items.get(&quot;arrow&quot;), arrowCount);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Game.currentLevel = Integer.parseInt(data.remove(0));</b>
+<b class="nc">&nbsp;		Level level = World.levels[Game.currentLevel];</b>
+<b class="nc">&nbsp;		if (!player.isRemoved())</b>
+<b class="nc">&nbsp;			player.remove(); // Removes the user player from the level, in case they would be added twice.</b>
+<b class="nc">&nbsp;		if (level != null)</b>
+<b class="nc">&nbsp;			level.add(player);</b>
+&nbsp;		else
+<b class="nc">&nbsp;			Logging.SAVELOAD.trace(&quot;Game level to add player {} to is null.&quot;, player);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.0.4-dev8&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			String modedata = data.remove(0);</b>
+<b class="nc">&nbsp;			if (player == Game.player)</b>
+<b class="nc">&nbsp;				loadMode(modedata); // Only load if you&#39;re loading the main player</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		String potioneffects = data.remove(0);</b>
+<b class="nc">&nbsp;		if (!potioneffects.equals(&quot;PotionEffects[]&quot;)) {</b>
+<b class="nc">&nbsp;			String[] effects = potioneffects.replace(&quot;PotionEffects[&quot;, &quot;&quot;).replace(&quot;]&quot;, &quot;&quot;).split(&quot;:&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;			for (String s : effects) {</b>
+<b class="nc">&nbsp;				String[] effect = s.split(&quot;;&quot;);</b>
+<b class="nc">&nbsp;				PotionType pName = Enum.valueOf(PotionType.class, effect[0]);</b>
+<b class="nc">&nbsp;				PotionItem.applyPotion(player, pName, Integer.parseInt(effect[1]));</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;1.9.4-dev4&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			String colors = data.remove(0).replace(&quot;[&quot;, &quot;&quot;).replace(&quot;]&quot;, &quot;&quot;);</b>
+<b class="nc">&nbsp;			String[] color = colors.split(&quot;;&quot;);</b>
+<b class="nc">&nbsp;			int[] cols = new int[color.length];</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; cols.length; i++)</b>
+<b class="nc">&nbsp;				cols[i] = Integer.parseInt(color[i]) / 50;</b>
+&nbsp;
+<b class="nc">&nbsp;			String col = &quot;&quot; + cols[0] + cols[1] + cols[2];</b>
+<b class="nc">&nbsp;			Logging.SAVELOAD.debug(&quot;Getting color as &quot; + col);</b>
+<b class="nc">&nbsp;			player.shirtColor = Integer.parseInt(col);</b>
+<b class="nc">&nbsp;		} else if (worldVer.compareTo(new Version(&quot;2.0.6-dev4&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			String color = data.remove(0);</b>
+<b class="nc">&nbsp;			int[] colors = new int[3];</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; 3; i++)</b>
+<b class="nc">&nbsp;				colors[i] = Integer.parseInt(String.valueOf(color.charAt(i)));</b>
+<b class="nc">&nbsp;			player.shirtColor = Color.get(1, colors[0] * 51, colors[1] * 51, colors[2] * 51);</b>
+<b class="nc">&nbsp;		} else</b>
+<b class="nc">&nbsp;			player.shirtColor = Integer.parseInt(data.remove(0));</b>
+&nbsp;
+&nbsp;		// Just delete the slot reserved for loading legacy skins.
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.1.0&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			data.remove(0);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Loading unlocked recipes.
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.2.0-dev3&quot;)) &gt;= 0) {</b>
+<b class="nc">&nbsp;			ArrayList&lt;Recipe&gt; recipes = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;			JSONObject unlockedRecipes = new JSONObject(data.remove(0));</b>
+<b class="nc">&nbsp;			for (String key : unlockedRecipes.keySet()) {</b>
+<b class="nc">&nbsp;				JSONArray costsJson = unlockedRecipes.getJSONArray(key);</b>
+<b class="nc">&nbsp;				String[] costs = new String[costsJson.length()];</b>
+<b class="nc">&nbsp;				for (int j = 0; j &lt; costsJson.length(); j++) {</b>
+<b class="nc">&nbsp;					costs[j] = costsJson.getString(j);</b>
+&nbsp;				}
+&nbsp;
+&nbsp;				// Skipping removed vanilla recipes
+<b class="nc">&nbsp;				if (worldVer.compareTo(new Version(&quot;2.2.0-dev6&quot;)) &lt;= 0) {</b>
+&nbsp;					// Iron Ore * 4 + Coal * 1 =&gt; Iron * 1
+<b class="nc">&nbsp;					if (key.equalsIgnoreCase(&quot;iron_1&quot;) &amp;&amp;</b>
+<b class="nc">&nbsp;						costs.length == 2 &amp;&amp; costs[0].equalsIgnoreCase(&quot;iron Ore_4&quot;) &amp;&amp;</b>
+<b class="nc">&nbsp;						costs[1].equalsIgnoreCase(&quot;coal_1&quot;))</b>
+<b class="nc">&nbsp;						continue;</b>
+&nbsp;					// Gold Ore * 4 + Coal * 1 =&gt; Gold * 1
+<b class="nc">&nbsp;					if (key.equalsIgnoreCase(&quot;gold_1&quot;) &amp;&amp;</b>
+<b class="nc">&nbsp;						costs.length == 2 &amp;&amp; costs[0].equalsIgnoreCase(&quot;gold Ore_4&quot;) &amp;&amp;</b>
+<b class="nc">&nbsp;						costs[1].equalsIgnoreCase(&quot;coal_1&quot;))</b>
+<b class="nc">&nbsp;						continue;</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				recipes.add(new Recipe(key, costs));</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+<b class="nc">&nbsp;			CraftingDisplay.loadUnlockedRecipes(recipes);</b>
+<b class="nc">&nbsp;		} else</b>
+<b class="nc">&nbsp;			CraftingDisplay.resetRecipeUnlocks();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	protected static String subOldName(String name, Version worldVer) {
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;1.9.4-dev4&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			name = name.replace(&quot;Hatchet&quot;, &quot;Axe&quot;).replace(&quot;Pick&quot;, &quot;Pickaxe&quot;).replace(&quot;Pickaxeaxe&quot;, &quot;Pickaxe&quot;).replace(&quot;Spade&quot;, &quot;Shovel&quot;).replace(&quot;Pow glove&quot;, &quot;Power Glove&quot;).replace(&quot;II&quot;, &quot;&quot;).replace(&quot;W.Bucket&quot;, &quot;Water Bucket&quot;).replace(&quot;L.Bucket&quot;, &quot;Lava Bucket&quot;).replace(&quot;G.Apple&quot;, &quot;Gold Apple&quot;).replace(&quot;St.&quot;, &quot;Stone&quot;).replace(&quot;Ob.&quot;, &quot;Obsidian&quot;).replace(&quot;I.Lantern&quot;, &quot;Iron Lantern&quot;).replace(&quot;G.Lantern&quot;, &quot;Gold Lantern&quot;).replace(&quot;BrickWall&quot;, &quot;Wall&quot;).replace(&quot;Brick&quot;, &quot; Brick&quot;).replace(&quot;Wall&quot;, &quot; Wall&quot;).replace(&quot;  &quot;, &quot; &quot;);</b>
+<b class="nc">&nbsp;			if (name.equals(&quot;Bucket&quot;))</b>
+<b class="nc">&nbsp;				name = &quot;Empty Bucket&quot;;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;1.9.4&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			name = name.replace(&quot;I.Armor&quot;, &quot;Iron Armor&quot;).replace(&quot;S.Armor&quot;, &quot;Snake Armor&quot;).replace(&quot;L.Armor&quot;, &quot;Leather Armor&quot;).replace(&quot;G.Armor&quot;, &quot;Gold Armor&quot;).replace(&quot;BrickWall&quot;, &quot;Wall&quot;);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.0.6-dev3&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			name = name.replace(&quot;Fishing Rod&quot;, &quot;Wood Fishing Rod&quot;);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.0.6&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			if (name.startsWith(&quot;Pork Chop&quot;))</b>
+<b class="nc">&nbsp;				name = name.replace(&quot;Pork Chop&quot;, &quot;Cooked Pork&quot;);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.0.7-dev1&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			if (name.startsWith(&quot;Seeds&quot;))</b>
+<b class="nc">&nbsp;				name = name.replace(&quot;Seeds&quot;, &quot;Wheat Seeds&quot;);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.1.0-dev2&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			if (name.startsWith(&quot;Shear&quot;))</b>
+<b class="nc">&nbsp;				name = name.replace(&quot;Shear&quot;, &quot;Shears&quot;);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (worldVer.compareTo(new Version(&quot;2.2.0-dev4&quot;)) &lt; 0) {</b>
+<b class="nc">&nbsp;			if (name.startsWith(&quot;Potion&quot;))</b>
+<b class="nc">&nbsp;				name = name.replace(&quot;Potion&quot;, &quot;Awkward Potion&quot;);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return name;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void loadInventory(String filename, Inventory inventory) {
+<b class="nc">&nbsp;		deathChest = new DeathChest();</b>
+<b class="nc">&nbsp;		loadFromFile(location + filename + extension);</b>
+<b class="nc">&nbsp;		loadInventory(inventory, data);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void loadInventory(Inventory inventory, List&lt;String&gt; data) {
+<b class="nc">&nbsp;		inventory.clearInv();</b>
+&nbsp;
+<b class="nc">&nbsp;		for (String item : data) {</b>
+<b class="nc">&nbsp;			if (item.length() == 0) {</b>
+<b class="nc">&nbsp;				Logging.SAVELOAD.error(&quot;loadInventory: Item in data list is \&quot;\&quot;, skipping item&quot;);</b>
+<b class="nc">&nbsp;				continue;</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			// Apply name changes.
+<b class="nc">&nbsp;			item = subOldName(item, worldVer);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (item.contains(&quot;Power Glove&quot;)) continue; // Ignore the power glove.</b>
+<b class="nc">&nbsp;			if (item.contains(&quot;Totem of Wind&quot;)) continue;</b>
+&nbsp;
+<b class="nc">&nbsp;			if (worldVer.compareTo(new Version(&quot;2.0.4&quot;)) &lt;= 0 &amp;&amp; item.contains(&quot;;&quot;)) {</b>
+<b class="nc">&nbsp;				String[] curData = item.split(&quot;;&quot;);</b>
+<b class="nc">&nbsp;				String itemName = curData[0];</b>
+&nbsp;
+<b class="nc">&nbsp;				Item newItem = Items.get(itemName);</b>
+&nbsp;
+<b class="nc">&nbsp;				int count = Integer.parseInt(curData[1]);</b>
+&nbsp;
+<b class="nc">&nbsp;				if (newItem instanceof StackableItem) {</b>
+<b class="nc">&nbsp;					((StackableItem) newItem).count = count;</b>
+<b class="nc">&nbsp;					loadItem(inventory, newItem);</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					for (int i = 0; i &lt; count; i++) loadItem(inventory, newItem);</b>
+&nbsp;				}
+<b class="nc">&nbsp;			} else {</b>
+<b class="nc">&nbsp;				loadItem(inventory, Items.get(item));</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void loadItem(Inventory inventory, Item item) {
+<b class="nc">&nbsp;		int total = 1;</b>
+<b class="nc">&nbsp;		if (item instanceof StackableItem) total = ((StackableItem) item).count;</b>
+<b class="nc">&nbsp;		int loaded = inventory.add(item);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (loaded &lt; total) {</b>
+<b class="nc">&nbsp;			deathChest.getInventory().add(item.copy());</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void loadEntities(String filename) {
+<b class="nc">&nbsp;		LoadingDisplay.setMessage(&quot;minicraft.displays.loading.message.entities&quot;);</b>
+<b class="nc">&nbsp;		loadFromFile(location + filename + extension);</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int i = 0; i &lt; World.levels.length; i++) {</b>
+<b class="nc">&nbsp;			World.levels[i].clearEntities();</b>
+&nbsp;		}
+<b class="nc">&nbsp;		for (String name : data) {</b>
+<b class="nc">&nbsp;			if (name.startsWith(&quot;Player&quot;)) continue;</b>
+<b class="nc">&nbsp;			loadEntity(name, worldVer, true);</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int i = 0; i &lt; World.levels.length; i++) {</b>
+<b class="nc">&nbsp;			World.levels[i].checkChestCount();</b>
+<b class="nc">&nbsp;			World.levels[i].checkAirWizard();</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Nullable
+&nbsp;	public static Entity loadEntity(String entityData, Version worldVer, boolean isLocalSave) {
+<b class="nc">&nbsp;		entityData = entityData.trim();</b>
+<b class="nc">&nbsp;		if (entityData.length() == 0) return null;</b>
+&nbsp;
+<b class="nc">&nbsp;		String[] stuff = entityData.substring(entityData.indexOf(&quot;[&quot;) + 1, entityData.indexOf(&quot;]&quot;)).split(&quot;:&quot;); // This gets everything inside the &quot;[...]&quot; after the entity name.</b>
+<b class="nc">&nbsp;		List&lt;String&gt; info = new ArrayList&lt;&gt;(Arrays.asList(stuff));</b>
+&nbsp;
+<b class="nc">&nbsp;		String entityName = entityData.substring(0, entityData.indexOf(&quot;[&quot;)); // This gets the text before &quot;[&quot;, which is the entity name.</b>
+&nbsp;
+<b class="nc">&nbsp;		int x = Integer.parseInt(info.get(0));</b>
+<b class="nc">&nbsp;		int y = Integer.parseInt(info.get(1));</b>
+&nbsp;
+<b class="nc">&nbsp;		int eid = -1;</b>
+<b class="nc">&nbsp;		if (!isLocalSave) {</b>
+<b class="nc">&nbsp;			eid = Integer.parseInt(info.remove(2));</b>
+&nbsp;
+&nbsp;			// If I find an entity that is loaded locally, but on another level in the entity data provided, then I ditch the current entity and make a new one from the info provided.
+<b class="nc">&nbsp;			Entity existing = Network.getEntity(eid);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (existing != null) {</b>
+&nbsp;				// Existing one is out of date; replace it.
+<b class="nc">&nbsp;				existing.remove();</b>
+<b class="nc">&nbsp;				Game.levels[Game.currentLevel].add(existing);</b>
+<b class="nc">&nbsp;				return null;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		Entity newEntity;
+&nbsp;
+<b class="nc">&nbsp;		if (entityName.equals(&quot;Spark&quot;) &amp;&amp; !isLocalSave) {</b>
+<b class="nc">&nbsp;			int awID = Integer.parseInt(info.get(2));</b>
+<b class="nc">&nbsp;			Entity sparkOwner = Network.getEntity(awID);</b>
+<b class="nc">&nbsp;			if (sparkOwner instanceof AirWizard)</b>
+<b class="nc">&nbsp;				newEntity = new Spark((AirWizard) sparkOwner, x, y);</b>
+&nbsp;			else {
+<b class="nc">&nbsp;				Logging.SAVELOAD.error(&quot;Failed to load Spark; owner id doesn&#39;t point to a correct entity&quot;);</b>
+<b class="nc">&nbsp;				return null;</b>
+&nbsp;			}
+<b class="nc">&nbsp;		} else {</b>
+<b class="nc">&nbsp;			int mobLvl = 1;</b>
+<b class="nc">&nbsp;			if (!Crafter.names.contains(entityName)) { // Entity missing debugging</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					Class.forName(&quot;minicraft.entity.mob.&quot; + entityName);</b>
+<b class="nc">&nbsp;				} catch (ClassNotFoundException ignored) {</b>
+<b class="nc">&nbsp;				}</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			// Check for level of AirWizard
+<b class="nc">&nbsp;			if (entityName.equals(&quot;AirWizard&quot;)) {</b>
+<b class="nc">&nbsp;				mobLvl = Integer.parseInt(stuff[3]);</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			newEntity = getEntity(entityName.substring(entityName.lastIndexOf(&quot;.&quot;) + 1), mobLvl);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (entityName.equals(&quot;FireSpark&quot;) &amp;&amp; !isLocalSave) {</b>
+<b class="nc">&nbsp;			int obID = Integer.parseInt(info.get(2));</b>
+<b class="nc">&nbsp;			Entity sparkOwner = Network.getEntity(obID);</b>
+<b class="nc">&nbsp;			if (sparkOwner instanceof ObsidianKnight)</b>
+<b class="nc">&nbsp;				newEntity = new FireSpark((ObsidianKnight) sparkOwner, x, y);</b>
+&nbsp;			else {
+<b class="nc">&nbsp;				Logging.SAVELOAD.error(&quot;Failed to load FireSpark; owner id doesn&#39;t point to a correct entity&quot;);</b>
+<b class="nc">&nbsp;				return null;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (newEntity == null)</b>
+<b class="nc">&nbsp;			return null;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (newEntity instanceof Mob) { // This is structured the same way as in Save.java.</b>
+<b class="nc">&nbsp;			Mob mob = (Mob) newEntity;</b>
+<b class="nc">&nbsp;			mob.health = Integer.parseInt(info.get(2));</b>
+&nbsp;
+<b class="nc">&nbsp;			Class&lt;?&gt; c = null;</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				c = Class.forName(&quot;minicraft.entity.mob.&quot; + entityName);</b>
+<b class="nc">&nbsp;			} catch (ClassNotFoundException e) {</b>
+<b class="nc">&nbsp;				e.printStackTrace();</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+<b class="nc">&nbsp;			if (EnemyMob.class.isAssignableFrom(c)) {</b>
+<b class="nc">&nbsp;				EnemyMob enemyMob = ((EnemyMob) mob);</b>
+<b class="nc">&nbsp;				enemyMob.lvl = Integer.parseInt(info.get(info.size() - 2));</b>
+&nbsp;
+<b class="nc">&nbsp;				if (enemyMob.lvl == 0) {</b>
+<b class="nc">&nbsp;					Logging.SAVELOAD.debug(&quot;Level 0 mob: &quot; + entityName);</b>
+<b class="nc">&nbsp;					enemyMob.lvl = 1;</b>
+<b class="nc">&nbsp;				} else if (enemyMob.lvl &gt; enemyMob.getMaxLevel()) {</b>
+<b class="nc">&nbsp;					enemyMob.lvl = enemyMob.getMaxLevel();</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				mob = enemyMob;</b>
+<b class="nc">&nbsp;			} else if (worldVer.compareTo(new Version(&quot;2.0.7-dev1&quot;)) &gt;= 0) { // If the version is more or equal to 2.0.7-dev1</b>
+<b class="nc">&nbsp;				if (newEntity instanceof Sheep) {</b>
+<b class="nc">&nbsp;					Sheep sheep = ((Sheep) mob);</b>
+<b class="nc">&nbsp;					if (info.get(3).equalsIgnoreCase(&quot;true&quot;)) {</b>
+&nbsp;
+<b class="nc">&nbsp;						sheep.cut = true;</b>
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					mob = sheep;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			newEntity = mob;</b>
+<b class="nc">&nbsp;		} else if (newEntity instanceof Chest) {</b>
+<b class="nc">&nbsp;			Chest chest = (Chest) newEntity;</b>
+<b class="nc">&nbsp;			boolean isDeathChest = chest instanceof DeathChest;</b>
+<b class="nc">&nbsp;			boolean isDungeonChest = chest instanceof DungeonChest;</b>
+<b class="nc">&nbsp;			List&lt;String&gt; chestInfo = info.subList(2, info.size() - 1);</b>
+&nbsp;
+<b class="nc">&nbsp;			int endIdx = chestInfo.size() - (isDeathChest || isDungeonChest ? 1 : 0);</b>
+<b class="nc">&nbsp;			for (int idx = 0; idx &lt; endIdx; idx++) {</b>
+<b class="nc">&nbsp;				String itemData = subOldName(chestInfo.get(idx), worldVer);</b>
+&nbsp;
+<b class="nc">&nbsp;				if (itemData.contains(&quot;Power Glove&quot;)) continue;</b>
+<b class="nc">&nbsp;				if (itemData.contains(&quot;Totem of Wind&quot;)) continue;</b>
+&nbsp;
+<b class="nc">&nbsp;				Item item = Items.get(itemData);</b>
+<b class="nc">&nbsp;				chest.getInventory().add(item);</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (isDeathChest) {</b>
+<b class="nc">&nbsp;				((DeathChest) chest).time = Integer.parseInt(chestInfo.get(chestInfo.size() - 1));</b>
+<b class="nc">&nbsp;			} else if (isDungeonChest) {</b>
+<b class="nc">&nbsp;				((DungeonChest) chest).setLocked(Boolean.parseBoolean(chestInfo.get(chestInfo.size() - 1)));</b>
+<b class="nc">&nbsp;				if (((DungeonChest) chest).isLocked())</b>
+<b class="nc">&nbsp;					World.levels[Integer.parseInt(info.get(info.size() - 1))].chestCount++;</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			newEntity = chest;</b>
+<b class="nc">&nbsp;		} else if (newEntity instanceof Spawner) {</b>
+<b class="nc">&nbsp;			MobAi mob = (MobAi) getEntity(info.get(2).substring(info.get(2).lastIndexOf(&quot;.&quot;) + 1), Integer.parseInt(info.get(3)));</b>
+<b class="nc">&nbsp;			if (mob != null)</b>
+<b class="nc">&nbsp;				newEntity = new Spawner(mob);</b>
+<b class="nc">&nbsp;		} else if (newEntity instanceof Lantern &amp;&amp; worldVer.compareTo(new Version(&quot;1.9.4&quot;)) &gt;= 0 &amp;&amp; info.size() &gt; 3) {</b>
+<b class="nc">&nbsp;			newEntity = new Lantern(Lantern.Type.values()[Integer.parseInt(info.get(2))]);</b>
+<b class="nc">&nbsp;		} else if (newEntity instanceof KnightStatue) {</b>
+<b class="nc">&nbsp;			int health = Integer.parseInt(info.get(2));</b>
+<b class="nc">&nbsp;			newEntity = new KnightStatue(health);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (!isLocalSave) {</b>
+<b class="nc">&nbsp;			if (newEntity instanceof Arrow) {</b>
+<b class="nc">&nbsp;				int ownerID = Integer.parseInt(info.get(2));</b>
+<b class="nc">&nbsp;				Mob m = (Mob) Network.getEntity(ownerID);</b>
+<b class="nc">&nbsp;				if (m != null) {</b>
+<b class="nc">&nbsp;					Direction dir = Direction.values[Integer.parseInt(info.get(3))];</b>
+<b class="nc">&nbsp;					int dmg = Integer.parseInt(info.get(5));</b>
+<b class="nc">&nbsp;					newEntity = new Arrow(m, x, y, dir, dmg);</b>
+&nbsp;				}
+&nbsp;			}
+<b class="nc">&nbsp;			if (newEntity instanceof ItemEntity) {</b>
+<b class="nc">&nbsp;				Item item = Items.get(info.get(2));</b>
+<b class="nc">&nbsp;				double zz = Double.parseDouble(info.get(3));</b>
+<b class="nc">&nbsp;				int lifetime = Integer.parseInt(info.get(4));</b>
+<b class="nc">&nbsp;				int timeleft = Integer.parseInt(info.get(5));</b>
+<b class="nc">&nbsp;				double xa = Double.parseDouble(info.get(6));</b>
+<b class="nc">&nbsp;				double ya = Double.parseDouble(info.get(7));</b>
+<b class="nc">&nbsp;				double za = Double.parseDouble(info.get(8));</b>
+<b class="nc">&nbsp;				newEntity = new ItemEntity(item, x, y, zz, lifetime, timeleft, xa, ya, za);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			if (newEntity instanceof TextParticle) {</b>
+<b class="nc">&nbsp;				int textcol = Integer.parseInt(info.get(3));</b>
+<b class="nc">&nbsp;				newEntity = new TextParticle(info.get(2), x, y, textcol);</b>
+&nbsp;				//if (Game.debug) System.out.println(&quot;Loaded text particle; color: &quot;+Color.toString(textcol)+&quot;, text: &quot; + info.get(2));
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		newEntity.eid = eid; // This will be -1 unless set earlier, so a new one will be generated when adding it to the level.</b>
+<b class="nc">&nbsp;		if (newEntity instanceof ItemEntity &amp;&amp; eid == -1)</b>
+<b class="nc">&nbsp;			Logging.SAVELOAD.warn(&quot;Item entity was loaded with no eid&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		int curLevel = Integer.parseInt(info.get(info.size() - 1));</b>
+<b class="nc">&nbsp;		if (World.levels[curLevel] != null) {</b>
+<b class="nc">&nbsp;			World.levels[curLevel].add(newEntity, x, y);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return newEntity;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Nullable
+&nbsp;	private static Entity getEntity(String string, int mobLevel) {
+<b class="nc">&nbsp;		switch (string) {</b>
+&nbsp;			case &quot;Player&quot;:
+<b class="nc">&nbsp;				return null;</b>
+&nbsp;			case &quot;RemotePlayer&quot;:
+<b class="nc">&nbsp;				return null;</b>
+&nbsp;			case &quot;Cow&quot;:
+<b class="nc">&nbsp;				return new Cow();</b>
+&nbsp;			case &quot;Sheep&quot;:
+<b class="nc">&nbsp;				return new Sheep();</b>
+&nbsp;			case &quot;Pig&quot;:
+<b class="nc">&nbsp;				return new Pig();</b>
+&nbsp;			case &quot;Zombie&quot;:
+<b class="nc">&nbsp;				return new Zombie(mobLevel);</b>
+&nbsp;			case &quot;Slime&quot;:
+<b class="nc">&nbsp;				return new Slime(mobLevel);</b>
+&nbsp;			case &quot;Creeper&quot;:
+<b class="nc">&nbsp;				return new Creeper(mobLevel);</b>
+&nbsp;			case &quot;Skeleton&quot;:
+<b class="nc">&nbsp;				return new Skeleton(mobLevel);</b>
+&nbsp;			case &quot;Knight&quot;:
+<b class="nc">&nbsp;				return new Knight(mobLevel);</b>
+&nbsp;			case &quot;Snake&quot;:
+<b class="nc">&nbsp;				return new Snake(mobLevel);</b>
+&nbsp;			case &quot;AirWizard&quot;:
+<b class="nc">&nbsp;				if (mobLevel &gt; 1) return null;</b>
+<b class="nc">&nbsp;				return new AirWizard();</b>
+&nbsp;			case &quot;Spawner&quot;:
+<b class="nc">&nbsp;				return new Spawner(new Zombie(1));</b>
+&nbsp;			case &quot;Workbench&quot;:
+<b class="nc">&nbsp;				return new Crafter(Crafter.Type.Workbench);</b>
+&nbsp;			case &quot;Chest&quot;:
+<b class="nc">&nbsp;				return new Chest();</b>
+&nbsp;			case &quot;DeathChest&quot;:
+<b class="nc">&nbsp;				return new DeathChest();</b>
+&nbsp;			case &quot;DungeonChest&quot;:
+<b class="nc">&nbsp;				return new DungeonChest(null);</b>
+&nbsp;			case &quot;Anvil&quot;:
+<b class="nc">&nbsp;				return new Crafter(Crafter.Type.Anvil);</b>
+&nbsp;			case &quot;Enchanter&quot;:
+<b class="nc">&nbsp;				return new Crafter(Crafter.Type.Enchanter);</b>
+&nbsp;			case &quot;Loom&quot;:
+<b class="nc">&nbsp;				return new Crafter(Crafter.Type.Loom);</b>
+&nbsp;			case &quot;Furnace&quot;:
+<b class="nc">&nbsp;				return new Crafter(Crafter.Type.Furnace);</b>
+&nbsp;			case &quot;Oven&quot;:
+<b class="nc">&nbsp;				return new Crafter(Crafter.Type.Oven);</b>
+&nbsp;			case &quot;Bed&quot;:
+<b class="nc">&nbsp;				return new Bed();</b>
+&nbsp;			case &quot;Tnt&quot;:
+<b class="nc">&nbsp;				return new Tnt();</b>
+&nbsp;			case &quot;Lantern&quot;:
+<b class="nc">&nbsp;				return new Lantern(Lantern.Type.NORM);</b>
+&nbsp;			case &quot;Arrow&quot;:
+<b class="nc">&nbsp;				return new Arrow(new Skeleton(0), 0, 0, Direction.NONE, 0);</b>
+&nbsp;			case &quot;ItemEntity&quot;:
+<b class="nc">&nbsp;				return new ItemEntity(Items.get(&quot;unknown&quot;), 0, 0);</b>
+&nbsp;			case &quot;FireParticle&quot;:
+<b class="nc">&nbsp;				return new FireParticle(0, 0);</b>
+&nbsp;			case &quot;SmashParticle&quot;:
+<b class="nc">&nbsp;				return new SmashParticle(0, 0);</b>
+&nbsp;			case &quot;TextParticle&quot;:
+<b class="nc">&nbsp;				return new TextParticle(&quot;&quot;, 0, 0, 0);</b>
+&nbsp;			case &quot;KnightStatue&quot;:
+<b class="nc">&nbsp;				return new KnightStatue(0);</b>
+&nbsp;			case &quot;ObsidianKnight&quot;:
+<b class="nc">&nbsp;				return new ObsidianKnight(0);</b>
+&nbsp;			default:
+<b class="nc">&nbsp;				Logging.SAVELOAD.error(&quot;LOAD ERROR: Unknown or outdated entity requested: &quot; + string);</b>
+<b class="nc">&nbsp;				return null;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,253 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > OreTile</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.level.tile</a>
+</div>
+
+<h1>Coverage Summary for Class: OreTile (minicraft.level.tile)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">OreTile</td>
+<td class="coverageStat">
+  <span class="percent">
+    12.5%
+  </span>
+  <span class="absValue">
+    (1/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    7.1%
+  </span>
+  <span class="absValue">
+    (3/42)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">OreTile$OreType</td>
+<td class="coverageStat">
+  <span class="percent">
+    75%
+  </span>
+  <span class="absValue">
+    (3/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    90.9%
+  </span>
+  <span class="absValue">
+    (10/11)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    33.3%
+  </span>
+  <span class="absValue">
+    (4/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    24.5%
+  </span>
+  <span class="absValue">
+    (13/53)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.level.tile;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.Sound;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.entity.mob.Mob;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.entity.particle.SmashParticle;
+&nbsp;import minicraft.entity.particle.TextParticle;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.gfx.SpriteAnimation;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.item.Items;
+&nbsp;import minicraft.item.ToolItem;
+&nbsp;import minicraft.item.ToolType;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.screen.AchievementsDisplay;
+&nbsp;import minicraft.util.AdvancementElement;
+&nbsp;
+&nbsp;/// this is all the spikey stuff (except &quot;cloud cactus&quot;)
+&nbsp;public class OreTile extends Tile {
+&nbsp;	private final OreType type;
+&nbsp;
+<b class="fc">&nbsp;	public enum OreType {</b>
+<b class="fc">&nbsp;		Iron(Items.get(&quot;Iron Ore&quot;), new SpriteAnimation(SpriteType.Tile, &quot;iron_ore&quot;)),</b>
+<b class="fc">&nbsp;		Lapis(Items.get(&quot;Lapis&quot;), new SpriteAnimation(SpriteType.Tile, &quot;lapis_ore&quot;)),</b>
+<b class="fc">&nbsp;		Gold(Items.get(&quot;Gold Ore&quot;), new SpriteAnimation(SpriteType.Tile, &quot;gold_ore&quot;)),</b>
+<b class="fc">&nbsp;		Gem(Items.get(&quot;Gem&quot;), new SpriteAnimation(SpriteType.Tile, &quot;gem_ore&quot;)),</b>
+<b class="fc">&nbsp;		Cloud(Items.get(&quot;Cloud Ore&quot;), new SpriteAnimation(SpriteType.Tile, &quot;cloud_ore&quot;));</b>
+&nbsp;
+&nbsp;		private final Item drop;
+&nbsp;		public final SpriteAnimation sheet;
+&nbsp;
+<b class="fc">&nbsp;		OreType(Item drop, SpriteAnimation sheet) {</b>
+<b class="fc">&nbsp;			this.drop = drop;</b>
+<b class="fc">&nbsp;			this.sheet = sheet;</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		private Item getOre() {
+<b class="nc">&nbsp;			return drop.copy();</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	protected OreTile(OreType o) {
+<b class="fc">&nbsp;		super((o == OreTile.OreType.Lapis ? &quot;Lapis&quot; : o == OreType.Cloud ? &quot;Cloud Cactus&quot; : o.name() + &quot; Ore&quot;), o.sheet);</b>
+<b class="fc">&nbsp;		this.type = o;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void render(Screen screen, Level level, int x, int y) {
+<b class="nc">&nbsp;		if (type == OreType.Cloud)</b>
+<b class="nc">&nbsp;			Tiles.get(&quot;cloud&quot;).render(screen, level, x, y);</b>
+&nbsp;		else
+<b class="nc">&nbsp;			Tiles.get(&quot;dirt&quot;).render(screen, level, x, y);</b>
+<b class="nc">&nbsp;		sprite.render(screen, level, x, y);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean mayPass(Level level, int x, int y, Entity e) {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean hurt(Level level, int x, int y, Mob source, int dmg, Direction attackDir) {
+<b class="nc">&nbsp;		hurt(level, x, y, 0);</b>
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean interact(Level level, int xt, int yt, Player player, Item item, Direction attackDir) {
+<b class="nc">&nbsp;		if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;))</b>
+<b class="nc">&nbsp;			return false; // Go directly to hurt method</b>
+<b class="nc">&nbsp;		if (item instanceof ToolItem) {</b>
+<b class="nc">&nbsp;			ToolItem tool = (ToolItem) item;</b>
+<b class="nc">&nbsp;			if (tool.type == ToolType.Pickaxe) {</b>
+<b class="nc">&nbsp;				if (player.payStamina(6 - tool.level) &amp;&amp; tool.payDurability()) {</b>
+<b class="nc">&nbsp;					int data = level.getData(xt, yt);</b>
+<b class="nc">&nbsp;					hurt(level, xt, yt, tool.getDamage());</b>
+<b class="nc">&nbsp;					AdvancementElement.AdvancementTrigger.ItemUsedOnTileTrigger.INSTANCE.trigger(</b>
+&nbsp;						new AdvancementElement.AdvancementTrigger.ItemUsedOnTileTrigger.ItemUsedOnTileTriggerConditionHandler.ItemUsedOnTileTriggerConditions(
+&nbsp;							item, this, data, xt, yt, level.depth));
+<b class="nc">&nbsp;					return true;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Item getOre() {
+<b class="nc">&nbsp;		return type.getOre();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void hurt(Level level, int x, int y, int dmg) {
+<b class="nc">&nbsp;		int damage = level.getData(x, y) + dmg;</b>
+<b class="nc">&nbsp;		int oreH = random.nextInt(10) * 4 + 20;</b>
+<b class="nc">&nbsp;		if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) dmg = damage = oreH;</b>
+&nbsp;
+<b class="nc">&nbsp;		level.add(new SmashParticle(x * 16, y * 16));</b>
+<b class="nc">&nbsp;		Sound.play(&quot;monsterhurt&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		level.add(new TextParticle(&quot;&quot; + dmg, x * 16 + 8, y * 16 + 8, Color.RED));</b>
+<b class="nc">&nbsp;		if (dmg &gt; 0) {</b>
+<b class="nc">&nbsp;			int count = random.nextInt(2);</b>
+<b class="nc">&nbsp;			if (damage &gt;= oreH) {</b>
+<b class="nc">&nbsp;				if (type == OreType.Cloud) {</b>
+<b class="nc">&nbsp;					level.setTile(x, y, Tiles.get(&quot;Cloud&quot;));</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					level.setTile(x, y, Tiles.get(&quot;Dirt&quot;));</b>
+&nbsp;				}
+<b class="nc">&nbsp;				count += 2;</b>
+&nbsp;			} else {
+<b class="nc">&nbsp;				level.setData(x, y, damage);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			if (type.drop.equals(Items.get(&quot;gem&quot;))) {</b>
+<b class="nc">&nbsp;				AchievementsDisplay.setAchievement(&quot;minicraft.achievement.find_gem&quot;, true);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			level.dropItem(x * 16 + 8, y * 16 + 8, count, type.getOre());</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void bumpedInto(Level level, int x, int y, Entity entity) {
+&nbsp;		/// this was used at one point to hurt the player if they touched the ore; that&#39;s probably why the sprite is so spikey-looking.
+<b class="nc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

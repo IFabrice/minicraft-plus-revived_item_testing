@@ -1,0 +1,269 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > WallTile</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.level.tile</a>
+</div>
+
+<h1>Coverage Summary for Class: WallTile (minicraft.level.tile)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">WallTile</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (6/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    26.6%
+  </span>
+  <span class="absValue">
+    (17/64)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">WallTile$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    53.8%
+  </span>
+  <span class="absValue">
+    (7/13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    27.7%
+  </span>
+  <span class="absValue">
+    (18/65)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.level.tile;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.core.io.Sound;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.entity.mob.AirWizard;
+&nbsp;import minicraft.entity.mob.Mob;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.entity.particle.SmashParticle;
+&nbsp;import minicraft.entity.particle.TextParticle;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.SpriteAnimation;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.item.Items;
+&nbsp;import minicraft.item.ToolItem;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.util.AdvancementElement;
+&nbsp;
+&nbsp;public class WallTile extends Tile {
+<b class="fc">&nbsp;	private static SpriteAnimation wood = new SpriteAnimation(SpriteType.Tile, &quot;wood_wall&quot;)</b>
+<b class="fc">&nbsp;		.setConnectionChecker((level, x, y, tile, side) -&gt; tile instanceof WallTile);</b>
+<b class="fc">&nbsp;	private static SpriteAnimation stone = new SpriteAnimation(SpriteType.Tile, &quot;stone_wall&quot;)</b>
+<b class="fc">&nbsp;		.setConnectionChecker((level, x, y, tile, side) -&gt; tile instanceof WallTile);</b>
+<b class="fc">&nbsp;	private static SpriteAnimation obsidian = new SpriteAnimation(SpriteType.Tile, &quot;obsidian_wall&quot;)</b>
+<b class="fc">&nbsp;		.setConnectionChecker((level, x, y, tile, side) -&gt; tile instanceof WallTile);</b>
+&nbsp;
+&nbsp;	private static final String obrickMsg = &quot;minicraft.notification.defeat_air_wizard_first&quot;;
+&nbsp;	protected Material type;
+&nbsp;
+&nbsp;	protected WallTile(Material type) {
+<b class="fc">&nbsp;		this(type, null);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	protected WallTile(Material type, String name) {
+<b class="fc">&nbsp;		super(type.name() + &quot; &quot; + (name == null ? &quot;Wall&quot; : name), null);</b>
+<b class="fc">&nbsp;		this.type = type;</b>
+<b class="fc">&nbsp;		switch (type) {</b>
+&nbsp;			case Wood:
+<b class="fc">&nbsp;				sprite = wood;</b>
+<b class="fc">&nbsp;				break;</b>
+&nbsp;			case Stone:
+<b class="fc">&nbsp;				sprite = stone;</b>
+<b class="fc">&nbsp;				break;</b>
+&nbsp;			case Obsidian:
+<b class="fc">&nbsp;				sprite = obsidian;</b>
+&nbsp;				break;
+&nbsp;		}
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean mayPass(Level level, int x, int y, Entity e) {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean hurt(Level level, int x, int y, Mob source, int dmg, Direction attackDir) {
+<b class="nc">&nbsp;		if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;) || level.depth != -3 || type != Material.Obsidian || AirWizard.beaten) {</b>
+<b class="nc">&nbsp;			hurt(level, x, y, 0);</b>
+<b class="nc">&nbsp;			return true;</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			Game.notifications.add(Localization.getLocalized(obrickMsg));</b>
+<b class="nc">&nbsp;			return false;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean interact(Level level, int xt, int yt, Player player, Item item, Direction attackDir) {
+<b class="nc">&nbsp;		if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;))</b>
+<b class="nc">&nbsp;			return false; // Go directly to hurt method</b>
+<b class="nc">&nbsp;		if (item instanceof ToolItem) {</b>
+<b class="nc">&nbsp;			ToolItem tool = (ToolItem) item;</b>
+<b class="nc">&nbsp;			if (tool.type == type.getRequiredTool()) {</b>
+<b class="nc">&nbsp;				if (level.depth != -3 || type != Material.Obsidian || AirWizard.beaten) {</b>
+<b class="nc">&nbsp;					if (player.payStamina(4 - tool.level) &amp;&amp; tool.payDurability()) {</b>
+<b class="nc">&nbsp;						int data = level.getData(xt, yt);</b>
+<b class="nc">&nbsp;						hurt(level, xt, yt, tool.getDamage());</b>
+<b class="nc">&nbsp;						AdvancementElement.AdvancementTrigger.ItemUsedOnTileTrigger.INSTANCE.trigger(</b>
+&nbsp;							new AdvancementElement.AdvancementTrigger.ItemUsedOnTileTrigger.ItemUsedOnTileTriggerConditionHandler.ItemUsedOnTileTriggerConditions(
+&nbsp;								item, this, data, xt, yt, level.depth));
+<b class="nc">&nbsp;						return true;</b>
+&nbsp;					}
+&nbsp;				} else {
+<b class="nc">&nbsp;					Game.notifications.add(obrickMsg);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void hurt(Level level, int x, int y, int dmg) {
+<b class="nc">&nbsp;		int damage = level.getData(x, y) + dmg;</b>
+<b class="nc">&nbsp;		int sbwHealth = 100;</b>
+<b class="nc">&nbsp;		if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) dmg = damage = sbwHealth;</b>
+&nbsp;
+<b class="nc">&nbsp;		level.add(new SmashParticle(x * 16, y * 16));</b>
+<b class="nc">&nbsp;		Sound.play(&quot;monsterhurt&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		level.add(new TextParticle(&quot;&quot; + dmg, x * 16 + 8, y * 16 + 8, Color.RED));</b>
+<b class="nc">&nbsp;		if (damage &gt;= sbwHealth) {</b>
+<b class="nc">&nbsp;			String itemName = &quot;&quot;, tilename = &quot;&quot;;</b>
+<b class="nc">&nbsp;			switch (type) { // Get what tile to set and what item to drop</b>
+&nbsp;				case Wood: {
+<b class="nc">&nbsp;					itemName = &quot;Plank&quot;;</b>
+<b class="nc">&nbsp;					tilename = &quot;Wood Planks&quot;;</b>
+<b class="nc">&nbsp;					break;</b>
+&nbsp;				}
+&nbsp;				case Stone: {
+<b class="nc">&nbsp;					itemName = &quot;Stone Brick&quot;;</b>
+<b class="nc">&nbsp;					tilename = &quot;Stone Bricks&quot;;</b>
+<b class="nc">&nbsp;					break;</b>
+&nbsp;				}
+&nbsp;				case Obsidian: {
+<b class="nc">&nbsp;					itemName = &quot;Obsidian Brick&quot;;</b>
+<b class="nc">&nbsp;					tilename = &quot;Obsidian&quot;;</b>
+&nbsp;					break;
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			level.dropItem(x * 16 + 8, y * 16 + 8, 1, 3 - type.ordinal(), Items.get(itemName));</b>
+<b class="nc">&nbsp;			level.setTile(x, y, Tiles.get(tilename));</b>
+<b class="nc">&nbsp;		} else {</b>
+<b class="nc">&nbsp;			level.setData(x, y, damage);</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean tick(Level level, int xt, int yt) {
+<b class="nc">&nbsp;		int damage = level.getData(xt, yt);</b>
+<b class="nc">&nbsp;		if (damage &gt; 0) {</b>
+<b class="nc">&nbsp;			level.setData(xt, yt, damage - 1);</b>
+<b class="nc">&nbsp;			return true;</b>
+&nbsp;		}
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public String getName(int data) {
+<b class="nc">&nbsp;		return Material.values[data].name() + &quot; Wall&quot;;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

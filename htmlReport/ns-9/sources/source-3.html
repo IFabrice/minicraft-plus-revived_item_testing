@@ -1,0 +1,435 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Structure</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.level</a>
+</div>
+
+<h1>Coverage Summary for Class: Structure (minicraft.level)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Structure</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/72)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Structure$TilePoint</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/80)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.level;
+&nbsp;
+&nbsp;import minicraft.entity.furniture.Crafter;
+&nbsp;import minicraft.entity.furniture.DungeonChest;
+&nbsp;import minicraft.entity.furniture.Furniture;
+&nbsp;import minicraft.entity.furniture.KnightStatue;
+&nbsp;import minicraft.entity.furniture.Lantern;
+&nbsp;import minicraft.gfx.Point;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.function.Consumer;
+&nbsp;
+&nbsp;// this stores structures that can be drawn at any location.
+&nbsp;public class Structure {
+&nbsp;
+&nbsp;	private HashSet&lt;TilePoint&gt; tiles;
+&nbsp;	private HashMap&lt;Point, Furniture&gt; furniture;
+&nbsp;
+<b class="nc">&nbsp;	public Structure() {</b>
+<b class="nc">&nbsp;		tiles = new HashSet&lt;&gt;();</b>
+<b class="nc">&nbsp;		furniture = new HashMap&lt;&gt;();</b>
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	public Structure(Structure struct) {</b>
+<b class="nc">&nbsp;		this.tiles = struct.tiles;</b>
+<b class="nc">&nbsp;		this.furniture = struct.furniture;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void setTile(int x, int y, Tile tile) {
+<b class="nc">&nbsp;		tiles.add(new TilePoint(x, y, tile));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void addFurniture(int x, int y, Furniture furniture) {
+<b class="nc">&nbsp;		this.furniture.put(new Point(x, y), furniture);</b>
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	public void draw(Level level, int xt, int yt) { draw(level, xt, yt, f -&gt; { }); }</b>
+&nbsp;
+&nbsp;	public void draw(Level level, int xt, int yt, Consumer&lt;Furniture&gt; furnitureHandler) {
+<b class="nc">&nbsp;		for (TilePoint p : tiles)</b>
+<b class="nc">&nbsp;			level.setTile(xt + p.x, yt + p.y, p.t);</b>
+&nbsp;
+<b class="nc">&nbsp;		for (Point p : furniture.keySet()) {</b>
+<b class="nc">&nbsp;			Furniture fur = furniture.get(p).copy();</b>
+<b class="nc">&nbsp;			furnitureHandler.accept(fur);</b>
+<b class="nc">&nbsp;			level.add(fur, xt + p.x, yt + p.y, true);</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void draw(short[] map, int xt, int yt, int mapWidth) {
+<b class="nc">&nbsp;		for (TilePoint p : tiles)</b>
+<b class="nc">&nbsp;			map[(xt + p.x) + (yt + p.y) * mapWidth] = p.t.id;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void setData(String keys, String data) {
+&nbsp;		// So, the keys are single letters, each letter represents a tile
+<b class="nc">&nbsp;		HashMap&lt;String, String&gt; keyPairs = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;		String[] stringKeyPairs = keys.split(&quot;,&quot;);</b>
+&nbsp;
+&nbsp;		// Puts all the keys in the keyPairs HashMap
+<b class="nc">&nbsp;		for (int i = 0; i &lt; stringKeyPairs.length; i++) {</b>
+<b class="nc">&nbsp;			String[] thisKey = stringKeyPairs[i].split(&quot;:&quot;);</b>
+<b class="nc">&nbsp;			keyPairs.put(thisKey[0], thisKey[1]);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		String[] dataLines = data.split(&quot;\n&quot;);</b>
+<b class="nc">&nbsp;		int width = dataLines[0].length();</b>
+<b class="nc">&nbsp;		int height = dataLines.length;</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int i = 0; i &lt; dataLines.length; i++) {</b>
+<b class="nc">&nbsp;			for (int c = 0; c &lt; dataLines[i].length(); c++) {</b>
+<b class="nc">&nbsp;				if (dataLines[i].charAt(c) != &#39;*&#39;) {</b>
+<b class="nc">&nbsp;					Tile tile = Tiles.get(keyPairs.get(String.valueOf(dataLines[i].charAt(c))));</b>
+<b class="nc">&nbsp;					this.setTile(-width / 2 + i, -height / 2 + c, tile);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	static class TilePoint {
+&nbsp;		int x, y;
+&nbsp;		Tile t;
+&nbsp;
+<b class="nc">&nbsp;		public TilePoint(int x, int y, Tile tile) {</b>
+<b class="nc">&nbsp;			this.x = x;</b>
+<b class="nc">&nbsp;			this.y = y;</b>
+<b class="nc">&nbsp;			this.t = tile;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public boolean equals(Object o) {
+<b class="nc">&nbsp;			if (!(o instanceof TilePoint)) return false;</b>
+<b class="nc">&nbsp;			TilePoint p = (TilePoint) o;</b>
+<b class="nc">&nbsp;			return x == p.x &amp;&amp; y == p.y &amp;&amp; t.id == p.t.id;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public int hashCode() {
+<b class="nc">&nbsp;			return x + y * 51 + t.id * 131;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	static final Structure dungeonGate;
+&nbsp;	static final Structure dungeonLock;
+&nbsp;	static final Structure dungeonBossRoom;
+&nbsp;	static final Structure lavaPool;
+&nbsp;	static final Structure ornateLavaPool;
+&nbsp;	static final Structure dungeonGarden;
+&nbsp;	static final Structure dungeonChest;
+&nbsp;	static final Structure dungeonSpawner;
+&nbsp;
+&nbsp;	// All the &quot;mobDungeon&quot; structures are for the spawner structures
+&nbsp;	static final Structure mobDungeonCenter;
+&nbsp;	static final Structure mobDungeonNorth;
+&nbsp;	static final Structure mobDungeonSouth;
+&nbsp;	static final Structure mobDungeonEast;
+&nbsp;	static final Structure mobDungeonWest;
+&nbsp;
+&nbsp;	static final Structure airWizardHouse;
+&nbsp;
+&nbsp;	// Used for random villages
+&nbsp;	static final Structure villageHouseNormal;
+&nbsp;	static final Structure villageHouseTwoDoor;
+&nbsp;
+&nbsp;	static final Structure villageRuinedOverlay1;
+&nbsp;	static final Structure villageRuinedOverlay2;
+&nbsp;
+&nbsp;	// Ok, because of the way the system works, these structures are rotated 90 degrees clockwise when placed
+&nbsp;	// Then it&#39;s flipped on the vertical
+&nbsp;	static {
+<b class="nc">&nbsp;		dungeonGate = new Structure();</b>
+<b class="nc">&nbsp;		dungeonGate.setData(&quot;O:Obsidian,D:Obsidian Door,W:Obsidian Wall&quot;,</b>
+&nbsp;			&quot;WWDWW\n&quot; +
+&nbsp;				&quot;WOOOW\n&quot; +
+&nbsp;				&quot;DOOOD\n&quot; +
+&nbsp;				&quot;WOOOW\n&quot; +
+&nbsp;				&quot;WWDWW&quot;
+&nbsp;		);
+<b class="nc">&nbsp;		dungeonGate.addFurniture(-1, -1, new Lantern(Lantern.Type.IRON));</b>
+&nbsp;
+<b class="nc">&nbsp;		dungeonLock = new Structure();</b>
+<b class="nc">&nbsp;		dungeonLock.setData(&quot;O:Obsidian,W:Obsidian Wall&quot;,</b>
+&nbsp;			&quot;WWWWW\n&quot; +
+&nbsp;				&quot;WOOOW\n&quot; +
+&nbsp;				&quot;WOOOW\n&quot; +
+&nbsp;				&quot;WOOOW\n&quot; +
+&nbsp;				&quot;WWWWW&quot;
+&nbsp;		);
+<b class="nc">&nbsp;		dungeonBossRoom = new Structure();</b>
+<b class="nc">&nbsp;		dungeonBossRoom.setData(&quot;O:Obsidian Boss Floor,D:Obsidian Boss Door,W:Obsidian Boss Wall&quot;,</b>
+&nbsp;			&quot;WWWWDWWWW\n&quot; +
+&nbsp;				&quot;WOOOOOOOW\n&quot; +
+&nbsp;				&quot;WOOOOOOOW\n&quot; +
+&nbsp;				&quot;WOOOOOOOW\n&quot; +
+&nbsp;				&quot;DOOOOOOOD\n&quot; +
+&nbsp;				&quot;WOOOOOOOW\n&quot; +
+&nbsp;				&quot;WOOOOOOOW\n&quot; +
+&nbsp;				&quot;WOOOOOOOW\n&quot; +
+&nbsp;				&quot;WWWWDWWWW&quot;
+&nbsp;		);
+<b class="nc">&nbsp;		dungeonBossRoom.addFurniture(0, 0, new KnightStatue(5000));</b>
+&nbsp;
+<b class="nc">&nbsp;		dungeonSpawner = new Structure();</b>
+<b class="nc">&nbsp;		dungeonSpawner.setData(&quot;F:Grass,W:Obsidian Wall,O:Ornate Obsidian,D:Obsidian Door&quot;,</b>
+&nbsp;			&quot;WWWDWWW\n&quot; +
+&nbsp;				&quot;WOOOOOW\n&quot; +
+&nbsp;				&quot;WOFFFOW\n&quot; +
+&nbsp;				&quot;DOFFFOD\n&quot; +
+&nbsp;				&quot;WOFFFOW\n&quot; +
+&nbsp;				&quot;WOOOOOW\n&quot; +
+&nbsp;				&quot;WWWDWWW&quot;
+&nbsp;		);
+&nbsp;
+<b class="nc">&nbsp;		lavaPool = new Structure();</b>
+<b class="nc">&nbsp;		lavaPool.setData(&quot;L:Lava&quot;,</b>
+&nbsp;			&quot;LL\n&quot; +
+&nbsp;				&quot;LL&quot;
+&nbsp;		);
+&nbsp;
+<b class="nc">&nbsp;		ornateLavaPool = new Structure();</b>
+<b class="nc">&nbsp;		ornateLavaPool.setData(&quot;L:Lava,W:Obsidian Wall,O:Ornate Obsidian,D:Obsidian Door&quot;,</b>
+&nbsp;			&quot;WWWDWWW\n&quot; +
+&nbsp;				&quot;WOOOOOW\n&quot; +
+&nbsp;				&quot;WOLLLOW\n&quot; +
+&nbsp;				&quot;DOLLLOD\n&quot; +
+&nbsp;				&quot;WOLLLOW\n&quot; +
+&nbsp;				&quot;WOOOOOW\n&quot; +
+&nbsp;				&quot;WWWDWWW&quot;
+&nbsp;		);
+&nbsp;
+<b class="nc">&nbsp;		dungeonGarden = new Structure();</b>
+<b class="nc">&nbsp;		dungeonGarden.setData(&quot;F:Flower,W:Obsidian Wall,O:Ornate Obsidian,D:Obsidian Door&quot;,</b>
+&nbsp;			&quot;WWWDWWW\n&quot; +
+&nbsp;				&quot;WOOOOOW\n&quot; +
+&nbsp;				&quot;WOFFFOW\n&quot; +
+&nbsp;				&quot;DOFFFOD\n&quot; +
+&nbsp;				&quot;WOFFFOW\n&quot; +
+&nbsp;				&quot;WOOOOOW\n&quot; +
+&nbsp;				&quot;WWWDWWW&quot;
+&nbsp;		);
+&nbsp;
+<b class="nc">&nbsp;		dungeonChest = new Structure();</b>
+<b class="nc">&nbsp;		dungeonChest.setData(&quot;F:Grass,W:Obsidian Wall,O:Ornate Obsidian,D:Obsidian Door&quot;,</b>
+&nbsp;			&quot;WWWDWWW\n&quot; +
+&nbsp;				&quot;WOOOOOW\n&quot; +
+&nbsp;				&quot;WOFFFOW\n&quot; +
+&nbsp;				&quot;DOFFFOD\n&quot; +
+&nbsp;				&quot;WOFFFOW\n&quot; +
+&nbsp;				&quot;WOOOOOW\n&quot; +
+&nbsp;				&quot;WWWDWWW&quot;
+&nbsp;		);
+<b class="nc">&nbsp;		dungeonChest.addFurniture(0, 0, new DungeonChest(null));</b>
+&nbsp;
+<b class="nc">&nbsp;		mobDungeonCenter = new Structure();</b>
+<b class="nc">&nbsp;		mobDungeonCenter.setData(&quot;B:Stone Bricks,W:Stone Wall&quot;,</b>
+&nbsp;			&quot;WWBWW\n&quot; +
+&nbsp;				&quot;WBBBW\n&quot; +
+&nbsp;				&quot;BBBBB\n&quot; +
+&nbsp;				&quot;WBBBW\n&quot; +
+&nbsp;				&quot;WWBWW&quot;
+&nbsp;		);
+<b class="nc">&nbsp;		mobDungeonNorth = new Structure();</b>
+<b class="nc">&nbsp;		mobDungeonNorth.setData(&quot;B:Stone Bricks,W:Stone Wall&quot;,</b>
+&nbsp;			&quot;WWWWW\n&quot; +
+&nbsp;				&quot;WBBBB\n&quot; +
+&nbsp;				&quot;BBBBB\n&quot; +
+&nbsp;				&quot;WBBBB\n&quot; +
+&nbsp;				&quot;WWWWW&quot;
+&nbsp;		);
+<b class="nc">&nbsp;		mobDungeonSouth = new Structure();</b>
+<b class="nc">&nbsp;		mobDungeonSouth.setData(&quot;B:Stone Bricks,W:Stone Wall&quot;,</b>
+&nbsp;			&quot;WWWWW\n&quot; +
+&nbsp;				&quot;BBBBW\n&quot; +
+&nbsp;				&quot;BBBBB\n&quot; +
+&nbsp;				&quot;BBBBW\n&quot; +
+&nbsp;				&quot;WWWWW&quot;
+&nbsp;		);
+<b class="nc">&nbsp;		mobDungeonEast = new Structure();</b>
+<b class="nc">&nbsp;		mobDungeonEast.setData(&quot;B:Stone Bricks,W:Stone Wall&quot;,</b>
+&nbsp;			&quot;WBBBW\n&quot; +
+&nbsp;				&quot;WBBBW\n&quot; +
+&nbsp;				&quot;WBBBW\n&quot; +
+&nbsp;				&quot;WBBBW\n&quot; +
+&nbsp;				&quot;WWBWW&quot;
+&nbsp;		);
+<b class="nc">&nbsp;		mobDungeonWest = new Structure();</b>
+<b class="nc">&nbsp;		mobDungeonWest.setData(&quot;B:Stone Bricks,W:Stone Wall&quot;,</b>
+&nbsp;			&quot;WWBWW\n&quot; +
+&nbsp;				&quot;WBBBW\n&quot; +
+&nbsp;				&quot;WBBBW\n&quot; +
+&nbsp;				&quot;WBBBW\n&quot; +
+&nbsp;				&quot;WBBBW&quot;
+&nbsp;		);
+&nbsp;
+<b class="nc">&nbsp;		airWizardHouse = new Structure();</b>
+<b class="nc">&nbsp;		airWizardHouse.setData(&quot;F:Wood Planks,W:Wood Wall,D:Wood Door&quot;,</b>
+&nbsp;			&quot;WWWWWWW\n&quot; +
+&nbsp;				&quot;WFFFFFW\n&quot; +
+&nbsp;				&quot;DFFFFFW\n&quot; +
+&nbsp;				&quot;WFFFFFW\n&quot; +
+&nbsp;				&quot;WWWWWWW&quot;
+&nbsp;		);
+<b class="nc">&nbsp;		airWizardHouse.addFurniture(-2, 0, new Lantern(Lantern.Type.GOLD));</b>
+<b class="nc">&nbsp;		airWizardHouse.addFurniture(0, 0, new Crafter(Crafter.Type.Enchanter));</b>
+&nbsp;
+<b class="nc">&nbsp;		villageHouseNormal = new Structure();</b>
+<b class="nc">&nbsp;		villageHouseNormal.setData(&quot;F:Wood Planks,W:Wood Wall,D:Wood Door,G:Grass&quot;,</b>
+&nbsp;			&quot;WWWWW\n&quot; +
+&nbsp;				&quot;WFFFW\n&quot; +
+&nbsp;				&quot;WFFFD\n&quot; +
+&nbsp;				&quot;WFFFG\n&quot; +
+&nbsp;				&quot;WWWWW&quot;
+&nbsp;		);
+&nbsp;
+<b class="nc">&nbsp;		villageHouseTwoDoor = new Structure();</b>
+<b class="nc">&nbsp;		villageHouseTwoDoor.setData(&quot;F:Wood Planks,W:Wood Wall,D:Wood Door,G:Grass&quot;,</b>
+&nbsp;			&quot;WWWWW\n&quot; +
+&nbsp;				&quot;WFFFW\n&quot; +
+&nbsp;				&quot;DFFFW\n&quot; +
+&nbsp;				&quot;WFFFW\n&quot; +
+&nbsp;				&quot;WWDWW&quot;
+&nbsp;		);
+&nbsp;
+<b class="nc">&nbsp;		villageRuinedOverlay1 = new Structure();</b>
+<b class="nc">&nbsp;		villageRuinedOverlay1.setData(&quot;G:Grass,F:Wood Planks&quot;,</b>
+&nbsp;			&quot;**FG*\n&quot; +
+&nbsp;				&quot;F*GG*\n&quot; +
+&nbsp;				&quot;*G**F\n&quot; +
+&nbsp;				&quot;G*G**\n&quot; +
+&nbsp;				&quot;***G*&quot;
+&nbsp;		);
+&nbsp;
+<b class="nc">&nbsp;		villageRuinedOverlay2 = new Structure();</b>
+<b class="nc">&nbsp;		villageRuinedOverlay2.setData(&quot;G:Grass,F:Wood Planks&quot;,</b>
+&nbsp;			&quot;F**G*\n&quot; +
+&nbsp;				&quot;*****\n&quot; +
+&nbsp;				&quot;*GG**\n&quot; +
+&nbsp;				&quot;F**G*\n&quot; +
+&nbsp;				&quot;*F**G&quot;
+&nbsp;		);
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

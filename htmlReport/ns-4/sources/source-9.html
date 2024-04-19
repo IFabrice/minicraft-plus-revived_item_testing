@@ -1,0 +1,178 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Lantern</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.entity.furniture</a>
+</div>
+
+<h1>Coverage Summary for Class: Lantern (minicraft.entity.furniture)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Lantern</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (2/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    80%
+  </span>
+  <span class="absValue">
+    (4/5)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Lantern$Type</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (9/9)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    80%
+  </span>
+  <span class="absValue">
+    (4/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    92.9%
+  </span>
+  <span class="absValue">
+    (13/14)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.entity.furniture;
+&nbsp;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;
+&nbsp;public class Lantern extends Furniture {
+<b class="fc">&nbsp;	public enum Type {</b>
+<b class="fc">&nbsp;		NORM(&quot;Lantern&quot;, 9, 0),</b>
+<b class="fc">&nbsp;		IRON(&quot;Iron Lantern&quot;, 12, 2),</b>
+<b class="fc">&nbsp;		GOLD(&quot;Gold Lantern&quot;, 15, 4);</b>
+&nbsp;
+&nbsp;		protected int light, offset;
+&nbsp;		protected String title;
+&nbsp;
+<b class="fc">&nbsp;		Type(String title, int light, int offset) {</b>
+<b class="fc">&nbsp;			this.title = title;</b>
+<b class="fc">&nbsp;			this.offset = offset;</b>
+<b class="fc">&nbsp;			this.light = light;</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Lantern.Type type;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Creates a lantern of a given type.
+&nbsp;	 * @param type Type of lantern.
+&nbsp;	 */
+&nbsp;	public Lantern(Lantern.Type type) {
+<b class="fc">&nbsp;		super(type.title, new LinkedSprite(SpriteType.Entity, type == Type.NORM ? &quot;lantern&quot; :</b>
+&nbsp;			type == Type.IRON ? &quot;iron_lantern&quot; : &quot;gold_lantern&quot;), new LinkedSprite(SpriteType.Item, type == Type.NORM ? &quot;lantern&quot; :
+&nbsp;			type == Type.IRON ? &quot;iron_lantern&quot; : &quot;gold_lantern&quot;), 3, 2);
+<b class="fc">&nbsp;		this.type = type;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public @NotNull Furniture copy() {
+<b class="fc">&nbsp;		return new Lantern(type);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Gets the size of the radius for light underground (Bigger number, larger light)
+&nbsp;	 */
+&nbsp;	@Override
+&nbsp;	public int getLightRadius() {
+<b class="nc">&nbsp;		return type.light;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

@@ -70,6 +70,23 @@ public class ArmorItemTest {
 	}
 
 	@Test
+	public void testInteractOn_FailureNoneNullCurArmor() {
+		Player mockPlayer = mock(Player.class);
+		mockPlayer.curArmor = mock(ArmorItem.class);
+		when(mockPlayer.payStamina(anyInt())).thenReturn(false);
+		boolean result = mockArmorItem.interactOn(null, null, 0, 0, mockPlayer, null);
+		//Main effect verification
+		assertFalse(result);
+		ArmorItem initialCurrentArmor = mockPlayer.curArmor;
+		float initialArmor = mockPlayer.armor;
+		// Side effect verification
+		assertEquals(initialCurrentArmor, mockPlayer.curArmor);
+		assertEquals(initialArmor,mockPlayer.armor); // expected armor = 550
+		//Interaction verifications
+		verify(mockPlayer, times(0)).payStamina(anyInt());
+	}
+
+	@Test
 	public void testInteractsWithWorld() {
 		assertFalse(mockArmorItem.interactsWithWorld());
 	}

@@ -1,0 +1,149 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ToolType</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.item</a>
+</div>
+
+<h1>Coverage Summary for Class: ToolType (minicraft.item)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ToolType</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (21/21)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
+&nbsp;
+<b class="fc">&nbsp;public enum ToolType {</b>
+<b class="fc">&nbsp;	Shovel(0, 34), // If there&#39;s a second number, it specifies durability.</b>
+<b class="fc">&nbsp;	Hoe(1, 30),</b>
+<b class="fc">&nbsp;	Sword(2, 52),</b>
+<b class="fc">&nbsp;	Pickaxe(3, 38),</b>
+<b class="fc">&nbsp;	Axe(4, 34),</b>
+<b class="fc">&nbsp;	Bow(5, 30),</b>
+<b class="fc">&nbsp;	Claymore(6, 44),</b>
+<b class="fc">&nbsp;	Shears(0, 42, true);</b>
+&nbsp;
+&nbsp;	public final int xPos; // X Position of origin
+&nbsp;	public final int yPos; // Y position of origin
+&nbsp;	public final int durability;
+&nbsp;	public final boolean noLevel;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Create a tool with four levels: wood, stone, iron, gold, and gem.
+&nbsp;	 * All these levels are added automatically but sprites have to be added manually.
+&nbsp;	 * Uses line 14 in the item spritesheet.
+&nbsp;	 * @param xPos X position of the starting sprite in the spritesheet.
+&nbsp;	 * @param dur Durabiltity of the tool.
+&nbsp;	 */
+<b class="fc">&nbsp;	ToolType(int xPos, int dur) {</b>
+<b class="fc">&nbsp;		this.xPos = xPos;</b>
+<b class="fc">&nbsp;		yPos = 13;</b>
+<b class="fc">&nbsp;		durability = dur;</b>
+<b class="fc">&nbsp;		noLevel = false;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Create a tool without a specified level.
+&nbsp;	 * Uses line 13 in the items spritesheet.
+&nbsp;	 * @param xPos X position of the sprite in the spritesheet.
+&nbsp;	 * @param dur Durabiltity of the tool.
+&nbsp;	 * @param noLevel If the tool has only one level.
+&nbsp;	 */
+<b class="fc">&nbsp;	ToolType(int xPos, int dur, boolean noLevel) {</b>
+<b class="fc">&nbsp;		yPos = 12;</b>
+<b class="fc">&nbsp;		this.xPos = xPos;</b>
+<b class="fc">&nbsp;		durability = dur;</b>
+<b class="fc">&nbsp;		this.noLevel = noLevel;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 13:35</div>
+</div>
+</body>
+</html>

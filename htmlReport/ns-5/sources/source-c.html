@@ -1,0 +1,192 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Sheep</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.entity.mob</a>
+</div>
+
+<h1>Coverage Summary for Class: Sheep (minicraft.entity.mob)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Sheep</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    33.3%
+  </span>
+  <span class="absValue">
+    (2/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    12.2%
+  </span>
+  <span class="absValue">
+    (5/41)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.entity.mob;
+&nbsp;
+&nbsp;import minicraft.core.io.Settings;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.item.Items;
+&nbsp;import minicraft.item.ToolItem;
+&nbsp;import minicraft.item.ToolType;
+&nbsp;import minicraft.level.tile.GrassTile;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;
+&nbsp;public class Sheep extends PassiveMob {
+<b class="fc">&nbsp;	private static final LinkedSprite[][] sprites = Mob.compileMobSpriteAnimations(0, 0, &quot;sheep&quot;);</b>
+<b class="fc">&nbsp;	private static final LinkedSprite[][] cutSprites = Mob.compileMobSpriteAnimations(0, 2, &quot;sheep&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;	public boolean cut = false;</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Creates a sheep entity.
+&nbsp;	 */
+&nbsp;	public Sheep() {
+<b class="fc">&nbsp;		super(sprites);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen) {
+<b class="nc">&nbsp;		int xo = x - 8;</b>
+<b class="nc">&nbsp;		int yo = y - 11;</b>
+&nbsp;
+<b class="nc">&nbsp;		LinkedSprite[][] curAnim = cut ? cutSprites : sprites;</b>
+&nbsp;
+<b class="nc">&nbsp;		LinkedSprite curSprite = curAnim[dir.getDir()][(walkDist &gt;&gt; 3) % curAnim[dir.getDir()].length];</b>
+<b class="nc">&nbsp;		if (hurtTime &gt; 0) {</b>
+<b class="nc">&nbsp;			screen.render(xo, yo, curSprite.getSprite(), true);</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			screen.render(xo, yo, curSprite);</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick() {
+<b class="nc">&nbsp;		super.tick();</b>
+<b class="nc">&nbsp;		Tile tile = level.getTile(x &gt;&gt; 4, y &gt;&gt; 4);</b>
+<b class="nc">&nbsp;		if (tile instanceof GrassTile &amp;&amp; random.nextInt(1000) == 0) { // Grazing</b>
+<b class="nc">&nbsp;			level.setTile(x &gt;&gt; 4, y &gt;&gt; 4, Tiles.get(&quot;dirt&quot;));</b>
+<b class="nc">&nbsp;			cut = false;</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean interact(Player player, @Nullable Item item, Direction attackDir) {
+<b class="nc">&nbsp;		if (cut) return false;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (item instanceof ToolItem) {</b>
+<b class="nc">&nbsp;			if (((ToolItem) item).type == ToolType.Shears) {</b>
+<b class="nc">&nbsp;				cut = true;</b>
+<b class="nc">&nbsp;				dropItem(1, 3, Items.get(&quot;Wool&quot;));</b>
+<b class="nc">&nbsp;				((ToolItem) item).payDurability();</b>
+<b class="nc">&nbsp;				return true;</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void die() {
+<b class="nc">&nbsp;		int min = 0, max = 0;</b>
+<b class="nc">&nbsp;		if (Settings.get(&quot;diff&quot;).equals(&quot;minicraft.settings.difficulty.easy&quot;)) {</b>
+<b class="nc">&nbsp;			min = 1;</b>
+<b class="nc">&nbsp;			max = 3;</b>
+&nbsp;		}
+<b class="nc">&nbsp;		if (Settings.get(&quot;diff&quot;).equals(&quot;minicraft.settings.difficulty.normal&quot;)) {</b>
+<b class="nc">&nbsp;			min = 1;</b>
+<b class="nc">&nbsp;			max = 2;</b>
+&nbsp;		}
+<b class="nc">&nbsp;		if (Settings.get(&quot;diff&quot;).equals(&quot;minicraft.settings.difficulty.hard&quot;)) {</b>
+<b class="nc">&nbsp;			min = 0;</b>
+<b class="nc">&nbsp;			max = 2;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (!cut) dropItem(min, max, Items.get(&quot;wool&quot;));</b>
+<b class="nc">&nbsp;		dropItem(min, max, Items.get(&quot;Raw Beef&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;		super.die();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

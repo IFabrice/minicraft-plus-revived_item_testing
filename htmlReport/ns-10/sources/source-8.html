@@ -1,0 +1,184 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > LinkEntry</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen.entry</a>
+</div>
+
+<h1>Coverage Summary for Class: LinkEntry (minicraft.screen.entry)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">LinkEntry</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/26)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen.entry;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.screen.Menu;
+&nbsp;import minicraft.screen.PopupDisplay;
+&nbsp;import minicraft.screen.RelPos;
+&nbsp;import minicraft.screen.TempDisplay;
+&nbsp;import org.tinylog.Logger;
+&nbsp;
+&nbsp;import java.awt.Desktop;
+&nbsp;import java.awt.Desktop.Action;
+&nbsp;import java.io.IOException;
+&nbsp;import java.net.URI;
+&nbsp;
+&nbsp;public class LinkEntry extends SelectEntry {
+&nbsp;
+<b class="nc">&nbsp;	private static boolean checkedDesktop = false;</b>
+<b class="nc">&nbsp;	private static Desktop desktop = null;</b>
+<b class="nc">&nbsp;	private static boolean canBrowse = false;</b>
+&nbsp;
+&nbsp;	private static final String openMsg = &quot;minicraft.display.gui.link_opening&quot;;
+&nbsp;
+&nbsp;	private final int color;
+&nbsp;
+&nbsp;	// note that if the failMsg should be localized, such must be done before passing them as parameters, for this class will not do it since, by default, the failMsg contains a url.
+&nbsp;
+&nbsp;	public LinkEntry(int color, String urlText) {
+<b class="nc">&nbsp;		this(color, urlText, urlText, false);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public LinkEntry(int color, String text, String url) {
+<b class="nc">&nbsp;		this(color, text, url, true);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public LinkEntry(int color, String text, String url, String failMsg) {
+<b class="nc">&nbsp;		this(color, text, url, failMsg, true);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public LinkEntry(int color, String text, String url, boolean localize) {
+<b class="nc">&nbsp;		this(color, text, url, Localization.getLocalized(&quot;Go to&quot;) + &quot;: &quot; + url, localize);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public LinkEntry(int color, String text, String url, String failMsg, boolean localize) {
+<b class="nc">&nbsp;		super(text, () -&gt; {</b>
+<b class="nc">&nbsp;			if (!checkedDesktop) {</b>
+<b class="nc">&nbsp;				checkedDesktop = true;</b>
+<b class="nc">&nbsp;				if (Desktop.isDesktopSupported()) {</b>
+<b class="nc">&nbsp;					desktop = Desktop.getDesktop();</b>
+<b class="nc">&nbsp;					canBrowse = desktop.isSupported(Action.BROWSE);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (canBrowse) {</b>
+&nbsp;				// try to open the download link directly from the browser.
+&nbsp;				try {
+<b class="nc">&nbsp;					URI uri = URI.create(url);</b>
+<b class="nc">&nbsp;					Game.setDisplay(new TempDisplay(3000, false, true, new Menu.Builder(true, 0, RelPos.CENTER, new StringEntry(Localization.getLocalized(openMsg))).createMenu()));</b>
+<b class="nc">&nbsp;					desktop.browse(uri);</b>
+<b class="nc">&nbsp;				} catch (IOException e) {</b>
+<b class="nc">&nbsp;					Logger.tag(&quot;Network&quot;).error(&quot;Could not parse LinkEntry url \&quot;&quot; + url + &quot;\&quot; into valid URI:&quot;);</b>
+<b class="nc">&nbsp;					e.printStackTrace();</b>
+<b class="nc">&nbsp;					canBrowse = false;</b>
+<b class="nc">&nbsp;				}</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (!canBrowse) {</b>
+<b class="nc">&nbsp;				Game.setDisplay(new PopupDisplay(null, failMsg));</b>
+&nbsp;			}
+&nbsp;
+&nbsp;		}, localize);
+&nbsp;
+<b class="nc">&nbsp;		this.color = color;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public int getColor(boolean isSelected) {
+<b class="nc">&nbsp;		return color;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

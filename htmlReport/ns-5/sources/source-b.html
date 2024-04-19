@@ -1,0 +1,1410 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Player</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.entity.mob</a>
+</div>
+
+<h1>Coverage Summary for Class: Player (minicraft.entity.mob)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Player</td>
+<td class="coverageStat">
+  <span class="percent">
+    2.3%
+  </span>
+  <span class="absValue">
+    (1/43)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    1%
+  </span>
+  <span class="absValue">
+    (6/578)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Player$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/18)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Player$2</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    2%
+  </span>
+  <span class="absValue">
+    (1/51)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    1%
+  </span>
+  <span class="absValue">
+    (6/597)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.entity.mob;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.Updater;
+&nbsp;import minicraft.core.World;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.core.io.Settings;
+&nbsp;import minicraft.core.io.Sound;
+&nbsp;import minicraft.entity.Arrow;
+&nbsp;import minicraft.entity.ClientTickable;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.entity.ItemEntity;
+&nbsp;import minicraft.entity.ItemHolder;
+&nbsp;import minicraft.entity.furniture.Bed;
+&nbsp;import minicraft.entity.furniture.DeathChest;
+&nbsp;import minicraft.entity.furniture.Furniture;
+&nbsp;import minicraft.entity.furniture.Tnt;
+&nbsp;import minicraft.entity.particle.Particle;
+&nbsp;import minicraft.entity.particle.TextParticle;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Point;
+&nbsp;import minicraft.gfx.Rectangle;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.gfx.Sprite;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.item.ArmorItem;
+&nbsp;import minicraft.item.FishingData;
+&nbsp;import minicraft.item.FishingRodItem;
+&nbsp;import minicraft.item.FurnitureItem;
+&nbsp;import minicraft.item.Inventory;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.item.Items;
+&nbsp;import minicraft.item.PotionItem;
+&nbsp;import minicraft.item.PotionType;
+&nbsp;import minicraft.item.PowerGloveItem;
+&nbsp;import minicraft.item.Recipes;
+&nbsp;import minicraft.item.StackableItem;
+&nbsp;import minicraft.item.TileItem;
+&nbsp;import minicraft.item.ToolItem;
+&nbsp;import minicraft.item.ToolType;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;import minicraft.network.Analytics;
+&nbsp;import minicraft.saveload.Save;
+&nbsp;import minicraft.screen.AchievementsDisplay;
+&nbsp;import minicraft.screen.CraftingDisplay;
+&nbsp;import minicraft.screen.InfoDisplay;
+&nbsp;import minicraft.screen.LoadingDisplay;
+&nbsp;import minicraft.screen.PauseDisplay;
+&nbsp;import minicraft.screen.PlayerInvDisplay;
+&nbsp;import minicraft.screen.SkinDisplay;
+&nbsp;import minicraft.screen.WorldSelectDisplay;
+&nbsp;import minicraft.util.AdvancementElement;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import minicraft.util.Vector2;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;public class Player extends Mob implements ItemHolder, ClientTickable {
+&nbsp;	protected InputHandler input;
+&nbsp;	private static final int playerHurtTime = 30;
+&nbsp;	public static final int INTERACT_DIST = 12;
+&nbsp;	private static final int ATTACK_DIST = 20;
+&nbsp;
+&nbsp;	private static final int mtm = 300; // Time given to increase multiplier before it goes back to 1.
+&nbsp;	public static final int MAX_MULTIPLIER = 50; // Maximum score multiplier.
+&nbsp;
+<b class="nc">&nbsp;	public double moveSpeed = 1; // The number of coordinate squares to move; each tile is 16x16.</b>
+&nbsp;	private int score; // The player&#39;s score
+&nbsp;
+<b class="nc">&nbsp;	private int multipliertime = mtm; // Time left on the current multiplier.</b>
+<b class="nc">&nbsp;	private int multiplier = 1; // Score multiplier</b>
+&nbsp;
+&nbsp;	// These 2 ints are ints saved from the first spawn - this way the spawn pos is always saved.
+<b class="nc">&nbsp;	public int spawnx = 0, spawny = 0; // These are stored as tile coordinates, not entity coordinates.</b>
+&nbsp;
+&nbsp;	// The maximum stats that the player can have.
+&nbsp;	public static final int maxStat = 10;
+&nbsp;	public static final int maxHealth = 30, maxStamina = maxStat, maxHunger = maxStat;
+<b class="fc">&nbsp;	public static int extraHealth = 0;</b>
+<b class="fc">&nbsp;	public static int baseHealth = 10;</b>
+&nbsp;	public static final int maxArmor = 100;
+&nbsp;
+&nbsp;	public static LinkedSprite[][] sprites;
+&nbsp;	public static LinkedSprite[][] carrySprites;
+&nbsp;
+&nbsp;	private final Inventory inventory;
+&nbsp;
+&nbsp;	public Item activeItem;
+&nbsp;	Item attackItem; // attackItem is useful again b/c of the power glove.
+&nbsp;	private Item prevItem; // Holds the item held before using the POW glove.
+&nbsp;
+&nbsp;	int attackTime;
+&nbsp;	public Direction attackDir;
+&nbsp;
+&nbsp;	private int onStairDelay; // The delay before changing levels.
+&nbsp;	private int onFallDelay; // The delay before falling b/c we&#39;re on an InfiniteFallTile
+&nbsp;
+&nbsp;	public int hunger, stamina, armor; // The current stats
+&nbsp;	public int armorDamageBuffer;
+&nbsp;	@Nullable
+&nbsp;	public ArmorItem curArmor; // The color/type of armor to be displayed.
+&nbsp;
+&nbsp;	private int staminaRecharge; // The ticks before charging a bolt of the player&#39;s stamina
+&nbsp;	private static final int maxStaminaRecharge = 10; // Cutoff value for staminaRecharge
+&nbsp;	public int staminaRechargeDelay; // The recharge delay ticks when the player uses up their stamina.
+&nbsp;
+&nbsp;	private int hungerStamCnt, stamHungerTicks; // Tiers of hunger penalties before losing a burger.
+&nbsp;	private static final int maxHungerTicks = 400; // The cutoff value for stamHungerTicks
+<b class="fc">&nbsp;	private static final int[] maxHungerStams = { 10, 7, 5 }; // TungerStamCnt required to lose a burger.</b>
+<b class="fc">&nbsp;	private static final int[] hungerTickCount = { 120, 30, 10 }; // Ticks before decrementing stamHungerTicks.</b>
+<b class="fc">&nbsp;	private static final int[] hungerStepCount = { 8, 3, 1 }; // Steps before decrementing stamHungerTicks.</b>
+<b class="fc">&nbsp;	private static final int[] minStarveHealth = { 5, 3, 0 }; // Min hearts required for hunger to hurt you.</b>
+&nbsp;	private int stepCount; // Used to penalize hunger for movement.
+&nbsp;	private int hungerChargeDelay; // The delay between each time the hunger bar increases your health
+&nbsp;	private int hungerStarveDelay; // The delay between each time the hunger bar decreases your health
+&nbsp;
+&nbsp;	public HashMap&lt;PotionType, Integer&gt; potioneffects; // The potion effects currently applied to the player
+&nbsp;	public boolean showpotioneffects; // Whether to display the current potion effects on screen
+&nbsp;	public boolean simpPotionEffects;
+&nbsp;	public boolean renderGUI;
+&nbsp;	public int questExpanding; // Lets the display keeps expanded.
+&nbsp;	private int cooldowninfo; // Prevents you from toggling the info pane on and off super fast.
+&nbsp;	private int regentick; // Counts time between each time the regen potion effect heals you.
+&nbsp;
+<b class="nc">&nbsp;	public int shirtColor = Color.get(1, 51, 51, 0); // Player shirt color.</b>
+&nbsp;
+<b class="nc">&nbsp;	public boolean isFishing = false;</b>
+<b class="nc">&nbsp;	public int maxFishingTicks = 120;</b>
+<b class="nc">&nbsp;	public int fishingTicks = maxFishingTicks;</b>
+&nbsp;	public int fishingLevel;
+&nbsp;
+&nbsp;	private LinkedSprite hudSheet;
+&nbsp;
+&nbsp;	// Note: the player&#39;s health &amp; max health are inherited from Mob.java
+&nbsp;
+&nbsp;	public Player(@Nullable Player previousInstance, InputHandler input) {
+<b class="nc">&nbsp;		super(null, Player.baseHealth);</b>
+&nbsp;
+<b class="nc">&nbsp;		x = 24;</b>
+<b class="nc">&nbsp;		y = 24;</b>
+<b class="nc">&nbsp;		this.input = input;</b>
+&nbsp;		// Since this implementation will be deleted by Better Creative Mode Inventory might not implemented correctly
+<b class="nc">&nbsp;		inventory = new Inventory() { // Registering all triggers to InventoryChanged.</b>
+&nbsp;			private void triggerTrigger() {
+<b class="nc">&nbsp;				AdvancementElement.AdvancementTrigger.InventoryChangedTrigger.INSTANCE.trigger(</b>
+&nbsp;					new AdvancementElement.AdvancementTrigger.InventoryChangedTrigger.InventoryChangedTriggerConditionHandler.InventoryChangedTriggerConditions(this)
+&nbsp;				);
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			@Override
+&nbsp;			public void clearInv() {
+<b class="nc">&nbsp;				super.clearInv();</b>
+<b class="nc">&nbsp;				triggerTrigger();</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			@Override
+&nbsp;			public Item remove(int idx) {
+<b class="nc">&nbsp;				Item item = super.remove(idx);</b>
+<b class="nc">&nbsp;				triggerTrigger();</b>
+<b class="nc">&nbsp;				return item;</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			@Override
+&nbsp;			public int add(int slot, Item item) {
+<b class="nc">&nbsp;				int res = super.add(slot, item);</b>
+<b class="nc">&nbsp;				triggerTrigger();</b>
+<b class="nc">&nbsp;				return res;</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			@Override
+&nbsp;			public void removeItems(Item given, int count) {
+<b class="nc">&nbsp;				super.removeItems(given, count);</b>
+<b class="nc">&nbsp;				triggerTrigger();</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			@Override
+&nbsp;			public void updateInv(String items) {
+<b class="nc">&nbsp;				super.updateInv(items);</b>
+<b class="nc">&nbsp;				triggerTrigger();</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		};
+&nbsp;
+<b class="nc">&nbsp;		potioneffects = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;		showpotioneffects = true;</b>
+<b class="nc">&nbsp;		simpPotionEffects = false;</b>
+<b class="nc">&nbsp;		renderGUI = true;</b>
+&nbsp;
+<b class="nc">&nbsp;		cooldowninfo = 0;</b>
+<b class="nc">&nbsp;		regentick = 0;</b>
+<b class="nc">&nbsp;		questExpanding = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;		attackDir = dir;</b>
+<b class="nc">&nbsp;		armor = 0;</b>
+<b class="nc">&nbsp;		curArmor = null;</b>
+<b class="nc">&nbsp;		armorDamageBuffer = 0;</b>
+<b class="nc">&nbsp;		stamina = maxStamina;</b>
+<b class="nc">&nbsp;		hunger = maxHunger;</b>
+&nbsp;
+<b class="nc">&nbsp;		hungerStamCnt = maxHungerStams[Settings.getIdx(&quot;diff&quot;)];</b>
+<b class="nc">&nbsp;		stamHungerTicks = maxHungerTicks;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (previousInstance != null) {</b>
+<b class="nc">&nbsp;			spawnx = previousInstance.spawnx;</b>
+<b class="nc">&nbsp;			spawny = previousInstance.spawny;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		hudSheet = new LinkedSprite(SpriteType.Gui, &quot;hud&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		updateSprites();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public int getMultiplier() {
+<b class="nc">&nbsp;		return Game.isMode(&quot;minicraft.settings.mode.score&quot;) ? multiplier : 1;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	void resetMultiplier() {
+<b class="nc">&nbsp;		multiplier = 1;</b>
+<b class="nc">&nbsp;		multipliertime = mtm;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void addMultiplier(int value) {
+<b class="nc">&nbsp;		if (!Game.isMode(&quot;minicraft.settings.mode.score&quot;)) return;</b>
+<b class="nc">&nbsp;		multiplier = Math.min(MAX_MULTIPLIER, multiplier + value);</b>
+<b class="nc">&nbsp;		multipliertime = Math.max(multipliertime, mtm - 5);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void tickMultiplier() {
+<b class="nc">&nbsp;		if ((!Updater.paused) &amp;&amp; multiplier &gt; 1) {</b>
+<b class="nc">&nbsp;			if (multipliertime != 0) multipliertime--;</b>
+<b class="nc">&nbsp;			if (multipliertime &lt;= 0) resetMultiplier();</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public int getScore() {
+<b class="nc">&nbsp;		return score;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void setScore(int score) {
+<b class="nc">&nbsp;		this.score = score;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void addScore(int points) {
+<b class="nc">&nbsp;		score += points * getMultiplier();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Adds a new potion effect to the player.
+&nbsp;	 * @param type Type of potion.
+&nbsp;	 * @param duration How long the effect lasts.
+&nbsp;	 */
+&nbsp;	public void addPotionEffect(PotionType type, int duration) {
+<b class="nc">&nbsp;		potioneffects.put(type, duration);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Adds a potion effect to the player.
+&nbsp;	 * @param type Type of effect.
+&nbsp;	 */
+&nbsp;	public void addPotionEffect(PotionType type) {
+<b class="nc">&nbsp;		addPotionEffect(type, type.duration);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns all the potion effects currently affecting the player.
+&nbsp;	 * @return all potion effects on the player.
+&nbsp;	 */
+&nbsp;	public HashMap&lt;PotionType, Integer&gt; getPotionEffects() {
+<b class="nc">&nbsp;		return potioneffects;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick() {
+<b class="nc">&nbsp;		if (level == null || isRemoved()) return;</b>
+<b class="nc">&nbsp;		if (Game.getDisplay() != null) return; // Don&#39;t tick player when menu is open</b>
+<b class="nc">&nbsp;		if (input.getMappedKey(&quot;F3-Y&quot;).isClicked()) {</b>
+<b class="nc">&nbsp;			World.scheduleLevelChange(1);</b>
+<b class="nc">&nbsp;			return;</b>
+<b class="nc">&nbsp;		} else if (input.getMappedKey(&quot;F3-H&quot;).isClicked()) {</b>
+<b class="nc">&nbsp;			World.scheduleLevelChange(-1);</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		super.tick(); // Ticks Mob.java</b>
+&nbsp;
+<b class="nc">&nbsp;		tickMultiplier();</b>
+&nbsp;
+<b class="nc">&nbsp;		if ((baseHealth + extraHealth) &gt; maxHealth) {</b>
+<b class="nc">&nbsp;			extraHealth = maxHealth - 10;</b>
+<b class="nc">&nbsp;			Logging.PLAYER.warn(&quot;Current Max Health is greater than Max Health, downgrading.&quot;);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (potioneffects.size() &gt; 0 &amp;&amp; !Bed.inBed(this)) {</b>
+<b class="nc">&nbsp;			for (PotionType potionType : potioneffects.keySet().toArray(new PotionType[0])) {</b>
+<b class="nc">&nbsp;				if (potioneffects.get(potionType) &lt;= 1) // If time is zero (going to be set to 0 in a moment)...</b>
+<b class="nc">&nbsp;					PotionItem.applyPotion(this, potionType, false); // Automatically removes this potion effect.</b>
+&nbsp;				else
+<b class="nc">&nbsp;					potioneffects.put(potionType, potioneffects.get(potionType) - 1); // Otherwise, replace it with one less.</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (isFishing) {</b>
+<b class="nc">&nbsp;			if (!Bed.inBed(this) &amp;&amp; !isSwimming()) {</b>
+<b class="nc">&nbsp;				fishingTicks--;</b>
+<b class="nc">&nbsp;				if (fishingTicks &lt;= 0) {</b>
+<b class="nc">&nbsp;					goFishing();</b>
+&nbsp;				}
+&nbsp;			} else {
+<b class="nc">&nbsp;				isFishing = false;</b>
+<b class="nc">&nbsp;				fishingTicks = maxFishingTicks;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (cooldowninfo &gt; 0) cooldowninfo--;</b>
+<b class="nc">&nbsp;		if (questExpanding &gt; 0) questExpanding--;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (input.inputPressed(&quot;potionEffects&quot;) &amp;&amp; cooldowninfo == 0) {</b>
+<b class="nc">&nbsp;			cooldowninfo = 10;</b>
+<b class="nc">&nbsp;			showpotioneffects = !showpotioneffects;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (input.inputPressed(&quot;simpPotionEffects&quot;)) {</b>
+<b class="nc">&nbsp;			simpPotionEffects = !simpPotionEffects;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (input.inputPressed(&quot;toggleHUD&quot;)) {</b>
+<b class="nc">&nbsp;			renderGUI = !renderGUI;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (input.inputPressed(&quot;expandQuestDisplay&quot;)) {</b>
+<b class="nc">&nbsp;			questExpanding = 30;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Tile onTile = level.getTile(x &gt;&gt; 4, y &gt;&gt; 4); // Gets the current tile the player is on.</b>
+<b class="nc">&nbsp;		if (onTile == Tiles.get(&quot;Stairs Down&quot;) || onTile == Tiles.get(&quot;Stairs Up&quot;)) {</b>
+<b class="nc">&nbsp;			if (onStairDelay &lt;= 0) { // When the delay time has passed...</b>
+<b class="nc">&nbsp;				World.scheduleLevelChange((onTile == Tiles.get(&quot;Stairs Up&quot;)) ? 1 : -1); // Decide whether to go up or down.</b>
+<b class="nc">&nbsp;				onStairDelay = 10; // Resets delay, since the level has now been changed.</b>
+<b class="nc">&nbsp;				return; // SKIPS the rest of the tick() method.</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			onStairDelay = 10; // Resets the delay, if on a stairs tile, but the delay is greater than 0. In other words, this prevents you from ever activating a level change on a stair tile, UNTIL you get off the tile for 10+ ticks.</b>
+<b class="nc">&nbsp;		} else if (onStairDelay &gt; 0)</b>
+<b class="nc">&nbsp;			onStairDelay--; // Decrements stairDelay if it&#39;s &gt; 0, but not on stair tile... does the player get removed from the tile beforehand, or something?</b>
+&nbsp;
+<b class="nc">&nbsp;		if (onTile == Tiles.get(&quot;Infinite Fall&quot;) &amp;&amp; !Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) {</b>
+<b class="nc">&nbsp;			if (onFallDelay &lt;= 0) {</b>
+<b class="nc">&nbsp;				World.scheduleLevelChange(-1);</b>
+<b class="nc">&nbsp;				onFallDelay = 40;</b>
+<b class="nc">&nbsp;				return;</b>
+&nbsp;			}
+<b class="nc">&nbsp;		} else if (onFallDelay &gt; 0) onFallDelay--;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) {</b>
+&nbsp;			// Prevent stamina/hunger decay in creative mode.
+<b class="nc">&nbsp;			stamina = maxStamina;</b>
+<b class="nc">&nbsp;			hunger = maxHunger;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Remember: staminaRechargeDelay is a penalty delay for when the player uses up all their stamina.
+&nbsp;		// staminaRecharge is the rate of stamina recharge, in some sort of unknown units.
+<b class="nc">&nbsp;		if (stamina &lt;= 0 &amp;&amp; staminaRechargeDelay == 0 &amp;&amp; staminaRecharge == 0) {</b>
+<b class="nc">&nbsp;			staminaRechargeDelay = 40; // Delay before resuming adding to stamina.</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (staminaRechargeDelay &gt; 0 &amp;&amp; stamina &lt; maxStamina) staminaRechargeDelay--;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (staminaRechargeDelay == 0) {</b>
+<b class="nc">&nbsp;			staminaRecharge++; // Ticks since last recharge, accounting for the time potion effect.</b>
+&nbsp;
+<b class="nc">&nbsp;			if (isSwimming() &amp;&amp; !potioneffects.containsKey(PotionType.Swim))</b>
+<b class="nc">&nbsp;				staminaRecharge = 0; // Don&#39;t recharge stamina while swimming.</b>
+&nbsp;
+&nbsp;			// Recharge a bolt for each multiple of maxStaminaRecharge.
+<b class="nc">&nbsp;			while (staminaRecharge &gt; maxStaminaRecharge) {</b>
+<b class="nc">&nbsp;				staminaRecharge -= maxStaminaRecharge;</b>
+<b class="nc">&nbsp;				if (stamina &lt; maxStamina) stamina++; // Recharge one stamina bolt per &quot;charge&quot;.</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		int diffIdx = Settings.getIdx(&quot;diff&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (hunger &lt; 0) hunger = 0; // Error correction</b>
+&nbsp;
+<b class="nc">&nbsp;		if (stamina &lt; maxStamina) {</b>
+<b class="nc">&nbsp;			stamHungerTicks -= diffIdx; // Affect hunger if not at full stamina; this is 2 levels away from a hunger &quot;burger&quot;.</b>
+<b class="nc">&nbsp;			if (stamina == 0) stamHungerTicks -= diffIdx; // Double effect if no stamina at all.</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// This if statement encapsulates the hunger system
+<b class="nc">&nbsp;		if (!Bed.inBed(this)) {</b>
+<b class="nc">&nbsp;			if (hungerChargeDelay &gt; 0) { // If the hunger is recharging health...</b>
+<b class="nc">&nbsp;				stamHungerTicks -= 2 + diffIdx; // Penalize the hunger</b>
+<b class="nc">&nbsp;				if (hunger == 0) stamHungerTicks -= diffIdx; // Further penalty if at full hunger</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (Updater.tickCount % Player.hungerTickCount[diffIdx] == 0)</b>
+<b class="nc">&nbsp;				stamHungerTicks--; // hunger due to time.</b>
+&nbsp;
+<b class="nc">&nbsp;			if (stepCount &gt;= Player.hungerStepCount[diffIdx]) {</b>
+<b class="nc">&nbsp;				stamHungerTicks--; // hunger due to exercise.</b>
+<b class="nc">&nbsp;				stepCount = 0; // reset.</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (stamHungerTicks &lt;= 0) {</b>
+<b class="nc">&nbsp;				stamHungerTicks += maxHungerTicks; // Reset stamHungerTicks</b>
+<b class="nc">&nbsp;				hungerStamCnt--; // Enter 1 level away from burger.</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			while (hungerStamCnt &lt;= 0) {</b>
+<b class="nc">&nbsp;				hunger--; // Reached burger level.</b>
+<b class="nc">&nbsp;				hungerStamCnt += maxHungerStams[diffIdx];</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			/// System that heals you depending on your hunger
+<b class="nc">&nbsp;			if (health &lt; (baseHealth + extraHealth) &amp;&amp; hunger &gt; maxHunger / 2) {</b>
+<b class="nc">&nbsp;				hungerChargeDelay++;</b>
+<b class="nc">&nbsp;				if (hungerChargeDelay &gt; 20 * Math.pow(maxHunger - hunger + 2, 2)) {</b>
+<b class="nc">&nbsp;					health++;</b>
+<b class="nc">&nbsp;					hungerChargeDelay = 0;</b>
+&nbsp;				}
+<b class="nc">&nbsp;			} else hungerChargeDelay = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;			if (hungerStarveDelay == 0) {</b>
+<b class="nc">&nbsp;				hungerStarveDelay = 120;</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (hunger == 0 &amp;&amp; health &gt; minStarveHealth[diffIdx]) {</b>
+<b class="nc">&nbsp;				if (hungerStarveDelay &gt; 0) hungerStarveDelay--;</b>
+<b class="nc">&nbsp;				if (hungerStarveDelay == 0) {</b>
+<b class="nc">&nbsp;					directHurt(1, Direction.NONE); // Do 1 damage to the player</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		// regen health
+<b class="nc">&nbsp;		if (potioneffects.containsKey(PotionType.Regen)) {</b>
+<b class="nc">&nbsp;			regentick++;</b>
+<b class="nc">&nbsp;			if (regentick &gt; 60) {</b>
+<b class="nc">&nbsp;				regentick = 0;</b>
+<b class="nc">&nbsp;				if (health &lt; 10) {</b>
+<b class="nc">&nbsp;					health++;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (Updater.savecooldown &gt; 0 &amp;&amp; !Updater.saving)</b>
+<b class="nc">&nbsp;			Updater.savecooldown--;</b>
+&nbsp;
+&nbsp;
+&nbsp;		// Handle player input. Input is handled by the menu if we are in one.
+<b class="nc">&nbsp;		if (Game.getDisplay() == null &amp;&amp; !Bed.inBed(this)) {</b>
+&nbsp;			// Create the raw movement vector.
+<b class="nc">&nbsp;			Vector2 vec = new Vector2(0, 0);</b>
+&nbsp;
+&nbsp;			// Move while we are not falling.
+<b class="nc">&nbsp;			if (onFallDelay &lt;= 0) {</b>
+&nbsp;				// controlInput.buttonPressed is used because otherwise the player will move one even if held down.
+<b class="nc">&nbsp;				if (input.inputDown(&quot;move-up&quot;)) vec.y--;</b>
+<b class="nc">&nbsp;				if (input.inputDown(&quot;move-down&quot;)) vec.y++;</b>
+<b class="nc">&nbsp;				if (input.inputDown(&quot;move-left&quot;)) vec.x--;</b>
+<b class="nc">&nbsp;				if (input.inputDown(&quot;move-right&quot;)) vec.x++;</b>
+&nbsp;
+&nbsp;
+&nbsp;			}
+&nbsp;
+&nbsp;			// Executes if not saving; and... essentially halves speed if out of stamina.
+<b class="nc">&nbsp;			if ((vec.x != 0 || vec.y != 0) &amp;&amp; (staminaRechargeDelay % 2 == 0 || isSwimming()) &amp;&amp; !Updater.saving) {</b>
+<b class="nc">&nbsp;				double spd = moveSpeed * (potioneffects.containsKey(PotionType.Speed) ? 1.5D : 1);</b>
+<b class="nc">&nbsp;				int xd = (int) (vec.x * spd);</b>
+<b class="nc">&nbsp;				int yd = (int) (vec.y * spd);</b>
+&nbsp;
+<b class="nc">&nbsp;				Direction newDir = Direction.getDirection(xd, yd);</b>
+<b class="nc">&nbsp;				if (newDir == Direction.NONE) newDir = dir;</b>
+&nbsp;
+&nbsp;				// Move the player
+<b class="nc">&nbsp;				boolean moved = move(xd, yd); // THIS is where the player moves; part of Mob.java</b>
+<b class="nc">&nbsp;				if (moved) stepCount++;</b>
+&nbsp;			}
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;			if (isSwimming() &amp;&amp; tickTime % 60 == 0 &amp;&amp; !potioneffects.containsKey(PotionType.Swim)) { // If drowning... :P</b>
+<b class="nc">&nbsp;				if (stamina &gt; 0) payStamina(1); // Take away stamina</b>
+<b class="nc">&nbsp;				else directHurt(1, Direction.NONE); // If no stamina, take damage.</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (activeItem != null &amp;&amp; (input.inputPressed(&quot;drop-one&quot;) || input.inputPressed(&quot;drop-stack&quot;))) {</b>
+<b class="nc">&nbsp;				Item drop = activeItem.copy();</b>
+&nbsp;
+<b class="nc">&nbsp;				if (input.inputPressed(&quot;drop-one&quot;) &amp;&amp; drop instanceof StackableItem &amp;&amp; ((StackableItem) drop).count &gt; 1) {</b>
+&nbsp;					// Drop one from stack
+<b class="nc">&nbsp;					((StackableItem) activeItem).count--;</b>
+<b class="nc">&nbsp;					((StackableItem) drop).count = 1;</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					activeItem = null; // Remove it from the &quot;inventory&quot;</b>
+<b class="nc">&nbsp;					if (isFishing) {</b>
+<b class="nc">&nbsp;						isFishing = false;</b>
+<b class="nc">&nbsp;						fishingTicks = maxFishingTicks;</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				level.dropItem(x, y, drop);</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if ((activeItem == null || !activeItem.used_pending) &amp;&amp; (input.inputPressed(&quot;attack&quot;)) &amp;&amp; stamina != 0 &amp;&amp; onFallDelay &lt;= 0) { // This only allows attacks when such action is possible.</b>
+<b class="nc">&nbsp;				if (!potioneffects.containsKey(PotionType.Energy)) stamina--;</b>
+<b class="nc">&nbsp;				staminaRecharge = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;				attack();</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if ((input.inputPressed(&quot;menu&quot;) || input.inputPressed(&quot;craft&quot;)) &amp;&amp; activeItem != null) {</b>
+<b class="nc">&nbsp;				int returned = inventory.add(0, activeItem);</b>
+<b class="nc">&nbsp;				if (activeItem instanceof StackableItem) {</b>
+<b class="nc">&nbsp;					StackableItem stackable = (StackableItem) activeItem;</b>
+<b class="nc">&nbsp;					if (stackable.count &gt; 0) {</b>
+<b class="nc">&nbsp;						getLevel().dropItem(x, y, stackable.copy());</b>
+&nbsp;					}
+<b class="nc">&nbsp;				} else if (returned &lt;= 0) {</b>
+<b class="nc">&nbsp;					getLevel().dropItem(x, y, activeItem);</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				activeItem = null;</b>
+<b class="nc">&nbsp;				if (isFishing) {</b>
+<b class="nc">&nbsp;					isFishing = false;</b>
+<b class="nc">&nbsp;					fishingTicks = maxFishingTicks;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (Game.getDisplay() == null) {</b>
+<b class="nc">&nbsp;				if (input.inputPressed(&quot;craft&quot;) &amp;&amp; !use()) {</b>
+<b class="nc">&nbsp;					Game.setDisplay(new CraftingDisplay(Recipes.craftRecipes, &quot;minicraft.displays.crafting&quot;, this, true));</b>
+<b class="nc">&nbsp;					return;</b>
+<b class="nc">&nbsp;				} else if (input.inputPressed(&quot;menu&quot;) &amp;&amp; !use()) { // !use() = no furniture in front of the player; this prevents player inventory from opening (will open furniture inventory instead)</b>
+<b class="nc">&nbsp;					Game.setDisplay(new PlayerInvDisplay(this));</b>
+<b class="nc">&nbsp;					return;</b>
+<b class="nc">&nbsp;				} else if (input.inputPressed(&quot;pause&quot;)) {</b>
+<b class="nc">&nbsp;					Game.setDisplay(new PauseDisplay());</b>
+<b class="nc">&nbsp;					return;</b>
+<b class="nc">&nbsp;				} else if (input.inputDown(&quot;info&quot;)) {</b>
+<b class="nc">&nbsp;					Game.setDisplay(new InfoDisplay());</b>
+<b class="nc">&nbsp;					return;</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				if (input.inputDown(&quot;quicksave&quot;) &amp;&amp; !Updater.saving) {</b>
+<b class="nc">&nbsp;					Updater.saving = true;</b>
+<b class="nc">&nbsp;					LoadingDisplay.setPercentage(0);</b>
+<b class="nc">&nbsp;					new Save(WorldSelectDisplay.getWorldName());</b>
+&nbsp;				}
+&nbsp;				//debug feature:
+<b class="nc">&nbsp;				if (input.inputDown(&quot;F3-p&quot;)) { // Remove all potion effects</b>
+<b class="nc">&nbsp;					for (PotionType potionType : potioneffects.keySet()) {</b>
+<b class="nc">&nbsp;						PotionItem.applyPotion(this, potionType, false);</b>
+<b class="nc">&nbsp;					}</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				if (input.inputPressed(&quot;pickup&quot;) &amp;&amp; (activeItem == null || !activeItem.used_pending)) {</b>
+<b class="nc">&nbsp;					if (!(activeItem instanceof PowerGloveItem)) { // If you are not already holding a power glove (aka in the middle of a separate interaction)...</b>
+<b class="nc">&nbsp;						prevItem = activeItem; // Then save the current item...</b>
+<b class="nc">&nbsp;						if (isFishing) {</b>
+<b class="nc">&nbsp;							isFishing = false;</b>
+<b class="nc">&nbsp;							fishingTicks = maxFishingTicks;</b>
+&nbsp;						}
+<b class="nc">&nbsp;						activeItem = new PowerGloveItem(); // and replace it with a power glove.</b>
+&nbsp;					}
+<b class="nc">&nbsp;					attack(); // Attack (with the power glove)</b>
+<b class="nc">&nbsp;					resolveHeldItem();</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (attackTime &gt; 0) {</b>
+<b class="nc">&nbsp;				attackTime--;</b>
+<b class="nc">&nbsp;				if (attackTime == 0) attackItem = null; // null the attackItem once we are done attacking.</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Removes an held item and places it back into the inventory.
+&nbsp;	 * Looks complicated to so it can handle the powerglove.
+&nbsp;	 */
+&nbsp;	public void resolveHeldItem() {
+<b class="nc">&nbsp;		if (!(activeItem instanceof PowerGloveItem)) { // If you are now holding something other than a power glove...</b>
+<b class="nc">&nbsp;			if (prevItem != null) { // and you had a previous item that we should care about...</b>
+<b class="nc">&nbsp;				int returned = inventory.add(0, prevItem); // Then add that previous item to your inventory so it isn&#39;t lost.</b>
+<b class="nc">&nbsp;				if (prevItem instanceof StackableItem) {</b>
+<b class="nc">&nbsp;					if (((StackableItem) prevItem).count &gt; 0) {</b>
+<b class="nc">&nbsp;						getLevel().dropItem(x, y, prevItem.copy());</b>
+&nbsp;					}
+<b class="nc">&nbsp;				} else if (returned == 0) {</b>
+<b class="nc">&nbsp;					getLevel().dropItem(x, y, prevItem);</b>
+&nbsp;				}
+<b class="nc">&nbsp;			} // If something other than a power glove is being held, but the previous item is null, then nothing happens; nothing added to inventory, and current item remains as the new one.</b>
+&nbsp;		} else
+<b class="nc">&nbsp;			activeItem = prevItem; // Otherwise, if you&#39;re holding a power glove, then the held item didn&#39;t change, so we can remove the power glove and make it what it was before.</b>
+&nbsp;
+<b class="nc">&nbsp;		prevItem = null; // This is no longer of use.</b>
+&nbsp;
+<b class="nc">&nbsp;		if (activeItem instanceof PowerGloveItem) // If, for some odd reason, you are still holding a power glove at this point, then null it because it&#39;s useless and shouldn&#39;t remain in hand.</b>
+<b class="nc">&nbsp;			activeItem = null;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This method is called when we press the attack button.
+&nbsp;	 */
+&nbsp;	protected void attack() {
+&nbsp;		// walkDist is not synced, so this can happen for both the client and server.
+<b class="nc">&nbsp;		walkDist += 8; // Increase the walkDist (changes the sprite, like you moved your arm)</b>
+&nbsp;
+<b class="nc">&nbsp;		if (isFishing) {</b>
+<b class="nc">&nbsp;			isFishing = false;</b>
+<b class="nc">&nbsp;			fishingTicks = maxFishingTicks;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (activeItem != null &amp;&amp; !activeItem.interactsWithWorld()) {</b>
+<b class="nc">&nbsp;			attackDir = dir; // Make the attack direction equal the current direction</b>
+<b class="nc">&nbsp;			attackItem = activeItem; // Make attackItem equal activeItem</b>
+<b class="nc">&nbsp;			activeItem.interactOn(Tiles.get(&quot;rock&quot;), level, 0, 0, this, attackDir);</b>
+<b class="nc">&nbsp;			if (activeItem.isDepleted()) {</b>
+<b class="nc">&nbsp;				activeItem = null;</b>
+<b class="nc">&nbsp;				if (isFishing) {</b>
+<b class="nc">&nbsp;					isFishing = false;</b>
+<b class="nc">&nbsp;					fishingTicks = maxFishingTicks;</b>
+&nbsp;				}
+&nbsp;			}
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		attackDir = dir; // Make the attack direction equal the current direction</b>
+<b class="nc">&nbsp;		attackItem = activeItem; // Make attackItem equal activeItem</b>
+&nbsp;
+&nbsp;		// If we are holding an item.
+<b class="nc">&nbsp;		if (activeItem != null) {</b>
+<b class="nc">&nbsp;			attackTime = 10;</b>
+<b class="nc">&nbsp;			boolean done = false;</b>
+&nbsp;
+&nbsp;			// Fire a bow if we have the stamina and an arrow.
+<b class="nc">&nbsp;			if (activeItem instanceof ToolItem &amp;&amp; stamina - 1 &gt;= 0) {</b>
+<b class="nc">&nbsp;				ToolItem tool = (ToolItem) activeItem;</b>
+<b class="nc">&nbsp;				if (tool.type == ToolType.Bow &amp;&amp; tool.dur &gt; 0 &amp;&amp; inventory.count(Items.arrowItem) &gt; 0) {</b>
+&nbsp;
+<b class="nc">&nbsp;					inventory.removeItem(Items.arrowItem);</b>
+<b class="nc">&nbsp;					level.add(new Arrow(this, attackDir, tool.level));</b>
+<b class="nc">&nbsp;					attackTime = 10;</b>
+&nbsp;
+<b class="nc">&nbsp;					if (!Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) tool.dur--;</b>
+&nbsp;
+<b class="nc">&nbsp;					AchievementsDisplay.setAchievement(&quot;minicraft.achievement.bow&quot;, true);</b>
+&nbsp;
+<b class="nc">&nbsp;					return;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+&nbsp;			// If the interaction between you and an entity is successful, then return.
+<b class="nc">&nbsp;			if (interact(getInteractionBox(INTERACT_DIST))) {</b>
+<b class="nc">&nbsp;				if (activeItem.isDepleted())</b>
+<b class="nc">&nbsp;					activeItem = null;</b>
+<b class="nc">&nbsp;				return;</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			// Attempt to interact with the tile.
+<b class="nc">&nbsp;			Point t = getInteractionTile();</b>
+&nbsp;
+&nbsp;			// If the target coordinates are a valid tile.
+<b class="nc">&nbsp;			if (t.x &gt;= 0 &amp;&amp; t.y &gt;= 0 &amp;&amp; t.x &lt; level.w &amp;&amp; t.y &lt; level.h) {</b>
+&nbsp;
+&nbsp;				// Get any entities (except dropped items and particles) on the tile.
+<b class="nc">&nbsp;				List&lt;Entity&gt; tileEntities = level.getEntitiesInTiles(t.x, t.y, t.x, t.y, false, ItemEntity.class, Particle.class);</b>
+&nbsp;
+&nbsp;				// If there are no other entities than us on the tile.
+<b class="nc">&nbsp;				if (tileEntities.size() == 0 || tileEntities.size() == 1 &amp;&amp; tileEntities.get(0) == this) {</b>
+<b class="nc">&nbsp;					Tile tile = level.getTile(t.x, t.y);</b>
+&nbsp;
+&nbsp;					// If the item successfully interacts with the target tile.
+<b class="nc">&nbsp;					if (activeItem.interactOn(tile, level, t.x, t.y, this, attackDir)) {</b>
+<b class="nc">&nbsp;						done = true;</b>
+&nbsp;
+&nbsp;						// Returns true if the target tile successfully interacts with the item.
+<b class="nc">&nbsp;					} else if (tile.interact(level, t.x, t.y, this, activeItem, attackDir)) {</b>
+<b class="nc">&nbsp;						done = true;</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				if (activeItem.isDepleted()) {</b>
+&nbsp;					// If the activeItem has 0 items left, then &quot;destroy&quot; it.
+<b class="nc">&nbsp;					activeItem = null;</b>
+<b class="nc">&nbsp;					if (isFishing) {</b>
+<b class="nc">&nbsp;						isFishing = false;</b>
+<b class="nc">&nbsp;						fishingTicks = maxFishingTicks;</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+<b class="nc">&nbsp;			if (done) return; // Skip the rest if interaction was handled</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (activeItem == null || activeItem.canAttack()) { // If there is no active item, OR if the item can be used to attack...</b>
+<b class="nc">&nbsp;			attackTime = 5;</b>
+&nbsp;			// Attacks the enemy in the appropriate direction.
+<b class="nc">&nbsp;			boolean used = hurt(getInteractionBox(ATTACK_DIST));</b>
+&nbsp;
+&nbsp;			// Attempts to hurt the tile in the appropriate direction.
+<b class="nc">&nbsp;			Point t = getInteractionTile();</b>
+&nbsp;
+&nbsp;			// Check if tile is in bounds of the map.
+<b class="nc">&nbsp;			if (t.x &gt;= 0 &amp;&amp; t.y &gt;= 0 &amp;&amp; t.x &lt; level.w &amp;&amp; t.y &lt; level.h) {</b>
+<b class="nc">&nbsp;				Tile tile = level.getTile(t.x, t.y);</b>
+<b class="nc">&nbsp;				used = tile.hurt(level, t.x, t.y, this, random.nextInt(3) + 1, attackDir) || used;</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (used &amp;&amp; activeItem instanceof ToolItem)</b>
+<b class="nc">&nbsp;				((ToolItem) activeItem).payDurability();</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private Rectangle getInteractionBox(int range) {
+<b class="nc">&nbsp;		int x = this.x, y = this.y - 2;</b>
+&nbsp;
+&nbsp;		//noinspection UnnecessaryLocalVariable
+<b class="nc">&nbsp;		int paraClose = 4, paraFar = range;</b>
+<b class="nc">&nbsp;		int perpClose = 0, perpFar = 8;</b>
+&nbsp;
+<b class="nc">&nbsp;		int xClose = x + dir.getX() * paraClose + dir.getY() * perpClose;</b>
+<b class="nc">&nbsp;		int yClose = y + dir.getY() * paraClose + dir.getX() * perpClose;</b>
+<b class="nc">&nbsp;		int xFar = x + dir.getX() * paraFar + dir.getY() * perpFar;</b>
+<b class="nc">&nbsp;		int yFar = y + dir.getY() * paraFar + dir.getX() * perpFar;</b>
+&nbsp;
+<b class="nc">&nbsp;		return new Rectangle(Math.min(xClose, xFar), Math.min(yClose, yFar), Math.max(xClose, xFar), Math.max(yClose, yFar), Rectangle.CORNERS);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private Point getInteractionTile() {
+<b class="nc">&nbsp;		int x = this.x, y = this.y - 2;</b>
+&nbsp;
+<b class="nc">&nbsp;		x += dir.getX() * INTERACT_DIST;</b>
+<b class="nc">&nbsp;		y += dir.getY() * INTERACT_DIST;</b>
+&nbsp;
+<b class="nc">&nbsp;		return new Point(x &gt;&gt; 4, y &gt;&gt; 4);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void goFishing() {
+<b class="nc">&nbsp;		int fcatch = random.nextInt(100);</b>
+&nbsp;
+<b class="nc">&nbsp;		boolean caught = false;</b>
+&nbsp;
+&nbsp;		// Figure out which table to roll for
+<b class="nc">&nbsp;		List&lt;String&gt; data = null;</b>
+<b class="nc">&nbsp;		if (fcatch &gt; FishingRodItem.getChance(0, fishingLevel)) {</b>
+<b class="nc">&nbsp;			data = FishingData.fishData;</b>
+<b class="nc">&nbsp;		} else if (fcatch &gt; FishingRodItem.getChance(1, fishingLevel)) {</b>
+<b class="nc">&nbsp;			data = FishingData.junkData;</b>
+<b class="nc">&nbsp;		} else if (fcatch &gt; FishingRodItem.getChance(2, fishingLevel)) {</b>
+<b class="nc">&nbsp;			data = FishingData.toolData;</b>
+<b class="nc">&nbsp;		} else if (fcatch &gt;= FishingRodItem.getChance(3, fishingLevel)) {</b>
+<b class="nc">&nbsp;			data = FishingData.rareData;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (data != null) { // If you&#39;ve caught something</b>
+<b class="nc">&nbsp;			for (String line : data) {</b>
+&nbsp;
+&nbsp;				// Check all the entries in the data
+&nbsp;				// The number is a percent, if one fails, it moves down the list
+&nbsp;				// For entries with a &quot;,&quot; it chooses between the options
+&nbsp;
+<b class="nc">&nbsp;				int chance = Integer.parseInt(line.split(&quot;:&quot;)[0]);</b>
+<b class="nc">&nbsp;				String itemData = line.split(&quot;:&quot;)[1];</b>
+<b class="nc">&nbsp;				if (random.nextInt(100) + 1 &lt;= chance) {</b>
+<b class="nc">&nbsp;					if (itemData.contains(&quot;,&quot;)) { // If it has multiple items choose between them</b>
+<b class="nc">&nbsp;						String[] extendedData = itemData.split(&quot;,&quot;);</b>
+<b class="nc">&nbsp;						int randomChance = random.nextInt(extendedData.length);</b>
+<b class="nc">&nbsp;						itemData = extendedData[randomChance];</b>
+&nbsp;					}
+<b class="nc">&nbsp;					if (itemData.startsWith(&quot;;&quot;)) {</b>
+&nbsp;						// For secret messages :=)
+<b class="nc">&nbsp;						Game.notifications.add(itemData.substring(1));</b>
+&nbsp;					} else {
+<b class="nc">&nbsp;						if (Items.get(itemData).equals(Items.get(&quot;Raw Fish&quot;))) {</b>
+<b class="nc">&nbsp;							AchievementsDisplay.setAchievement(&quot;minicraft.achievement.fish&quot;, true);</b>
+&nbsp;						}
+<b class="nc">&nbsp;						level.dropItem(x, y, Items.get(itemData));</b>
+<b class="nc">&nbsp;						caught = true;</b>
+<b class="nc">&nbsp;						break; // Don&#39;t let people catch more than one thing with one use</b>
+&nbsp;					}
+&nbsp;				}
+<b class="nc">&nbsp;			}</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			caught = true; // End this fishing session</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (caught) {</b>
+<b class="nc">&nbsp;			isFishing = false;</b>
+&nbsp;		}
+<b class="nc">&nbsp;		fishingTicks = maxFishingTicks; // If you didn&#39;t catch anything, try again in 120 ticks</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private boolean use() {
+<b class="nc">&nbsp;		return use(getInteractionBox(INTERACT_DIST));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * called by other use method; this serves as a buffer in case there is no entity in front of the player.
+&nbsp;	 */
+&nbsp;	private boolean use(Rectangle area) {
+<b class="nc">&nbsp;		List&lt;Entity&gt; entities = level.getEntitiesInRect(area); // Gets the entities within the 4 points</b>
+<b class="nc">&nbsp;		for (Entity e : entities) {</b>
+<b class="nc">&nbsp;			if (e instanceof Furniture &amp;&amp; ((Furniture) e).use(this))</b>
+<b class="nc">&nbsp;				return true; // If the entity is not the player, then call it&#39;s use method, and return the result. Only some furniture classes use this.</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * same, but for interaction.
+&nbsp;	 */
+&nbsp;	private boolean interact(Rectangle area) {
+<b class="nc">&nbsp;		List&lt;Entity&gt; entities = level.getEntitiesInRect(area);</b>
+<b class="nc">&nbsp;		for (Entity e : entities) {</b>
+<b class="nc">&nbsp;			if (e != this &amp;&amp; e.interact(this, activeItem, attackDir))</b>
+<b class="nc">&nbsp;				return true; // This is the ONLY place that the Entity.interact method is actually called.</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * same, but for attacking.
+&nbsp;	 */
+&nbsp;	private boolean hurt(Rectangle area) {
+<b class="nc">&nbsp;		List&lt;Entity&gt; entities = level.getEntitiesInRect(area);</b>
+<b class="nc">&nbsp;		int maxDmg = 0;</b>
+<b class="nc">&nbsp;		for (Entity e : entities) {</b>
+<b class="nc">&nbsp;			if (e != this &amp;&amp; e instanceof Mob) {</b>
+<b class="nc">&nbsp;				int dmg = getAttackDamage(e);</b>
+<b class="nc">&nbsp;				maxDmg = Math.max(dmg, maxDmg);</b>
+<b class="nc">&nbsp;				((Mob) e).hurt(this, dmg, attackDir);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			if (e instanceof Furniture)</b>
+<b class="nc">&nbsp;				e.interact(this, null, attackDir);</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;		return maxDmg &gt; 0;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Calculates how much damage the player will do.
+&nbsp;	 * @param e Entity being attacked.
+&nbsp;	 * @return How much damage the player does.
+&nbsp;	 */
+&nbsp;	private int getAttackDamage(Entity e) {
+<b class="nc">&nbsp;		int dmg = random.nextInt(2) + 1;</b>
+<b class="nc">&nbsp;		if (activeItem != null &amp;&amp; activeItem instanceof ToolItem) {</b>
+<b class="nc">&nbsp;			dmg += ((ToolItem) activeItem).getAttackDamageBonus(e); // Sword/Axe are more effective at dealing damage.</b>
+&nbsp;		}
+<b class="nc">&nbsp;		return dmg;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Updates the sprite to render on demand.
+&nbsp;	 */
+&nbsp;	public void updateSprites() {
+&nbsp;		// Get the current skin we are using as a MobSprite array.
+<b class="nc">&nbsp;		LinkedSprite[][][] selectedSkin = SkinDisplay.getSkinAsMobSprite();</b>
+&nbsp;
+&nbsp;		// Assign the skin to the states.
+<b class="nc">&nbsp;		sprites = selectedSkin[0];</b>
+<b class="nc">&nbsp;		carrySprites = selectedSkin[1];</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen) {
+&nbsp;		/* Offset locations to start drawing the sprite relative to our position */
+<b class="nc">&nbsp;		int xo = x - 8; // Horizontal</b>
+<b class="nc">&nbsp;		int yo = y - 11; // Vertical</b>
+&nbsp;
+&nbsp;		// Renders swimming
+<b class="nc">&nbsp;		if (isSwimming() &amp;&amp; onFallDelay &lt;= 0) {</b>
+<b class="nc">&nbsp;			yo += 4; // y offset is moved up by 4</b>
+<b class="nc">&nbsp;			if (level.getTile(x / 16, y / 16) == Tiles.get(&quot;water&quot;)) {</b>
+&nbsp;
+&nbsp;				// animation effect
+<b class="nc">&nbsp;				if (tickTime / 8 % 2 == 0) {</b>
+<b class="nc">&nbsp;					screen.render(xo + 0, yo + 3, 5, 0, 0, hudSheet.getSheet()); // Render the water graphic</b>
+<b class="nc">&nbsp;					screen.render(xo + 8, yo + 3, 5, 0, 1, hudSheet.getSheet()); // Render the mirrored water graphic to the right.</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					screen.render(xo + 0, yo + 3, 5, 1, 0, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;					screen.render(xo + 8, yo + 3, 5, 1, 1, hudSheet.getSheet());</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;			} else if (level.getTile(x / 16, y / 16) == Tiles.get(&quot;lava&quot;)) {</b>
+&nbsp;
+<b class="nc">&nbsp;				if (tickTime / 8 % 2 == 0) {</b>
+<b class="nc">&nbsp;					screen.render(xo + 0, yo + 3, 6, 0, 1, hudSheet.getSheet()); // Render the lava graphic</b>
+<b class="nc">&nbsp;					screen.render(xo + 8, yo + 3, 6, 0, 0, hudSheet.getSheet()); // Render the mirrored lava graphic to the right.</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					screen.render(xo + 0, yo + 3, 6, 1, 1, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;					screen.render(xo + 8, yo + 3, 6, 1, 0, hudSheet.getSheet());</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		// Renders indicator for what tile the item will be placed on
+<b class="nc">&nbsp;		if (activeItem instanceof TileItem &amp;&amp; !isSwimming()) {</b>
+<b class="nc">&nbsp;			Point t = getInteractionTile();</b>
+<b class="nc">&nbsp;			screen.render(t.x * 16, t.y * 16, 3, 2, 0, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;			screen.render(t.x * 16 + 8, t.y * 16, 3, 2, 1, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;			screen.render(t.x * 16, t.y * 16 + 8, 3, 2, 2, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;			screen.render(t.x * 16 + 8, t.y * 16 + 8, 3, 2, 3, hudSheet.getSheet());</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Makes the player white if they have just gotten hurt
+<b class="nc">&nbsp;		if (hurtTime &gt; playerHurtTime - 10) {</b>
+<b class="nc">&nbsp;			col = Color.WHITE; // Make the sprite white.</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		LinkedSprite[][] spriteSet = activeItem instanceof FurnitureItem ? carrySprites : sprites;</b>
+&nbsp;
+&nbsp;		// Renders falling
+&nbsp;		LinkedSprite curSprite;
+<b class="nc">&nbsp;		if (onFallDelay &gt; 0) {</b>
+&nbsp;			// This makes falling look really cool.
+<b class="nc">&nbsp;			int spriteToUse = Math.round(onFallDelay / 2f) % carrySprites.length;</b>
+<b class="nc">&nbsp;			curSprite = carrySprites[spriteToUse][(walkDist &gt;&gt; 3) &amp; 1];</b>
+<b class="nc">&nbsp;			screen.render(xo, yo - 4 * onFallDelay, curSprite.setColor(shirtColor));</b>
+<b class="nc">&nbsp;		} else {</b>
+<b class="nc">&nbsp;			curSprite = spriteSet[dir.getDir()][(walkDist &gt;&gt; 3) &amp; 1]; // Gets the correct sprite to render.</b>
+&nbsp;			// Render each corner of the sprite
+<b class="nc">&nbsp;			if (isSwimming()) {</b>
+<b class="nc">&nbsp;				Sprite sprite = curSprite.getSprite();</b>
+<b class="nc">&nbsp;				screen.render(xo, yo, sprite.spritePixels[0][0], shirtColor);</b>
+<b class="nc">&nbsp;				screen.render(xo + 8, yo, sprite.spritePixels[0][1], shirtColor);</b>
+<b class="nc">&nbsp;			} else { // Don&#39;t render the bottom half if swimming.</b>
+<b class="nc">&nbsp;				screen.render(xo, yo - 4 * onFallDelay, curSprite.setColor(shirtColor));</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		// Renders slashes:
+<b class="nc">&nbsp;		if (attackTime &gt; 0) {</b>
+<b class="nc">&nbsp;			switch (attackDir) {</b>
+&nbsp;				case UP:  // If currently attacking upwards...
+<b class="nc">&nbsp;					screen.render(xo + 0, yo - 4, 3, 0, 0, hudSheet.getSheet()); // Render left half-slash</b>
+<b class="nc">&nbsp;					screen.render(xo + 8, yo - 4, 3, 0, 1, hudSheet.getSheet()); // Render right half-slash (mirror of left).</b>
+<b class="nc">&nbsp;					if (attackItem != null &amp;&amp; !(attackItem instanceof PowerGloveItem)) { // If the player had an item when they last attacked...</b>
+<b class="nc">&nbsp;						screen.render(xo + 4, yo - 4, attackItem.sprite.getSprite(), 1, false); // Then render the icon of the item, mirrored</b>
+&nbsp;					}
+&nbsp;					break;
+&nbsp;				case LEFT:  // Attacking to the left... (Same as above)
+<b class="nc">&nbsp;					screen.render(xo - 4, yo, 4, 0, 1, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;					screen.render(xo - 4, yo + 8, 4, 0, 3, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;					if (attackItem != null &amp;&amp; !(attackItem instanceof PowerGloveItem)) {</b>
+<b class="nc">&nbsp;						screen.render(xo - 4, yo + 4, attackItem.sprite.getSprite(), 1, false);</b>
+&nbsp;					}
+&nbsp;					break;
+&nbsp;				case RIGHT:  // Attacking to the right (Same as above)
+<b class="nc">&nbsp;					screen.render(xo + 8 + 4, yo, 4, 0, 0, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;					screen.render(xo + 8 + 4, yo + 8, 4, 0, 2, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;					if (attackItem != null &amp;&amp; !(attackItem instanceof PowerGloveItem)) {</b>
+<b class="nc">&nbsp;						screen.render(xo + 8 + 4, yo + 4, attackItem.sprite.getSprite());</b>
+&nbsp;					}
+&nbsp;					break;
+&nbsp;				case DOWN:  // Attacking downwards (Same as above)
+<b class="nc">&nbsp;					screen.render(xo + 0, yo + 8 + 4, 3, 0, 2, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;					screen.render(xo + 8, yo + 8 + 4, 3, 0, 3, hudSheet.getSheet());</b>
+<b class="nc">&nbsp;					if (attackItem != null &amp;&amp; !(attackItem instanceof PowerGloveItem)) {</b>
+<b class="nc">&nbsp;						screen.render(xo + 4, yo + 8 + 4, attackItem.sprite.getSprite());</b>
+&nbsp;					}
+&nbsp;					break;
+&nbsp;				case NONE:
+&nbsp;					break;
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		// Renders the fishing rods when fishing
+<b class="nc">&nbsp;		if (isFishing) {</b>
+<b class="nc">&nbsp;			switch (dir) {</b>
+&nbsp;				case UP:
+<b class="nc">&nbsp;					screen.render(xo + 4, yo - 4, activeItem.sprite.getSprite(), 1, false);</b>
+<b class="nc">&nbsp;					break;</b>
+&nbsp;				case LEFT:
+<b class="nc">&nbsp;					screen.render(xo - 4, yo + 4, activeItem.sprite.getSprite(), 1, false);</b>
+<b class="nc">&nbsp;					break;</b>
+&nbsp;				case RIGHT:
+<b class="nc">&nbsp;					screen.render(xo + 8 + 4, yo + 4, activeItem.sprite.getSprite());</b>
+<b class="nc">&nbsp;					break;</b>
+&nbsp;				case DOWN:
+<b class="nc">&nbsp;					screen.render(xo + 4, yo + 8 + 4, activeItem.sprite.getSprite());</b>
+<b class="nc">&nbsp;					break;</b>
+&nbsp;				case NONE:
+&nbsp;					break;
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		// Renders the furniture if the player is holding one.
+<b class="nc">&nbsp;		if (activeItem instanceof FurnitureItem) {</b>
+<b class="nc">&nbsp;			Furniture furniture = ((FurnitureItem) activeItem).furniture;</b>
+<b class="nc">&nbsp;			furniture.x = x;</b>
+<b class="nc">&nbsp;			furniture.y = yo - 4;</b>
+<b class="nc">&nbsp;			furniture.render(screen);</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * What happens when the player interacts with a itemEntity
+&nbsp;	 */
+&nbsp;	public void pickupItem(ItemEntity itemEntity) {
+<b class="nc">&nbsp;		int picked = 0;</b>
+<b class="nc">&nbsp;		int total = 1;</b>
+<b class="nc">&nbsp;		if (itemEntity.item instanceof StackableItem &amp;&amp; ((StackableItem) itemEntity.item).stacksWith(activeItem)) { // Picked up item equals the one in your hand</b>
+<b class="nc">&nbsp;			((StackableItem) activeItem).count += ((StackableItem) itemEntity.item).count;</b>
+<b class="nc">&nbsp;			picked = ((StackableItem) itemEntity.item).count;</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			if (itemEntity.item instanceof StackableItem) total = ((StackableItem) itemEntity.item).count;</b>
+<b class="nc">&nbsp;			picked = inventory.add(itemEntity.item); // Add item to inventory</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (picked == total) {</b>
+<b class="nc">&nbsp;			Sound.play(&quot;pickup&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;			itemEntity.remove();</b>
+<b class="nc">&nbsp;			addScore(1);</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	// The player can swim.
+&nbsp;	public boolean canSwim() {
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// Can walk on wool tiles..? quickly..?
+&nbsp;	public boolean canWool() {
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Finds a starting position for the player.
+&nbsp;	 * @param level Level which the player wants to start in.
+&nbsp;	 * @param spawnSeed Spawn seed.
+&nbsp;	 */
+&nbsp;	public void findStartPos(Level level, long spawnSeed) {
+<b class="nc">&nbsp;		random.setSeed(spawnSeed);</b>
+<b class="nc">&nbsp;		findStartPos(level);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Finds the starting position for the player in a level.
+&nbsp;	 * @param level The level.
+&nbsp;	 */
+&nbsp;	public void findStartPos(Level level) {
+<b class="nc">&nbsp;		findStartPos(level, true);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void findStartPos(Level level, boolean setSpawn) {
+&nbsp;		Point spawnPos;
+&nbsp;
+<b class="nc">&nbsp;		List&lt;Point&gt; spawnTilePositions = level.getMatchingTiles(Tiles.get(&quot;grass&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;		if (spawnTilePositions.size() == 0)</b>
+<b class="nc">&nbsp;			spawnTilePositions.addAll(level.getMatchingTiles((t, x, y) -&gt; t.maySpawn()));</b>
+&nbsp;
+<b class="nc">&nbsp;		if (spawnTilePositions.size() == 0)</b>
+<b class="nc">&nbsp;			spawnTilePositions.addAll(level.getMatchingTiles((t, x, y) -&gt; t.mayPass(level, x, y, Player.this)));</b>
+&nbsp;
+&nbsp;		// There are no tiles in the entire map which the player is allowed to stand on. Not likely.
+<b class="nc">&nbsp;		if (spawnTilePositions.size() == 0) {</b>
+<b class="nc">&nbsp;			spawnPos = new Point(random.nextInt(level.w / 4) + level.w * 3 / 8, random.nextInt(level.h / 4) + level.h * 3 / 8);</b>
+<b class="nc">&nbsp;			level.setTile(spawnPos.x, spawnPos.y, Tiles.get(&quot;grass&quot;));</b>
+&nbsp;		} else { // Gets random valid spawn tile position.
+<b class="nc">&nbsp;			spawnPos = spawnTilePositions.get(random.nextInt(spawnTilePositions.size()));</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (setSpawn) {</b>
+&nbsp;			// Used to save (tile) coordinates of spawn point outside this method.
+<b class="nc">&nbsp;			spawnx = spawnPos.x;</b>
+<b class="nc">&nbsp;			spawny = spawnPos.y;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Set (entity) coordinates of player to the center of the tile.
+<b class="nc">&nbsp;		this.x = spawnPos.x * 16 + 8; // conversion from tile coords to entity coords.</b>
+<b class="nc">&nbsp;		this.y = spawnPos.y * 16 + 8;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Finds a location where the player can respawn in a given level.
+&nbsp;	 * @param level The level.
+&nbsp;	 */
+&nbsp;	public void respawn(Level level) {
+<b class="nc">&nbsp;		if (!level.getTile(spawnx, spawny).maySpawn()) {</b>
+<b class="nc">&nbsp;			findStartPos(level); // If there&#39;s no bed to spawn from, and the stored coordinates don&#39;t point to a grass tile, then find a new point.</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Move the player to the spawn point
+<b class="nc">&nbsp;		this.x = spawnx * 16 + 8;</b>
+<b class="nc">&nbsp;		this.y = spawny * 16 + 8;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Uses an amount of stamina to do an action.
+&nbsp;	 * @param cost How much stamina the action requires.
+&nbsp;	 * @return true if the player had enough stamina, false if not.
+&nbsp;	 */
+&nbsp;	public boolean payStamina(int cost) {
+<b class="nc">&nbsp;		if (potioneffects.containsKey(PotionType.Energy))</b>
+<b class="nc">&nbsp;			return true; // If the player has the potion effect for infinite stamina, return true (without subtracting cost).</b>
+<b class="nc">&nbsp;		else if (stamina &lt;= 0) return false; // If the player doesn&#39;t have enough stamina, then return false; failure.</b>
+&nbsp;
+<b class="nc">&nbsp;		if (cost &lt; 0) cost = 0; // Error correction</b>
+<b class="nc">&nbsp;		stamina -= Math.min(stamina, cost); // Subtract the cost from the current stamina</b>
+<b class="nc">&nbsp;		return true; // Success</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Gets the player&#39;s light radius underground
+&nbsp;	 */
+&nbsp;	@Override
+&nbsp;	public int getLightRadius() {
+<b class="nc">&nbsp;		int r = 5; // The radius of the light.</b>
+&nbsp;
+<b class="nc">&nbsp;		if (activeItem != null &amp;&amp; activeItem instanceof FurnitureItem) { // If player is holding furniture</b>
+<b class="nc">&nbsp;			int rr = ((FurnitureItem) activeItem).furniture.getLightRadius(); // Gets furniture light radius</b>
+<b class="nc">&nbsp;			if (rr &gt; r)</b>
+<b class="nc">&nbsp;				r = rr; // Brings player light up to furniture light, if less, since the furnture is not yet part of the level and so doesn&#39;t emit light even if it should.</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return r; // Return light radius</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * What happens when the player dies
+&nbsp;	 */
+&nbsp;	@Override
+&nbsp;	public void die() {
+<b class="nc">&nbsp;		Analytics.SinglePlayerDeath.ping();</b>
+&nbsp;
+<b class="nc">&nbsp;		score -= score / 3; // Subtracts score penalty (minus 1/3 of the original score)</b>
+<b class="nc">&nbsp;		resetMultiplier();</b>
+&nbsp;
+&nbsp;		// Make death chest
+<b class="nc">&nbsp;		DeathChest dc = new DeathChest(this);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (activeItem != null) dc.getInventory().add(activeItem);</b>
+<b class="nc">&nbsp;		if (curArmor != null) dc.getInventory().add(curArmor);</b>
+&nbsp;
+<b class="nc">&nbsp;		Sound.play(&quot;death&quot;);</b>
+&nbsp;
+&nbsp;		// Add the death chest to the world.
+<b class="nc">&nbsp;		World.levels[Game.currentLevel].add(dc);</b>
+&nbsp;
+<b class="nc">&nbsp;		super.die(); // Calls the die() method in Mob.java</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void onExploded(Tnt tnt, int dmg) {
+<b class="nc">&nbsp;		super.onExploded(tnt, dmg);</b>
+<b class="nc">&nbsp;		payStamina(dmg * 2);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Hurt the player.
+&nbsp;	 * @param damage How much damage to do to player.
+&nbsp;	 * @param attackDir What direction to attack.
+&nbsp;	 */
+&nbsp;	public void hurt(int damage, Direction attackDir) {
+<b class="nc">&nbsp;		doHurt(damage, attackDir);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	protected void doHurt(int damage, Direction attackDir) {
+<b class="nc">&nbsp;		if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;) || hurtTime &gt; 0 || Bed.inBed(this))</b>
+<b class="nc">&nbsp;			return; // Can&#39;t get hurt in creative, hurt cooldown, or while someone is in bed</b>
+&nbsp;
+<b class="nc">&nbsp;		int healthDam = 0, armorDam = 0;</b>
+<b class="nc">&nbsp;		if (this == Game.player) {</b>
+<b class="nc">&nbsp;			if (curArmor == null) { // No armor</b>
+<b class="nc">&nbsp;				healthDam = damage; // Subtract that amount</b>
+&nbsp;			} else { // Has armor
+<b class="nc">&nbsp;				armorDamageBuffer += damage;</b>
+<b class="nc">&nbsp;				armorDam += damage;</b>
+&nbsp;
+<b class="nc">&nbsp;				while (armorDamageBuffer &gt;= curArmor.level + 1) {</b>
+<b class="nc">&nbsp;					armorDamageBuffer -= curArmor.level + 1;</b>
+<b class="nc">&nbsp;					healthDam++;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+&nbsp;			// Adds a text particle telling how much damage was done to the player, and the armor.
+<b class="nc">&nbsp;			if (armorDam &gt; 0) {</b>
+<b class="nc">&nbsp;				level.add(new TextParticle(&quot;&quot; + damage, x, y, Color.GRAY));</b>
+<b class="nc">&nbsp;				armor -= armorDam;</b>
+<b class="nc">&nbsp;				if (armor &lt;= 0) {</b>
+<b class="nc">&nbsp;					healthDam -= armor; // Adds armor damage overflow to health damage (minus b/c armor would be negative)</b>
+<b class="nc">&nbsp;					armor = 0;</b>
+<b class="nc">&nbsp;					armorDamageBuffer = 0; // Ensures that new armor doesn&#39;t inherit partial breaking from this armor.</b>
+<b class="nc">&nbsp;					curArmor = null; // Removes armor</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (healthDam &gt; 0 || this != Game.player) {</b>
+<b class="nc">&nbsp;			level.add(new TextParticle(&quot;&quot; + damage, x, y, Color.get(-1, 504)));</b>
+<b class="nc">&nbsp;			if (this == Game.player) super.doHurt(healthDam, attackDir); // Sets knockback, and takes away health.</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Sound.play(&quot;playerhurt&quot;);</b>
+<b class="nc">&nbsp;		hurtTime = playerHurtTime;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Hurt the player directly. Don&#39;t use the armor as a shield.
+&nbsp;	 * @param damage Amount of damage to do to player
+&nbsp;	 * @param attackDir The direction of attack.
+&nbsp;	 */
+&nbsp;	private void directHurt(int damage, Direction attackDir) {
+<b class="nc">&nbsp;		if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;) || hurtTime &gt; 0 || Bed.inBed(this))</b>
+<b class="nc">&nbsp;			return; // Can&#39;t get hurt in creative, hurt cooldown, or while someone is in bed</b>
+&nbsp;
+<b class="nc">&nbsp;		int healthDam = 0;</b>
+<b class="nc">&nbsp;		if (this == Game.player) {</b>
+<b class="nc">&nbsp;			healthDam = damage; // Subtract that amount</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (healthDam &gt; 0 || this != Game.player) {</b>
+<b class="nc">&nbsp;			level.add(new TextParticle(&quot;&quot; + damage, x, y, Color.get(-1, 504)));</b>
+<b class="nc">&nbsp;			if (this == Game.player) super.doHurt(healthDam, attackDir); // Sets knockback, and takes away health.</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Sound.play(&quot;playerhurt&quot;);</b>
+<b class="nc">&nbsp;		hurtTime = playerHurtTime;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void remove() {
+<b class="nc">&nbsp;		Logging.WORLD.trace(&quot;Removing player from level &quot; + getLevel());</b>
+<b class="nc">&nbsp;		super.remove();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Inventory getInventory() {
+<b class="nc">&nbsp;		return inventory;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public String getDebugHunger() {
+<b class="nc">&nbsp;		return hungerStamCnt + &quot;_&quot; + stamHungerTicks;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Trying to add item(s) to the player inventory.
+&nbsp;	 * If no more item(s) can be added to the inventory, drop the item(s) near the player.
+&nbsp;	 */
+&nbsp;	public void tryAddToInvOrDrop(@Nullable Item item) {
+<b class="nc">&nbsp;		if (item != null) {</b>
+<b class="nc">&nbsp;			int returned = inventory.add(0, item);</b>
+<b class="nc">&nbsp;			if (item instanceof StackableItem) {</b>
+<b class="nc">&nbsp;				if (((StackableItem) item).count &gt; 0) {</b>
+<b class="nc">&nbsp;					getLevel().dropItem(x, y, item);</b>
+&nbsp;				}
+<b class="nc">&nbsp;			} else if (returned == 0) {</b>
+<b class="nc">&nbsp;				getLevel().dropItem(x, y, item);</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,519 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Entity</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.entity</a>
+</div>
+
+<h1>Coverage Summary for Class: Entity (minicraft.entity)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Entity</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    2.8%
+  </span>
+  <span class="absValue">
+    (1/36)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    7.4%
+  </span>
+  <span class="absValue">
+    (10/135)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.entity;
+&nbsp;
+&nbsp;import minicraft.core.Action;
+&nbsp;import minicraft.core.Updater;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.Rectangle;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.network.Network;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Random;
+&nbsp;import java.util.function.BiConsumer;
+&nbsp;import java.util.function.BiPredicate;
+&nbsp;import java.util.function.IntSupplier;
+&nbsp;
+&nbsp;public abstract class Entity implements Tickable {
+&nbsp;
+&nbsp;	/* I guess I should explain something real quick. The coordinates between tiles and entities are different.
+&nbsp;	 * The world coordinates for tiles is 128x128
+&nbsp;	 * The world coordinates for entities is 2048x2048
+&nbsp;	 * This is because each tile is 16x16 pixels big
+&nbsp;	 * 128 x 16 = 2048.
+&nbsp;	 * When ever you see a &quot;&gt;&gt;&quot;, it means that it is a right shift operator. This means it shifts bits to the right (making them smaller)
+&nbsp;	 * x &gt;&gt; 4 is the equivalent to x / (2^4). Which means it&#39;s dividing the X value by 16. (2x2x2x2 = 16)
+&nbsp;	 * xt &lt;&lt; 4 is the equivalent to xt * (2^4). Which means it&#39;s multiplying the X tile value by 16.
+&nbsp;	 *
+&nbsp;	 * These bit shift operators are used to easily get the X &amp; Y coordinates of a tile that the entity is standing on.
+&nbsp;	 */
+&nbsp;
+&nbsp;	// Entity coordinates are per pixel, not per tile; each tile is 16x16 entity pixels.
+<b class="fc">&nbsp;	protected final Random random = new Random();</b>
+&nbsp;	public int x, y; // x, y entity coordinates on the map
+&nbsp;	private int xr, yr; // x, y radius of entity
+&nbsp;	private boolean removed; // If the entity is to be removed from the level.
+&nbsp;	protected Level level; // The level that the entity is on.
+&nbsp;	public int col; // Current color.
+&nbsp;
+&nbsp;	// Numeric unique identifier for the entity.
+&nbsp;	public int eid;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Default constructor for the Entity class.
+&nbsp;	 * Assings null/none values to the instace variables.
+&nbsp;	 * The exception is removed which is set to true, and
+&nbsp;	 * lastUpdate which is set to System.nanoTime().
+&nbsp;	 * @param xr X radius of entity.
+&nbsp;	 * @param yr Y radius of entity.
+&nbsp;	 */
+<b class="fc">&nbsp;	public Entity(int xr, int yr) { // Add color to this later, in color update</b>
+<b class="fc">&nbsp;		this.xr = xr;</b>
+<b class="fc">&nbsp;		this.yr = yr;</b>
+&nbsp;
+<b class="fc">&nbsp;		level = null;</b>
+<b class="fc">&nbsp;		removed = true;</b>
+<b class="fc">&nbsp;		col = 0;</b>
+&nbsp;
+<b class="fc">&nbsp;		eid = -1;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public abstract void render(Screen screen); // Used to render the entity on screen.
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public abstract void tick(); // Used to update the entity.
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns true if the entity is removed from the level, otherwise false.
+&nbsp;	 * @return removed
+&nbsp;	 */
+&nbsp;	public boolean isRemoved() {
+<b class="nc">&nbsp;		return removed/* || level == null*/;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns the level which this entity belongs in.
+&nbsp;	 * @return level
+&nbsp;	 */
+&nbsp;	public Level getLevel() {
+<b class="nc">&nbsp;		return level;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns a Rectangle instance using the defined bounds of the entity.
+&nbsp;	 */
+&nbsp;	protected Rectangle getBounds() {
+<b class="nc">&nbsp;		return new Rectangle(x, y, xr * 2, yr * 2, Rectangle.CENTER_DIMS);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns true if this entity is found in the rectangle specified by given two coordinates.
+&nbsp;	 */
+&nbsp;	public boolean isTouching(Rectangle area) {
+<b class="nc">&nbsp;		return area.intersects(getBounds());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns if this entity stops other solid entities from moving.
+&nbsp;	 */
+&nbsp;	public boolean isSolid() {
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	} // Most entities are solid
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Determines if the given entity should prevent this entity from moving.
+&nbsp;	 */
+&nbsp;	public boolean blocks(Entity e) {
+<b class="nc">&nbsp;		return isSolid() &amp;&amp; e.isSolid();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean canSwim() {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	} // Determines if the entity can swim (extended in sub-classes)
+&nbsp;
+&nbsp;	public boolean canWool() {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	} // This, strangely enough, determines if the entity can walk on wool; among some other things..?
+&nbsp;
+&nbsp;	public boolean canBurn() {
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	} // Determines if the entity can burn.
+&nbsp;
+&nbsp;	public boolean canBeAffectedByLava() {
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	} // Determines if the entity can burn in lava.
+&nbsp;
+<b class="fc">&nbsp;	public int burningDuration = 0;</b>
+&nbsp;
+&nbsp;	public int getLightRadius() {
+<b class="nc">&nbsp;		return 0;</b>
+&nbsp;	} // Used for lanterns... and player? that might be about it, though, so idk if I want to put it here.
+&nbsp;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * If this entity is touched by another entity (extended by sub-classes)
+&nbsp;	 */
+&nbsp;	protected void touchedBy(Entity entity) {
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Interacts with the entity this method is called on
+&nbsp;	 * @param player The player attacking
+&nbsp;	 * @param item The item the player attacked with
+&nbsp;	 * @param attackDir The direction to interact
+&nbsp;	 * @return If the interaction was successful
+&nbsp;	 */
+&nbsp;	public boolean interact(Player player, @Nullable Item item, Direction attackDir) {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Moves an entity horizontally and vertically. Returns whether entity was unimpeded in it&#39;s movement.
+&nbsp;	 */
+&nbsp;	public boolean move(int xd, int yd) {
+<b class="nc">&nbsp;		if (Updater.saving || (xd == 0 &amp;&amp; yd == 0)) return true; // Pretend that it kept moving</b>
+&nbsp;
+<b class="nc">&nbsp;		boolean stopped = true; // Used to check if the entity has BEEN stopped, COMPLETELY; below checks for a lack of collision.</b>
+&nbsp;		//noinspection RedundantIfStatement
+<b class="nc">&nbsp;		if (moveX(xd)) stopped = false; // Becomes false if horizontal movement was successful.</b>
+<b class="nc">&nbsp;		if (moveY(yd)) stopped = false; // Becomes false if vertical movement was successful.</b>
+<b class="nc">&nbsp;		if (!stopped) {</b>
+<b class="nc">&nbsp;			int xt = x &gt;&gt; 4; // The x tile coordinate that the entity is standing on.</b>
+<b class="nc">&nbsp;			int yt = y &gt;&gt; 4; // The y tile coordinate that the entity is standing on.</b>
+<b class="nc">&nbsp;			level.getTile(xt, yt).steppedOn(level, xt, yt, this); // Calls the steppedOn() method in a tile&#39;s class. (used for tiles like sand (footprints) or lava (burning))</b>
+&nbsp;		}
+<b class="nc">&nbsp;		return !stopped;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Moves the entity a long only on X axis without &quot;teleporting&quot;.
+&nbsp;	 * Will throw exception otherwise.
+&nbsp;	 * @param d Displacement relative to the axis.
+&nbsp;	 * @return true if the move was successful, false if not.
+&nbsp;	 */
+&nbsp;	protected boolean moveX(int d) {
+<b class="nc">&nbsp;		if (d == 0) return true; // Was not stopped</b>
+&nbsp;
+&nbsp;		//boolean interact = true;//!Game.isValidClient() || this instanceof ClientTickable;
+&nbsp;
+&nbsp;		// Taking the axis of movement (towards) as the front axis, and the horizontal axis with another axis.
+&nbsp;		// Signs taking front axis&#39; directions, i.e. the x-axis.
+&nbsp;		// Horizontal directions taking the number line directions, i.e. the y-axis.
+<b class="nc">&nbsp;		int sgn = (int) Math.signum(d); // -1 for LEFT; +1 for RIGHT</b>
+<b class="nc">&nbsp;		int hitBoxLeft = y - yr;</b>
+<b class="nc">&nbsp;		int hitBoxRight = y + yr;</b>
+<b class="nc">&nbsp;		int hitBoxFront = x + xr * sgn;</b>
+<b class="nc">&nbsp;		int maxFront = Level.calculateMaxFrontClosestTile(sgn, d, hitBoxLeft, hitBoxRight, hitBoxFront,</b>
+<b class="nc">&nbsp;			(front, horTile) -&gt; level.getTile(front, horTile).mayPass(level, front, horTile, this)); // Maximum position can be reached with front hit box</b>
+<b class="nc">&nbsp;		if (maxFront == hitBoxFront) { // Bumping into the facing tile</b>
+<b class="nc">&nbsp;			int hitBoxRightTile = hitBoxRight &gt;&gt; 4;</b>
+<b class="nc">&nbsp;			int frontTile = (hitBoxFront + sgn) &gt;&gt; 4;</b>
+<b class="nc">&nbsp;			for (int horTile = hitBoxLeft &gt;&gt; 4; horTile &lt;= hitBoxRightTile; horTile++) {</b>
+<b class="nc">&nbsp;				level.getTile(frontTile, horTile).bumpedInto(level, frontTile, horTile, this);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			return false; // No movement can be made.</b>
+&nbsp;		}
+<b class="nc">&nbsp;		return moveByEntityHitBoxChecks(sgn, hitBoxFront, maxFront, () -&gt; x + sgn, () -&gt; y, () -&gt; x += sgn, hitBoxLeft, hitBoxRight,</b>
+<b class="nc">&nbsp;			(front, horTile) -&gt; level.getTile(front, horTile).bumpedInto(level, front, horTile, this),</b>
+<b class="nc">&nbsp;			(front, horTile) -&gt; level.getTile(front, horTile).steppedOn(level, front, horTile, this));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Moves the entity a long only on X axis without &quot;teleporting&quot;.
+&nbsp;	 * Will throw exception otherwise.
+&nbsp;	 * @param d Displacement relative to the axis.
+&nbsp;	 * @return true if the move was successful, false if not.
+&nbsp;	 */
+&nbsp;	protected boolean moveY(int d) {
+<b class="nc">&nbsp;		if (d == 0) return true; // Was not stopped</b>
+&nbsp;
+&nbsp;		//boolean interact = true;//!Game.isValidClient() || this instanceof ClientTickable;
+&nbsp;
+&nbsp;		// Taking the axis of movement (towards) as the front axis, and the horizontal axis with another axis.
+&nbsp;		// Signs taking front axis&#39; directions, i.e. the y-axis.
+&nbsp;		// Horizontal directions taking the number line directions, i.e. the x-axis.
+<b class="nc">&nbsp;		int sgn = (int) Math.signum(d); // -1 for UP; +1 for DOWN</b>
+<b class="nc">&nbsp;		int hitBoxLeft = x - xr;</b>
+<b class="nc">&nbsp;		int hitBoxRight = x + xr;</b>
+<b class="nc">&nbsp;		int hitBoxFront = y + yr * sgn;</b>
+<b class="nc">&nbsp;		int maxFront = Level.calculateMaxFrontClosestTile(sgn, d, hitBoxLeft, hitBoxRight, hitBoxFront,</b>
+<b class="nc">&nbsp;			(front, horTile) -&gt; level.getTile(horTile, front).mayPass(level, horTile, front, this)); // Maximum position can be reached with front hit box</b>
+<b class="nc">&nbsp;		if (maxFront == hitBoxFront) { // Bumping into the facing tile</b>
+<b class="nc">&nbsp;			int hitBoxRightTile = hitBoxRight &gt;&gt; 4;</b>
+<b class="nc">&nbsp;			int frontTile = (hitBoxFront + sgn) &gt;&gt; 4;</b>
+<b class="nc">&nbsp;			for (int horTile = hitBoxLeft &gt;&gt; 4; horTile &lt;= hitBoxRightTile; horTile++) {</b>
+<b class="nc">&nbsp;				level.getTile(horTile, frontTile).bumpedInto(level, horTile, frontTile, this);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			return false; // No movement can be made.</b>
+&nbsp;		}
+<b class="nc">&nbsp;		return moveByEntityHitBoxChecks(sgn, hitBoxFront, maxFront, () -&gt; x, () -&gt; y + sgn, () -&gt; y += sgn, hitBoxLeft, hitBoxRight,</b>
+<b class="nc">&nbsp;			(front, horTile) -&gt; level.getTile(horTile, front).bumpedInto(level, horTile, front, this),</b>
+<b class="nc">&nbsp;			(front, horTile) -&gt; level.getTile(horTile, front).steppedOn(level, horTile, front, this));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Moves the entity by checking entity hit boxes being interacted with the given possible length of straight path.
+&nbsp;	 * @param sgn One-dimensional direction of displacement
+&nbsp;	 * @param hitBoxFront The front boundary of hit box
+&nbsp;	 * @param maxFront Maximum position can be reached with front hit box (firstly checked by tile hot box)
+&nbsp;	 * @param xMove The value of the willing x movement
+&nbsp;	 * @param yMove The value of the willing y movement
+&nbsp;	 * @param incrementMove The movement call when the movement is possible
+&nbsp;	 * @param hitBoxLeft The left boundary of hit box
+&nbsp;	 * @param hitBoxRight The right boundary of hit box
+&nbsp;	 * @param bumpingHandler The consumer handling bumping into a new tile;
+&nbsp;	 * 	the first parameter takes the front tile position and second one takes the horizontal position
+&nbsp;	 * @param steppingHandler The consumer handling stepping on a new tile;
+&nbsp;	 * 	the first parameter takes the front tile position and second one takes the horizontal position
+&nbsp;	 * @return {@code true} if the movement is successful, {@code false} otherwise.
+&nbsp;	 * @see Level#calculateMaxFrontClosestTile(int, int, int, int, int, BiPredicate)
+&nbsp;	 */
+&nbsp;	protected boolean moveByEntityHitBoxChecks(int sgn, int hitBoxFront, int maxFront, IntSupplier xMove,
+&nbsp;	                                           IntSupplier yMove, Action incrementMove, int hitBoxLeft, int hitBoxRight,
+&nbsp;	                                           BiConsumer&lt;Integer, Integer&gt; bumpingHandler, BiConsumer&lt;Integer, Integer&gt; steppingHandler) {
+<b class="nc">&nbsp;		boolean successful = false;</b>
+&nbsp;
+&nbsp;		// These lists are named as if the entity has already moved-- it hasn&#39;t, though.
+<b class="nc">&nbsp;		HashSet&lt;Entity&gt; wasInside = new HashSet&lt;&gt;(level.getEntitiesInRect(getBounds())); // Gets all the entities that are inside this entity (aka: colliding) before moving.</b>
+<b class="nc">&nbsp;		int frontTile = hitBoxFront &lt;&lt; 4; // The original tile the front boundary hit box staying on</b>
+<b class="nc">&nbsp;		boolean handleSteppedOn = false; // Used together with frontTile</b>
+<b class="nc">&nbsp;		for (int front = hitBoxFront; sgn &lt; 0 ? front &gt; maxFront : front &lt; maxFront; front += sgn) {</b>
+<b class="nc">&nbsp;			int newFrontTile = (front + sgn) &gt;&gt; 4;</b>
+<b class="nc">&nbsp;			if (newFrontTile != frontTile) { // New tile touched</b>
+<b class="nc">&nbsp;				int hitBoxRightTile = hitBoxRight &gt;&gt; 4;</b>
+<b class="nc">&nbsp;				for (int horTile = hitBoxLeft &gt;&gt; 4; horTile &lt;= hitBoxRightTile; horTile++) {</b>
+<b class="nc">&nbsp;					bumpingHandler.accept(newFrontTile, horTile);</b>
+&nbsp;				}
+<b class="nc">&nbsp;				frontTile = newFrontTile;</b>
+<b class="nc">&nbsp;				handleSteppedOn = true;</b>
+&nbsp;			}
+<b class="nc">&nbsp;			boolean blocked = false; // If the entity prevents this one from movement, no movement.</b>
+<b class="nc">&nbsp;			for (Entity e : level.getEntitiesInRect(new Rectangle(xMove.getAsInt(), yMove.getAsInt(), xr * 2, yr * 2, Rectangle.CENTER_DIMS))) {</b>
+<b class="nc">&nbsp;				if (!wasInside.contains(e)) { // Skips entities that were touched.</b>
+<b class="nc">&nbsp;					if (e != this) {</b>
+<b class="nc">&nbsp;						if (!blocked) blocked = e.blocks(this);</b>
+<b class="nc">&nbsp;						if (e instanceof Player) {</b>
+<b class="nc">&nbsp;							touchedBy(e);</b>
+&nbsp;						} else {
+<b class="nc">&nbsp;							e.touchedBy(this);</b>
+&nbsp;						}
+&nbsp;					}
+<b class="nc">&nbsp;					wasInside.add(e); // Add entity into list.</b>
+&nbsp;				}
+<b class="nc">&nbsp;			}</b>
+<b class="nc">&nbsp;			if (blocked) break;</b>
+<b class="nc">&nbsp;			incrementMove.act(); // Movement successful</b>
+<b class="nc">&nbsp;			if (handleSteppedOn) { // When the movement to a new tile successes</b>
+<b class="nc">&nbsp;				int hitBoxRightTile = hitBoxRight &gt;&gt; 4;</b>
+<b class="nc">&nbsp;				for (int horTile = hitBoxLeft &gt;&gt; 4; horTile &lt;= hitBoxRightTile; horTile++) {</b>
+<b class="nc">&nbsp;					steppingHandler.accept(frontTile, horTile); // Calls the steppedOn() method in a tile&#39;s class. (used for tiles like sand (footprints) or lava (burning))</b>
+&nbsp;				}
+&nbsp;			}
+<b class="nc">&nbsp;			successful = true;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return successful;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Checks if the entity is able to naturally be despawned in general conditions. Handles (despawns) if true.
+&nbsp;	 */
+&nbsp;	public void handleDespawn() {
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This exists as a way to signify that the entity has been removed through player action and/or world action; basically, it&#39;s actually gone, not just removed from a level because it&#39;s out of range or something. Calls to this method are used to, say, drop items.
+&nbsp;	 */
+&nbsp;	public void die() {
+<b class="nc">&nbsp;		remove();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Removes the entity from the level.
+&nbsp;	 */
+&nbsp;	public void remove() {
+<b class="nc">&nbsp;		if (removed &amp;&amp; !(this instanceof ItemEntity)) // Apparently this happens fairly often with item entities.</b>
+<b class="nc">&nbsp;			Logging.ENTITY.debug(&quot;Note: remove() called on removed entity: &quot; + this);</b>
+&nbsp;
+<b class="nc">&nbsp;		removed = true;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (level == null)</b>
+<b class="nc">&nbsp;			Logging.ENTITY.debug(&quot;Note: remove() called on entity with no level reference: &quot; + getClass());</b>
+&nbsp;		else
+<b class="nc">&nbsp;			level.remove(this);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This should ONLY be called by the Level class. To properly remove an entity from a level, use level.remove(entity)
+&nbsp;	 */
+&nbsp;	public void remove(Level level) {
+<b class="nc">&nbsp;		if (level != this.level) {</b>
+<b class="nc">&nbsp;			Logging.ENTITY.debug(&quot;Tried to remove entity &quot; + this + &quot; from level it is not in: &quot; + level + &quot;; in level &quot; + this.level);</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			removed = true; // Should already be set.</b>
+<b class="nc">&nbsp;			this.level = null;</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This should ONLY be called by the Level class. To properly add an entity to a level, use level.add(entity)
+&nbsp;	 */
+&nbsp;	public void setLevel(Level level, int x, int y) {
+<b class="nc">&nbsp;		if (level == null) {</b>
+<b class="nc">&nbsp;			Logging.ENTITY.debug(&quot;Tried to set level of entity &quot; + this + &quot; to a null level; Should use remove(level)&quot;);</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		this.level = level;</b>
+<b class="nc">&nbsp;		removed = false;</b>
+<b class="nc">&nbsp;		this.x = x;</b>
+<b class="nc">&nbsp;		this.y = y;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (eid &lt; 0)</b>
+<b class="nc">&nbsp;			eid = Network.generateUniqueEntityId();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean isWithin(int tileRadius, Entity other) {
+<b class="nc">&nbsp;		if (level == null || other.getLevel() == null) return false;</b>
+<b class="nc">&nbsp;		if (level.depth != other.getLevel().depth)</b>
+<b class="nc">&nbsp;			return false; // Obviously, if they are on different levels, they can&#39;t be next to each other.</b>
+&nbsp;
+<b class="nc">&nbsp;		double distance = Math.abs(Math.hypot(x - other.x, y - other.y)); // Calculate the distance between the two entities, in entity coordinates.</b>
+&nbsp;
+<b class="nc">&nbsp;		return Math.round(distance) &gt;&gt; 4 &lt;= tileRadius; // Compare the distance (converted to tile units) with the specified radius.</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns the closest player to this entity.
+&nbsp;	 * @return the closest player.
+&nbsp;	 */
+&nbsp;	@Nullable
+&nbsp;	protected Player getClosestPlayer() {
+<b class="nc">&nbsp;		return getClosestPlayer(true);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns the closes player to this entity.
+&nbsp;	 * If this is called on a player it can return itself.
+&nbsp;	 * @param returnSelf determines if the method can return itself.
+&nbsp;	 * @return The closest player to this entity.
+&nbsp;	 */
+&nbsp;	@Nullable
+&nbsp;	protected Player getClosestPlayer(boolean returnSelf) {
+<b class="nc">&nbsp;		if (this instanceof Player &amp;&amp; returnSelf)</b>
+<b class="nc">&nbsp;			return (Player) this;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (level == null) return null;</b>
+&nbsp;
+<b class="nc">&nbsp;		return level.getClosestPlayer(x, y);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public String toString() {
+<b class="nc">&nbsp;		return getClass().getSimpleName() + getDataPrints();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	protected List&lt;String&gt; getDataPrints() {
+<b class="nc">&nbsp;		List&lt;String&gt; prints = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;		prints.add(&quot;eid=&quot; + eid);</b>
+<b class="nc">&nbsp;		return prints;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public final boolean equals(Object other) {
+<b class="nc">&nbsp;		return other instanceof Entity &amp;&amp; hashCode() == other.hashCode();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public final int hashCode() {
+<b class="nc">&nbsp;		return eid;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

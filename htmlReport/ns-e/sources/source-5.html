@@ -1,0 +1,195 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Version</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.saveload</a>
+</div>
+
+<h1>Coverage Summary for Class: Version (minicraft.saveload)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Version</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25%
+  </span>
+  <span class="absValue">
+    (2/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    36.6%
+  </span>
+  <span class="absValue">
+    (15/41)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.saveload;
+&nbsp;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;import org.tinylog.Logger;
+&nbsp;
+&nbsp;public class Version implements Comparable&lt;Version&gt; {
+&nbsp;	private int make, major, minor, dev;
+<b class="fc">&nbsp;	private boolean valid = true;</b>
+&nbsp;
+&nbsp;	public Version(String version) {
+<b class="fc">&nbsp;		this(version, true);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+<b class="fc">&nbsp;	private Version(String version, boolean printError) {</b>
+<b class="fc">&nbsp;		String[] nums = version.split(&quot;\\.&quot;);</b>
+&nbsp;		try {
+<b class="fc">&nbsp;			if (nums.length &gt; 0) make = Integer.parseInt(nums[0]);</b>
+<b class="nc">&nbsp;			else make = 0;</b>
+&nbsp;
+<b class="fc">&nbsp;			if (nums.length &gt; 1) major = Integer.parseInt(nums[1]);</b>
+<b class="nc">&nbsp;			else major = 0;</b>
+&nbsp;
+&nbsp;			String min;
+<b class="fc">&nbsp;			if (nums.length &gt; 2) min = nums[2];</b>
+<b class="nc">&nbsp;			else min = &quot;&quot;;</b>
+&nbsp;
+<b class="fc">&nbsp;			if (min.contains(&quot;-&quot;)) {</b>
+<b class="fc">&nbsp;				String[] mindev = min.split(&quot;-&quot;);</b>
+<b class="fc">&nbsp;				minor = Integer.parseInt(mindev[0]);</b>
+<b class="fc">&nbsp;				dev = Integer.parseInt(mindev[1].replace(&quot;pre&quot;, &quot;&quot;).replace(&quot;dev&quot;, &quot;&quot;));</b>
+<b class="fc">&nbsp;			} else {</b>
+<b class="nc">&nbsp;				if (!min.equals(&quot;&quot;)) minor = Integer.parseInt(min);</b>
+<b class="nc">&nbsp;				else minor = 0;</b>
+<b class="nc">&nbsp;				dev = 0;</b>
+&nbsp;			}
+<b class="nc">&nbsp;		} catch (NumberFormatException ex) {</b>
+<b class="nc">&nbsp;			if (printError) Logger.tag(&quot;Version&quot;).error(&quot;INVALID version number: \&quot;&quot; + version + &quot;\&quot;&quot;);</b>
+<b class="nc">&nbsp;			valid = false;</b>
+<b class="nc">&nbsp;		} catch (Exception ex) {</b>
+<b class="nc">&nbsp;			if (printError) ex.printStackTrace();</b>
+<b class="nc">&nbsp;			valid = false;</b>
+<b class="fc">&nbsp;		}</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean isValid() {
+<b class="nc">&nbsp;		return valid;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static boolean isValid(String version) {
+<b class="nc">&nbsp;		return new Version(version, false).isValid();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * The returned value of this method (-1, 0, or 1) is determined by whether this object is less than, equal to, or greater than the specified object, ov.
+&nbsp;	 * (this.compareTo(new Version(&quot;1.0.0&quot;) &lt; 0 is the same as this &lt; 1.0.0)
+&nbsp;	 * @param ov The version to compare to.
+&nbsp;	 */
+&nbsp;	public int compareTo(@NotNull Version ov) {
+<b class="nc">&nbsp;		return compareTo(ov, false);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * The returned value of this method (-1, 0, or 1) is determined by whether this object is less than, equal to, or greater than the specified object, ov.
+&nbsp;	 * (this.compareTo(new Version(&quot;1.0.0&quot;) &lt; 0 is the same as this &lt; 1.0.0)
+&nbsp;	 * @param ov The version to compare to.
+&nbsp;	 * @param ignoreDev If we should ignore dev versions in this comparison.
+&nbsp;	 */
+&nbsp;	public int compareTo(@NotNull Version ov, boolean ignoreDev) {
+<b class="nc">&nbsp;		if (make != ov.make) return Integer.compare(make, ov.make);</b>
+<b class="nc">&nbsp;		if (major != ov.major) return Integer.compare(major, ov.major);</b>
+<b class="nc">&nbsp;		if (minor != ov.minor) return Integer.compare(minor, ov.minor);</b>
+<b class="nc">&nbsp;		if (!ignoreDev) {</b>
+<b class="nc">&nbsp;			if (dev != ov.dev) {</b>
+<b class="nc">&nbsp;				if (dev == 0) return 1; //0 is the last &quot;dev&quot; version, as it is not a dev.</b>
+<b class="nc">&nbsp;				if (ov.dev == 0) return -1;</b>
+<b class="nc">&nbsp;				return Integer.compare(dev, ov.dev);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return 0; // The versions are equal.</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public String toString() {
+<b class="nc">&nbsp;		return make + &quot;.&quot; + major + &quot;.&quot; + minor + (dev == 0 ? &quot;&quot; : &quot;-dev&quot; + dev);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public int[] toArray() {
+<b class="nc">&nbsp;		return new int[] { make, major, minor, dev };</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

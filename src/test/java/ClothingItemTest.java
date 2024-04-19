@@ -70,8 +70,9 @@ public class ClothingItemTest {
 		Settings.set("mode","minicraft.settings.mode.creative");
 		Player mockPlayer = mock(Player.class);
 		mockPlayer.shirtColor = blueClothingItemPlayerCol;
+		assertTrue(mockClothingItem.interactOn(null,null,0,0,mockPlayer,null));
 		verify(mockPlayer,times(0)).tryAddToInvOrDrop(any(ClothingItem.class));
-		assertEquals(blueClothingItemPlayerCol,mockPlayer.shirtColor);
+		assertEquals(mockClothingItemPlayerCol,mockPlayer.shirtColor);
 		Settings.set("mode",oldMode); //cleanup
 	}
 

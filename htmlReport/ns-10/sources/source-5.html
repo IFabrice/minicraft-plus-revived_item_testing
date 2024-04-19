@@ -1,0 +1,147 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ItemEntry</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen.entry</a>
+</div>
+
+<h1>Coverage Summary for Class: ItemEntry (minicraft.screen.entry)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ItemEntry</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/11)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen.entry;
+&nbsp;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.item.Item;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;public class ItemEntry extends ListEntry {
+&nbsp;
+&nbsp;	public static ItemEntry[] useItems(List&lt;Item&gt; items) {
+<b class="nc">&nbsp;		ItemEntry[] entries = new ItemEntry[items.size()];</b>
+<b class="nc">&nbsp;		for (int i = 0; i &lt; items.size(); i++)</b>
+<b class="nc">&nbsp;			entries[i] = new ItemEntry(items.get(i));</b>
+<b class="nc">&nbsp;		return entries;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private Item item;
+&nbsp;
+<b class="nc">&nbsp;	public ItemEntry(Item i) {</b>
+<b class="nc">&nbsp;		this.item = i;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Item getItem() {
+<b class="nc">&nbsp;		return item;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick(InputHandler input) {
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen, int x, int y, boolean isSelected) {
+<b class="nc">&nbsp;		super.render(screen, x, y, true);</b>
+<b class="nc">&nbsp;		screen.render(x, y, item.sprite);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// If you add to the length of the string, and therefore the width of the entry, then it will actually move the entry RIGHT in the inventory, instead of the intended left, because it is auto-positioned to the left side.
+&nbsp;	@Override
+&nbsp;	public String toString() {
+<b class="nc">&nbsp;		return item.getDisplayName();</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,361 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Tile</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.level.tile</a>
+</div>
+
+<h1>Coverage Summary for Class: Tile (minicraft.level.tile)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Tile</td>
+<td class="coverageStat">
+  <span class="percent">
+    12.5%
+  </span>
+  <span class="absValue">
+    (3/24)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    27.9%
+  </span>
+  <span class="absValue">
+    (12/43)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Tile$Material</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (2/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    88.9%
+  </span>
+  <span class="absValue">
+    (8/9)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Tile$MockitoMock$2cdxzih8</td>
+  </tr>
+  <tr>
+    <td class="name">Tile$MockitoMock$2cdxzih8$auxiliary$Bu1iw5KK</td>
+  </tr>
+  <tr>
+    <td class="name">Tile$MockitoMock$2cdxzih8$auxiliary$ZJ6uYAUD</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    18.5%
+  </span>
+  <span class="absValue">
+    (5/27)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    38.5%
+  </span>
+  <span class="absValue">
+    (20/52)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.level.tile;
+&nbsp;
+&nbsp;import minicraft.core.World;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.entity.mob.Mob;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.gfx.SpriteAnimation;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.item.ToolType;
+&nbsp;import minicraft.level.Level;
+&nbsp;
+&nbsp;import java.util.Random;
+&nbsp;
+&nbsp;public abstract class Tile {
+<b class="fc">&nbsp;	public static int tickCount = 0; // A global tickCount used in the Lava &amp; water tiles.</b>
+<b class="fc">&nbsp;	protected Random random = new Random();</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This is used by wall tiles to get what material they&#39;re made of.
+&nbsp;	 */
+<b class="fc">&nbsp;	protected enum Material {</b>
+<b class="fc">&nbsp;		Wood(ToolType.Axe),</b>
+<b class="fc">&nbsp;		Stone(ToolType.Pickaxe),</b>
+<b class="fc">&nbsp;		Obsidian(ToolType.Pickaxe);</b>
+&nbsp;
+<b class="fc">&nbsp;		public static final Material[] values = Material.values();</b>
+&nbsp;		private final ToolType requiredTool;
+&nbsp;
+<b class="fc">&nbsp;		Material(ToolType requiredTool) {</b>
+<b class="fc">&nbsp;			this.requiredTool = requiredTool;</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		public ToolType getRequiredTool() {
+<b class="nc">&nbsp;			return requiredTool;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	public final String name;
+&nbsp;
+&nbsp;	public short id;
+&nbsp;
+<b class="fc">&nbsp;	public int light = 1;</b>
+<b class="fc">&nbsp;	protected boolean maySpawn = false;</b>
+&nbsp;
+<b class="fc">&nbsp;	protected SpriteAnimation sprite = null;</b>
+&nbsp;
+<b class="fc">&nbsp;	protected Tile(String name, SpriteAnimation sprite) {</b>
+<b class="fc">&nbsp;		this.name = name.toUpperCase();</b>
+<b class="fc">&nbsp;		this.sprite = sprite;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This method is used by tiles to specify the default &quot;data&quot; they have in a level&#39;s data array.
+&nbsp;	 * Used for starting health, color/type of tile, etc.
+&nbsp;	 */
+&nbsp;	// At least, that was the idea at first...
+&nbsp;	public int getDefaultData() {
+<b class="nc">&nbsp;		return 0;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Render method, used in sub-classes
+&nbsp;	 */
+&nbsp;	public void render(Screen screen, Level level, int x, int y) {
+<b class="nc">&nbsp;		sprite.render(screen, level, x, y);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean maySpawn() {
+<b class="nc">&nbsp;		return maySpawn;</b>
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	public void onTileSet(Level level, int x, int y) {}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns if the player can walk on it, overrides in sub-classes
+&nbsp;	 */
+&nbsp;	public boolean mayPass(Level level, int x, int y, Entity e) {
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Gets the light radius of a tile, Bigger number = bigger circle
+&nbsp;	 */
+&nbsp;	public int getLightRadius(Level level, int x, int y) {
+<b class="nc">&nbsp;		return 0;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Hurt the tile with a specified amount of damage.
+&nbsp;	 * @param level The level this happened on.
+&nbsp;	 * @param x X pos of the tile.
+&nbsp;	 * @param y Y pos of the tile.
+&nbsp;	 * @param source The mob that damaged the tile.
+&nbsp;	 * @param dmg Damage to taken.
+&nbsp;	 * @param attackDir The direction of the player hitting.
+&nbsp;	 * @return If the damage was applied.
+&nbsp;	 */
+&nbsp;	public boolean hurt(Level level, int x, int y, Mob source, int dmg, Direction attackDir) {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Hurt the tile with a specified amount of damage.
+&nbsp;	 * @param level The level this happened on.
+&nbsp;	 * @param x X position of the tile.
+&nbsp;	 * @param y Y position of the tile.
+&nbsp;	 * @param dmg The damage taken.
+&nbsp;	 */
+&nbsp;	public void hurt(Level level, int x, int y, int dmg) {
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * What happens when you run into the tile (ex: run into a cactus)
+&nbsp;	 */
+&nbsp;	public void bumpedInto(Level level, int xt, int yt, Entity entity) {
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Update method
+&nbsp;	 */
+&nbsp;	public boolean tick(Level level, int xt, int yt) {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * What happens when you are inside the tile (ex: lava)
+&nbsp;	 */
+&nbsp;	public void steppedOn(Level level, int xt, int yt, Entity entity) {
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Called when you hit an item on a tile (ex: Pickaxe on rock).
+&nbsp;	 * @param level The level the player is on.
+&nbsp;	 * @param xt X position of the player in tile coordinates (32x per tile).
+&nbsp;	 * @param yt Y position of the player in tile coordinates (32px per tile).
+&nbsp;	 * @param player The player who called this method.
+&nbsp;	 * @param item The item the player is currently holding.
+&nbsp;	 * @param attackDir The direction of the player attacking.
+&nbsp;	 * @return Was the operation successful?
+&nbsp;	 */
+&nbsp;	public boolean interact(Level level, int xt, int yt, Player player, Item item, Direction attackDir) {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Executed when the tile is exploded.
+&nbsp;	 * The call for this method is done just before the tiles are changed to exploded tiles.
+&nbsp;	 * @param level The level we are on.
+&nbsp;	 * @param xt X position of the tile.
+&nbsp;	 * @param yt Y position of the tile.
+&nbsp;	 * @return true if successful.
+&nbsp;	 */
+&nbsp;	public boolean onExplode(Level level, int xt, int yt) {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/** Whether the tile connects to grass tile in appearance. */
+<b class="nc">&nbsp;	public boolean connectsToGrass(Level level, int x, int y) { return false; }</b>
+&nbsp;
+&nbsp;	/** Whether the tile connects to sand tile in appearance. */
+<b class="nc">&nbsp;	public boolean connectsToSand(Level level, int x, int y) { return false; }</b>
+&nbsp;
+&nbsp;	/** Whether the tile connects to fluid tile in appearance. */
+<b class="nc">&nbsp;	public boolean connectsToFluid(Level level, int x, int y) { return false; }</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * @deprecated This should be planned to be removed as this method is not ideally used.
+&nbsp;	 * 	The current only usage is in {@link Level#setTile(int, int, String)}.
+&nbsp;	 */
+&nbsp;	@Deprecated
+&nbsp;	public int getData(String data) {
+&nbsp;		try {
+<b class="nc">&nbsp;			return Integer.parseInt(data);</b>
+<b class="nc">&nbsp;		} catch (NumberFormatException ex) {</b>
+<b class="nc">&nbsp;			return 0;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * @deprecated Similar to {@link #getData(String)}. Also, param {@code thisData} is unused.
+&nbsp;	 * 	The current only usage is in {@link minicraft.item.TileItem#interactOn(Tile, Level, int, int, Player, Direction)}.
+&nbsp;	 */
+&nbsp;	@Deprecated
+&nbsp;	public boolean matches(int thisData, String tileInfo) {
+<b class="nc">&nbsp;		return name.equals(tileInfo.split(&quot;_&quot;)[0]);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public String getName(int data) {
+<b class="nc">&nbsp;		return name;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static String getData(int depth, int x, int y) {
+&nbsp;		try {
+<b class="nc">&nbsp;			byte lvlidx = (byte) World.lvlIdx(depth);</b>
+<b class="nc">&nbsp;			Level curLevel = World.levels[lvlidx];</b>
+<b class="nc">&nbsp;			int pos = x + curLevel.w * y;</b>
+&nbsp;
+<b class="nc">&nbsp;			int tileid = curLevel.tiles[pos];</b>
+<b class="nc">&nbsp;			int tiledata = curLevel.data[pos];</b>
+&nbsp;
+<b class="nc">&nbsp;			return lvlidx + &quot;;&quot; + pos + &quot;;&quot; + tileid + &quot;;&quot; + tiledata;</b>
+<b class="nc">&nbsp;		} catch (NullPointerException | IndexOutOfBoundsException ignored) {</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return &quot;&quot;;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean equals(Object other) {
+<b class="fc">&nbsp;		if (!(other instanceof Tile)) return false;</b>
+<b class="fc">&nbsp;		Tile o = (Tile) other;</b>
+<b class="fc">&nbsp;		return name.equals(o.name);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public int hashCode() {
+<b class="nc">&nbsp;		return name.hashCode();</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

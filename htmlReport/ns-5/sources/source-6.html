@@ -1,0 +1,418 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Mob</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.entity.mob</a>
+</div>
+
+<h1>Coverage Summary for Class: Mob (minicraft.entity.mob)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Mob</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    14.3%
+  </span>
+  <span class="absValue">
+    (3/21)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    24.3%
+  </span>
+  <span class="absValue">
+    (28/115)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.entity.mob;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.Renderer;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.entity.furniture.Tnt;
+&nbsp;import minicraft.entity.particle.BurnParticle;
+&nbsp;import minicraft.entity.particle.TextParticle;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.item.PotionType;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;
+&nbsp;public abstract class Mob extends Entity {
+&nbsp;
+&nbsp;	protected LinkedSprite[][] sprites; // This contains all the mob&#39;s sprites, sorted first by direction (index corresponding to the dir variable), and then by walk animation state.
+<b class="fc">&nbsp;	public int walkDist = 0; // How far we&#39;ve walked currently, incremented after each movement. This is used to change the sprite; &quot;(walkDist &gt;&gt; 3) &amp; 1&quot; switches between a value of 0 and 1 every 8 increments of walkDist.</b>
+&nbsp;
+<b class="fc">&nbsp;	public Direction dir = Direction.DOWN; // The direction the mob is facing, used in attacking and rendering. 0 is down, 1 is up, 2 is left, 3 is right</b>
+<b class="fc">&nbsp;	int hurtTime = 0; // A delay after being hurt, that temporarily prevents further damage for a short time</b>
+&nbsp;	private int xKnockback, yKnockback; // The amount of vertical/horizontal knockback that needs to be inflicted, if it&#39;s not 0, it will be moved one pixel at a time.
+&nbsp;	public int health;
+&nbsp;	public final int maxHealth; // The amount of health we currently have, and the maximum.
+&nbsp;	int walkTime;
+&nbsp;	public int speed;
+<b class="fc">&nbsp;	int tickTime = 0; // Incremented whenever tick() is called, is effectively the age in ticks</b>
+<b class="fc">&nbsp;	int noActionTime = 0;</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Default constructor for a mob.
+&nbsp;	 * Default x radius is 4, and y radius is 3.
+&nbsp;	 * @param sprites All of this mob&#39;s sprites.
+&nbsp;	 * @param health The mob&#39;s max health.
+&nbsp;	 */
+&nbsp;	public Mob(LinkedSprite[][] sprites, int health) {
+<b class="fc">&nbsp;		super(4, 3);</b>
+<b class="fc">&nbsp;		this.sprites = sprites;</b>
+<b class="fc">&nbsp;		this.health = this.maxHealth = health;</b>
+<b class="fc">&nbsp;		walkTime = 1;</b>
+<b class="fc">&nbsp;		speed = 1;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Updates the mob.
+&nbsp;	 */
+&nbsp;	@Override
+&nbsp;	public void tick() {
+<b class="nc">&nbsp;		tickTime++; // Increment our tick counter</b>
+&nbsp;
+<b class="nc">&nbsp;		if (isRemoved()) return;</b>
+<b class="nc">&nbsp;		noActionTime++;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (level != null &amp;&amp; level.getTile(x &gt;&gt; 4, y &gt;&gt; 4) == Tiles.get(&quot;lava&quot;)) // If we are trying to swim in lava</b>
+<b class="nc">&nbsp;			hurt(Tiles.get(&quot;lava&quot;), x, y, 4); // Inflict 4 damage to ourselves, sourced from the lava Tile, with the direction as the opposite of ours.</b>
+&nbsp;
+<b class="nc">&nbsp;		if (canBurn()) {</b>
+<b class="nc">&nbsp;			if (this.burningDuration &gt; 0) {</b>
+<b class="nc">&nbsp;				if (level.getTile(x / 16, y / 16) == Tiles.get(&quot;water&quot;)) this.burningDuration = 0;</b>
+<b class="nc">&nbsp;				if (this.burningDuration % 10 == 0)</b>
+<b class="nc">&nbsp;					level.add(new BurnParticle(x - 8 + (random.nextInt(8) - 4), y - 8 + (random.nextInt(8) - 4)));</b>
+<b class="nc">&nbsp;				this.burningDuration--;</b>
+<b class="nc">&nbsp;				if (this instanceof Player) {</b>
+<b class="nc">&nbsp;					if (this.burningDuration % 70 == 0 &amp;&amp; !Renderer.player.potioneffects.containsKey(PotionType.Lava))</b>
+<b class="nc">&nbsp;						hurt(this, 1, Direction.NONE); //burning damage</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					if (this.burningDuration % 70 == 0)</b>
+<b class="nc">&nbsp;						hurt(this, 2, Direction.NONE); //burning damage</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (health &lt;= 0) die(); // Die if no health</b>
+<b class="nc">&nbsp;		if (hurtTime &gt; 0) hurtTime--; // If a timer preventing damage temporarily is set, decrement it&#39;s value</b>
+&nbsp;
+&nbsp;
+&nbsp;		/// The code below checks the direction of the knockback, moves the Mob accordingly, and brings the knockback closer to 0.
+<b class="nc">&nbsp;		int xd = 0, yd = 0;</b>
+<b class="nc">&nbsp;		if (xKnockback != 0) {</b>
+<b class="nc">&nbsp;			xd = (int) Math.ceil(xKnockback / 2);</b>
+<b class="nc">&nbsp;			xKnockback -= xKnockback / Math.abs(xKnockback);</b>
+&nbsp;		}
+<b class="nc">&nbsp;		if (yKnockback != 0) {</b>
+<b class="nc">&nbsp;			yd = (int) Math.ceil(yKnockback / 2);</b>
+<b class="nc">&nbsp;			yKnockback -= yKnockback / Math.abs(yKnockback);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		move(xd, yd, false);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean move(int xd, int yd) {
+<b class="nc">&nbsp;		return move(xd, yd, true);</b>
+&nbsp;	} // Move the mob, overrides from Entity
+&nbsp;
+&nbsp;	private boolean move(int xd, int yd, boolean changeDir) { // Knockback shouldn&#39;t change mob direction
+<b class="nc">&nbsp;		if (level == null) return false; // Stopped b/c there&#39;s no level to move in!</b>
+&nbsp;
+&nbsp;		@SuppressWarnings(&quot;unused&quot;)
+<b class="nc">&nbsp;		int oldxt = x &gt;&gt; 4;</b>
+&nbsp;		@SuppressWarnings(&quot;unused&quot;)
+<b class="nc">&nbsp;		int oldyt = y &gt;&gt; 4;</b>
+&nbsp;
+&nbsp;		// These should return true b/c the mob is still technically moving; these are just to make it move *slower*.
+<b class="nc">&nbsp;		if (tickTime % 2 == 0 &amp;&amp; (isSwimming() || (!(this instanceof Player) &amp;&amp; isWooling())))</b>
+<b class="nc">&nbsp;			return true;</b>
+<b class="nc">&nbsp;		if (tickTime % walkTime == 0 &amp;&amp; walkTime &gt; 1)</b>
+<b class="nc">&nbsp;			return true;</b>
+&nbsp;
+<b class="nc">&nbsp;		boolean moved = true;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (hurtTime == 0 || this instanceof Player) { // If a mobAi has been hurt recently and hasn&#39;t yet cooled down, it won&#39;t perform the movement (by not calling super)</b>
+<b class="nc">&nbsp;			if (xd != 0 || yd != 0) {</b>
+<b class="nc">&nbsp;				if (changeDir)</b>
+<b class="nc">&nbsp;					dir = Direction.getDirection(xd, yd); // Set the mob&#39;s direction; NEVER set it to NONE</b>
+<b class="nc">&nbsp;				walkDist++;</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			// This part makes it so you can&#39;t move in a direction that you are currently being knocked back from.
+<b class="nc">&nbsp;			if (xKnockback != 0)</b>
+<b class="nc">&nbsp;				xd = Math.copySign(xd, xKnockback) * -1 != xd ? xd : 0; // If xKnockback and xd have different signs, do nothing, otherwise, set xd to 0.</b>
+<b class="nc">&nbsp;			if (yKnockback != 0)</b>
+<b class="nc">&nbsp;				yd = Math.copySign(yd, yKnockback) * -1 != yd ? yd : 0; // Same as above.</b>
+&nbsp;
+<b class="nc">&nbsp;			moved = super.move(xd, yd); // Call the move method from Entity</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return moved;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * The mob immediately despawns if the distance of the closest player is greater than the return value of this.
+&nbsp;	 */
+&nbsp;	protected int getDespawnDistance() {
+<b class="nc">&nbsp;		return 1280;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * The mob randomly despawns if the distance of the closest player is greater than the return value of this.
+&nbsp;	 */
+&nbsp;	protected int getNoDespawnDistance() {
+<b class="nc">&nbsp;		return 640;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * @see #handleDespawn()
+&nbsp;	 */
+&nbsp;	protected boolean removeWhenFarAway(@SuppressWarnings(&quot;unused&quot;) double distance) {
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This is an easy way to make a list of sprites that are all part of the same &quot;Sprite&quot;, so they have similar parameters, but they&#39;re just at different locations on the spreadsheet.
+&nbsp;	 */
+&nbsp;	public static LinkedSprite[] compileSpriteList(int sheetX, int sheetY, int width, int height, int mirror, int number, String key) {
+<b class="fc">&nbsp;		LinkedSprite[] sprites = new LinkedSprite[number];</b>
+<b class="fc">&nbsp;		for (int i = 0; i &lt; sprites.length; i++)</b>
+<b class="fc">&nbsp;			sprites[i] = new LinkedSprite(SpriteType.Entity, key).setSpriteDim(sheetX + width * i, sheetY, width, height)</b>
+<b class="fc">&nbsp;				.setMirror(mirror).setFlip(mirror);</b>
+&nbsp;
+<b class="fc">&nbsp;		return sprites;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static LinkedSprite[][] compileMobSpriteAnimations(int sheetX, int sheetY, String key) {
+<b class="fc">&nbsp;		LinkedSprite[][] sprites = new LinkedSprite[4][2];</b>
+&nbsp;		// dir numbers: 0=down, 1=up, 2=left, 3=right.
+&nbsp;		/// On the spritesheet, most mobs have 4 sprites there, first facing down, then up, then right 1, then right 2. The first two get flipped to animate them, but the last two get flipped to change direction.
+&nbsp;
+&nbsp;		// Contents: down 1, up 1, right 1, right 2
+<b class="fc">&nbsp;		LinkedSprite[] set1 = compileSpriteList(sheetX, sheetY, 2, 2, 0, 4, key);</b>
+&nbsp;
+&nbsp;		// Contents: down 2, up 2, left 1, left 2
+<b class="fc">&nbsp;		LinkedSprite[] set2 = compileSpriteList(sheetX, sheetY, 2, 2, 1, 4, key);</b>
+&nbsp;
+&nbsp;		// Down
+<b class="fc">&nbsp;		sprites[0][0] = set1[0];</b>
+<b class="fc">&nbsp;		sprites[0][1] = set2[0];</b>
+&nbsp;
+&nbsp;		// Up
+<b class="fc">&nbsp;		sprites[1][0] = set1[1];</b>
+<b class="fc">&nbsp;		sprites[1][1] = set2[1];</b>
+&nbsp;
+&nbsp;		// Left
+<b class="fc">&nbsp;		sprites[2][0] = set2[2];</b>
+<b class="fc">&nbsp;		sprites[2][1] = set2[3];</b>
+&nbsp;
+&nbsp;		// Right
+<b class="fc">&nbsp;		sprites[3][0] = set1[2];</b>
+<b class="fc">&nbsp;		sprites[3][1] = set1[3];</b>
+&nbsp;
+<b class="fc">&nbsp;		return sprites;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private boolean isWooling() { // supposed to walk at half speed on wool
+<b class="nc">&nbsp;		if (level == null) return false;</b>
+<b class="nc">&nbsp;		Tile tile = level.getTile(x &gt;&gt; 4, y &gt;&gt; 4);</b>
+<b class="nc">&nbsp;		return tile == Tiles.get(&quot;wool&quot;);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Checks if this Mob is currently on a light tile; if so, the mob sprite is brightened.
+&nbsp;	 * @return true if the mob is on a light tile, false if not.
+&nbsp;	 */
+&nbsp;	public boolean isLight() {
+<b class="nc">&nbsp;		if (level == null) return false;</b>
+<b class="nc">&nbsp;		return level.isLight(x &gt;&gt; 4, y &gt;&gt; 4);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Checks if the mob is swimming (standing on a liquid tile).
+&nbsp;	 * @return true if the mob is swimming, false if not.
+&nbsp;	 */
+&nbsp;	public boolean isSwimming() {
+<b class="nc">&nbsp;		if (level == null) return false;</b>
+<b class="nc">&nbsp;		Tile tile = level.getTile(x &gt;&gt; 4, y &gt;&gt; 4); // Get the tile the mob is standing on (at x/16, y/16)</b>
+<b class="nc">&nbsp;		return tile == Tiles.get(&quot;water&quot;) || tile == Tiles.get(&quot;lava&quot;); // Check if the tile is liquid, and return true if so</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Do damage to the mob this method is called on.
+&nbsp;	 * @param tile The tile that hurt the player
+&nbsp;	 * @param x The x position of the mob
+&nbsp;	 * @param y The x position of the mob
+&nbsp;	 * @param damage The amount of damage to hurt the mob with
+&nbsp;	 */
+&nbsp;	public void hurt(Tile tile, int x, int y, int damage) { // Hurt the mob, when the source of damage is a tile
+<b class="nc">&nbsp;		Direction attackDir = Direction.getDirection(dir.getDir() ^ 1); // Set attackDir to our own direction, inverted. XORing it with 1 flips the rightmost bit in the variable, this effectively adds one when even, and subtracts one when odd.</b>
+<b class="nc">&nbsp;		if (!(tile == Tiles.get(&quot;lava&quot;) &amp;&amp; this instanceof Player &amp;&amp; ((Player) this).potioneffects.containsKey(PotionType.Lava)))</b>
+<b class="nc">&nbsp;			doHurt(damage, tile.mayPass(level, x, y, this) ? Direction.NONE : attackDir); // Call the method that actually performs damage, and set it to no particular direction</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Do damage to the mob this method is called on.
+&nbsp;	 * @param mob The mob that hurt this mob
+&nbsp;	 * @param damage The amount of damage to hurt the mob with
+&nbsp;	 */
+&nbsp;	public void hurt(Mob mob, int damage) {
+<b class="nc">&nbsp;		hurt(mob, damage, getAttackDir(mob, this));</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Do damage to the mob this method is called on.
+&nbsp;	 * @param mob The mob that hurt this mob
+&nbsp;	 * @param damage The amount of damage to hurt the mob with
+&nbsp;	 * @param attackDir The direction this mob was attacked from
+&nbsp;	 */
+&nbsp;	public void hurt(Mob mob, int damage, Direction attackDir) { // Hurt the mob, when the source is another mob
+<b class="nc">&nbsp;		if (mob instanceof Player &amp;&amp; Game.isMode(&quot;minicraft.settings.mode.creative&quot;) &amp;&amp; mob != this)</b>
+<b class="nc">&nbsp;			doHurt(health, attackDir); // Kill the mob instantly</b>
+<b class="nc">&nbsp;		else doHurt(damage, attackDir); // Call the method that actually performs damage, and use our provided attackDir</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * @param sec duration in seconds
+&nbsp;	 */
+&nbsp;	public void burn(int sec) {
+<b class="nc">&nbsp;		this.burningDuration = sec * 60;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Executed when a TNT bomb explodes near this mob.
+&nbsp;	 * @param tnt The TNT exploding.
+&nbsp;	 * @param dmg The amount of damage the explosion does.
+&nbsp;	 */
+&nbsp;	public void onExploded(Tnt tnt, int dmg) {
+<b class="nc">&nbsp;		doHurt(dmg, getAttackDir(tnt, this));</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Hurt the mob, based on only damage and a direction
+&nbsp;	 * This is overridden in Player.java
+&nbsp;	 * @param damage The amount of damage to hurt the mob with
+&nbsp;	 * @param attackDir The direction this mob was attacked from
+&nbsp;	 */
+&nbsp;	protected void doHurt(int damage, Direction attackDir) {
+<b class="nc">&nbsp;		if (isRemoved() || hurtTime &gt; 0)</b>
+<b class="nc">&nbsp;			return; // If the mob has been hurt recently and hasn&#39;t cooled down, don&#39;t continue</b>
+&nbsp;
+<b class="nc">&nbsp;		health -= damage; // Actually change the health</b>
+&nbsp;
+&nbsp;		// Add the knockback in the correct direction
+<b class="nc">&nbsp;		xKnockback = attackDir.getX() * 6;</b>
+<b class="nc">&nbsp;		yKnockback = attackDir.getY() * 6;</b>
+<b class="nc">&nbsp;		hurtTime = 10; // Set a delay before we can be hurt again</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Restores health to this mob.
+&nbsp;	 * @param heal How much health is restored.
+&nbsp;	 */
+&nbsp;	public void heal(int heal) { // Restore health on the mob
+<b class="nc">&nbsp;		if (hurtTime &gt; 0) return; // If the mob has been hurt recently and hasn&#39;t cooled down, don&#39;t continue</b>
+&nbsp;
+<b class="nc">&nbsp;		level.add(new TextParticle(&quot;&quot; + heal, x, y, Color.GREEN)); // Add a text particle in our level at our position, that is green and displays the amount healed</b>
+<b class="nc">&nbsp;		health += heal; // Actually add the amount to heal to our current health</b>
+<b class="nc">&nbsp;		if (health &gt; (Player.baseHealth + Player.extraHealth))</b>
+<b class="nc">&nbsp;			health = (Player.baseHealth + Player.extraHealth); // If our health has exceeded our maximum, lower it back down to said maximum</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	protected static Direction getAttackDir(Entity attacker, Entity hurt) {
+<b class="nc">&nbsp;		return Direction.getDirection(hurt.x - attacker.x, hurt.y - attacker.y);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This checks how the {@code attacker} can damage this mob.
+&nbsp;	 * @param attacker The attacker entity.
+&nbsp;	 * @return The calculated damage.
+&nbsp;	 */
+&nbsp;	public int calculateEntityDamage(Entity attacker, int damage) {
+<b class="nc">&nbsp;		return damage;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

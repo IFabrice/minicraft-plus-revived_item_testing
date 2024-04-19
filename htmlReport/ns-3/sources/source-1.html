@@ -1,0 +1,203 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Arrow</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.entity</a>
+</div>
+
+<h1>Coverage Summary for Class: Arrow (minicraft.entity)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Arrow</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/46)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.entity;
+&nbsp;
+&nbsp;import minicraft.entity.mob.Mob;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Rectangle;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.util.Logging;
+&nbsp;
+&nbsp;import javax.security.auth.DestroyFailedException;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;public class Arrow extends Entity implements ClientTickable {
+&nbsp;	private Direction dir;
+&nbsp;	private int damage;
+&nbsp;	public Mob owner;
+&nbsp;	private int speed;
+<b class="nc">&nbsp;	private LinkedSprite sprite = new LinkedSprite(SpriteType.Entity, &quot;arrow&quot;).setSpriteSize(1, 1);</b>
+&nbsp;
+&nbsp;	public Arrow(Mob owner, Direction dir, int dmg) {
+<b class="nc">&nbsp;		this(owner, owner.x, owner.y, dir, dmg);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Arrow(Mob owner, int x, int y, Direction dir, int dmg) {
+<b class="nc">&nbsp;		super(Math.abs(dir.getX()) + 1, Math.abs(dir.getY()) + 1);</b>
+<b class="nc">&nbsp;		this.owner = owner;</b>
+<b class="nc">&nbsp;		this.x = x;</b>
+<b class="nc">&nbsp;		this.y = y;</b>
+<b class="nc">&nbsp;		this.dir = dir;</b>
+&nbsp;
+<b class="nc">&nbsp;		damage = dmg;</b>
+<b class="nc">&nbsp;		col = Color.get(-1, 111, 222, 430);</b>
+&nbsp;
+<b class="nc">&nbsp;		int xt = 0;</b>
+<b class="nc">&nbsp;		if (dir == Direction.LEFT) xt = 1;</b>
+<b class="nc">&nbsp;		if (dir == Direction.UP) xt = 2;</b>
+<b class="nc">&nbsp;		if (dir == Direction.DOWN) xt = 3;</b>
+<b class="nc">&nbsp;		sprite.setSpritePos(xt, 0);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (damage &gt; 3) speed = 8;</b>
+<b class="nc">&nbsp;		else if (damage &gt;= 0) speed = 7;</b>
+<b class="nc">&nbsp;		else speed = 6;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Generates information about the arrow.
+&nbsp;	 * @return string representation of owner, xdir, ydir and damage.
+&nbsp;	 */
+&nbsp;	public String getData() {
+<b class="nc">&nbsp;		return owner.eid + &quot;:&quot; + dir.ordinal() + &quot;:&quot; + damage;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick() {
+<b class="nc">&nbsp;		if (x &lt; 0 || x &gt;&gt; 4 &gt; level.w || y &lt; 0 || y &gt;&gt; 4 &gt; level.h) {</b>
+<b class="nc">&nbsp;			remove(); // Remove when out of bounds</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		x += dir.getX() * speed;</b>
+<b class="nc">&nbsp;		y += dir.getY() * speed;</b>
+&nbsp;
+&nbsp;		// TODO I think I can just use the xr yr vars, and the normal system with touchedBy(entity) to detect collisions instead.
+&nbsp;
+<b class="nc">&nbsp;		List&lt;Entity&gt; entitylist = level.getEntitiesInRect(new Rectangle(x, y, 0, 0, Rectangle.CENTER_DIMS));</b>
+<b class="nc">&nbsp;		boolean criticalHit = random.nextInt(11) &lt; 9;</b>
+<b class="nc">&nbsp;		for (Entity hit : entitylist) {</b>
+<b class="nc">&nbsp;			if (hit instanceof Mob &amp;&amp; hit != owner) {</b>
+<b class="nc">&nbsp;				Mob mob = (Mob) hit;</b>
+<b class="nc">&nbsp;				damage += (hit instanceof Player ? 0 : 3) + (criticalHit ? 0 : 1); // Extra damage bonus.</b>
+<b class="nc">&nbsp;				damage = mob.calculateEntityDamage(this, damage);</b>
+<b class="nc">&nbsp;				mob.hurt(owner, damage, dir); //normal hurting to other mobs</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (!level.getTile(x / 16, y / 16).mayPass(level, x / 16, y / 16, this)</b>
+<b class="nc">&nbsp;				&amp;&amp; !level.getTile(x / 16, y / 16).connectsToFluid(level, x / 16, y / 16)</b>
+<b class="nc">&nbsp;				&amp;&amp; level.getTile(x / 16, y / 16).id != 16) {</b>
+<b class="nc">&nbsp;				this.remove();</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					sprite.destroy();</b>
+<b class="nc">&nbsp;				} catch (DestroyFailedException e) {</b>
+<b class="nc">&nbsp;					Logging.SPRITE.trace(e);</b>
+<b class="nc">&nbsp;				}</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean isSolid() {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen) {
+<b class="nc">&nbsp;		screen.render(x - 4, y - 4, sprite);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 15:54</div>
+</div>
+</body>
+</html>

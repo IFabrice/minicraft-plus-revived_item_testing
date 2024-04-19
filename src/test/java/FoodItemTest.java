@@ -59,6 +59,17 @@ public class FoodItemTest {
 	}
 
 	@Test
+	public void testInteractOnItemWithNotEnoughCount() {
+		Player mockPLayer = mock(Player.class);
+		when(mockPLayer.payStamina(anyInt())).thenReturn(false);
+		FoodItem testItem = foodItems.get(0).copy();
+		testItem.count = 0;
+		mockPLayer.hunger = 2;
+		assertFalse(testItem.interactOn(null,null,0,0,mockPLayer,null));
+		assertEquals(2,mockPLayer.hunger  );
+	}
+
+	@Test
 	public void testInteractOnFullPlayer() {
 		Player mockPLayer = mock(Player.class);
 		when(mockPLayer.payStamina(anyInt())).thenReturn(true);
