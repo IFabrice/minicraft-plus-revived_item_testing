@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
-  <title>Coverage Report > Updater</title>
+  <title>Coverage Report > FishingRodItem</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,18 +19,25 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">minicraft.core</a>
+    <a href="../index.html">minicraft.item</a>
 </div>
 
-<h1>Coverage Summary for Class: Updater (minicraft.core)</h1>
+<h1>Coverage Summary for Class: FishingRodItem (minicraft.item)</h1>
 
 <table class="coverageStats">
-
 <tr>
   <th class="name">Class</th>
 <th class="coverageStat 
 ">
+  Class, %
+</th>
+<th class="coverageStat 
+">
   Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
 </th>
 <th class="coverageStat 
 ">
@@ -38,62 +45,41 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 </tr>
 <tr>
-  <td class="name">Updater</td>
+  <td class="name">FishingRodItem</td>
 <td class="coverageStat">
   <span class="percent">
-    10%
+    100%
   </span>
   <span class="absValue">
-    (1/10)
+    (1/1)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    7%
+    100%
   </span>
   <span class="absValue">
-    (12/171)
-  </span>
-</td>
-</tr>
-  <tr>
-    <td class="name">Updater$Time</td>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/2)
+    (8/8)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/8)
-  </span>
-</td>
-  </tr>
-<tr>
-  <td class="name"><strong>Total</strong></td>
-<td class="coverageStat">
-  <span class="percent">
-    8.3%
-  </span>
-  <span class="absValue">
-    (1/12)
+    (8/8)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    6.7%
+    100%
   </span>
   <span class="absValue">
-    (12/179)
+    (27/27)
   </span>
 </td>
 </tr>
+
 </table>
 
 <br/>
@@ -101,351 +87,97 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.core;
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
 &nbsp;
-&nbsp;import minicraft.core.io.Localization;
-&nbsp;import minicraft.core.io.Settings;
-&nbsp;import minicraft.core.io.Sound;
-&nbsp;import minicraft.entity.furniture.Bed;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.entity.Direction;
 &nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
 &nbsp;import minicraft.level.Level;
 &nbsp;import minicraft.level.tile.Tile;
 &nbsp;import minicraft.level.tile.Tiles;
-&nbsp;import minicraft.saveload.Save;
-&nbsp;import minicraft.screen.Display;
-&nbsp;import minicraft.screen.EndGameDisplay;
-&nbsp;import minicraft.screen.LevelTransitionDisplay;
-&nbsp;import minicraft.screen.PlayerDeathDisplay;
-&nbsp;import minicraft.screen.TutorialDisplayHandler;
-&nbsp;import minicraft.screen.WorldSelectDisplay;
-&nbsp;import minicraft.util.AdvancementElement;
-&nbsp;import minicraft.util.Logging;
+&nbsp;import org.jetbrains.annotations.NotNull;
 &nbsp;
-&nbsp;import java.awt.GraphicsDevice;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Random;
 &nbsp;
-<b class="fc">&nbsp;public class Updater extends Game {</b>
-<b class="nc">&nbsp;	private Updater() {</b>
-<b class="nc">&nbsp;	}</b>
+&nbsp;public class FishingRodItem extends Item {
 &nbsp;
-&nbsp;	// TIME AND TICKS
+&nbsp;	protected static ArrayList&lt;Item&gt; getAllInstances() {
+<b class="fc">&nbsp;		ArrayList&lt;Item&gt; items = new ArrayList&lt;&gt;();</b>
 &nbsp;
-&nbsp;	public static final int normSpeed = 60; // Measured in ticks / second.
-<b class="fc">&nbsp;	public static float gamespeed = 1; // Measured in MULTIPLES OF NORMSPEED.</b>
-<b class="fc">&nbsp;	public static boolean paused = true; // If the game is paused.</b>
+<b class="fc">&nbsp;		for (int i = 0; i &lt; 4; i++) {</b>
+<b class="fc">&nbsp;			items.add(new FishingRodItem(i));</b>
+&nbsp;		}
 &nbsp;
-<b class="fc">&nbsp;	public static int tickCount = 0; // The number of ticks since the beginning of the game day.</b>
-<b class="fc">&nbsp;	static int time = 0; // Facilites time of day / sunlight.</b>
-&nbsp;	public static final int dayLength = 64800; // This value determines how long one game day is.
-&nbsp;	public static final int sleepEndTime = dayLength / 8; // This value determines when the player &quot;wakes up&quot; in the morning.
-&nbsp;	public static final int sleepStartTime = dayLength / 2 + dayLength / 8; // This value determines when the player allowed to sleep.
-&nbsp;	//public static int noon = 32400; // This value determines when the sky switches from getting lighter to getting darker.
-&nbsp;
-<b class="fc">&nbsp;	public static int gameTime = 0; // This stores the total time (number of ticks) you&#39;ve been playing your</b>
-<b class="fc">&nbsp;	public static boolean pastDay1 = true; // Used to prevent mob spawn on surface on day 1.</b>
-&nbsp;	public static int scoreTime; // Time remaining for score mode
-&nbsp;
-&nbsp;	/**
-&nbsp;	 * Indicates if FullScreen Mode has been toggled.
-&nbsp;	 */
-&nbsp;	static boolean FULLSCREEN;
-&nbsp;
-&nbsp;	// AUTOSAVE AND NOTIFICATIONS
-&nbsp;
-<b class="fc">&nbsp;	public static boolean updateNoteTick = false;</b>
-<b class="fc">&nbsp;	public static int notetick = 0; // &quot;note&quot;= notifications.</b>
-&nbsp;
-&nbsp;	private static final int astime = 7200; // tands for Auto-Save Time (interval)
-<b class="fc">&nbsp;	public static int asTick = 0; // The time interval between autosaves.</b>
-<b class="fc">&nbsp;	public static boolean saving = false; // If the game is performing a save.</b>
-&nbsp;	public static int savecooldown; // Prevents saving many times too fast, I think.
-<b class="fc">&nbsp;	public static int screenshot = 0; // Counter for screenshot queries.</b>
-&nbsp;
-<b class="nc">&nbsp;	public enum Time {</b>
-<b class="nc">&nbsp;		Morning(0),</b>
-<b class="nc">&nbsp;		Day(dayLength / 4),</b>
-<b class="nc">&nbsp;		Evening(dayLength / 2),</b>
-<b class="nc">&nbsp;		Night(dayLength / 4 * 3);</b>
-&nbsp;
-&nbsp;		public int tickTime;
-&nbsp;
-<b class="nc">&nbsp;		Time(int ticks) {</b>
-<b class="nc">&nbsp;			tickTime = ticks;</b>
-<b class="nc">&nbsp;		}</b>
+<b class="fc">&nbsp;		return items;</b>
 &nbsp;	}
 &nbsp;
-&nbsp;	static void updateFullscreen() {
-&nbsp;		// Dispose is needed to set undecorated value
-<b class="nc">&nbsp;		Initializer.frame.dispose();</b>
+<b class="fc">&nbsp;	private int uses = 0; // The more uses, the higher the chance of breaking</b>
+&nbsp;	public int level; // The higher the level the lower the chance of breaking
 &nbsp;
-<b class="nc">&nbsp;		GraphicsDevice device = Initializer.frame.getGraphicsConfiguration().getDevice();</b>
-<b class="nc">&nbsp;		if (Updater.FULLSCREEN) {</b>
-<b class="nc">&nbsp;			Initializer.frame.setUndecorated(true);</b>
-<b class="nc">&nbsp;			device.setFullScreenWindow(Initializer.frame);</b>
-&nbsp;		} else {
-<b class="nc">&nbsp;			Initializer.frame.setUndecorated(false);</b>
-<b class="nc">&nbsp;			device.setFullScreenWindow(null);</b>
-&nbsp;		}
+<b class="fc">&nbsp;	private Random random = new Random();</b>
 &nbsp;
-&nbsp;		// Show frame again
-<b class="nc">&nbsp;		Initializer.frame.setVisible(true);</b>
-&nbsp;		// When fullscreen is enabled, focus is lost
-<b class="nc">&nbsp;		Renderer.canvas.requestFocus();</b>
-<b class="nc">&nbsp;	}</b>
+&nbsp;	/* These numbers are a bit confusing, so here&#39;s an explanation
+&nbsp;	 * If you want to know the percent chance of a category (let&#39;s say tool, which is third)
+&nbsp;	 * You have to subtract 1 + the &quot;tool&quot; number from the number before it (for the first number subtract from 100)*/
+<b class="fc">&nbsp;	private static final int[][] LEVEL_CHANCES = {</b>
+&nbsp;		{ 44, 14, 9, 4 }, // They&#39;re in the order &quot;fish&quot;, &quot;junk&quot;, &quot;tools&quot;, &quot;rare&quot;
+&nbsp;		{ 24, 14, 9, 4 }, // Iron has very high chance of fish
+&nbsp;		{ 59, 49, 9, 4 }, // Gold has very high chance of tools
+&nbsp;		{ 79, 69, 59, 4 } // Gem has very high chance of rare items
+&nbsp;	};
 &nbsp;
-&nbsp;	// VERY IMPORTANT METHOD!! Makes everything keep happening.
-&nbsp;	// In the end, calls menu.tick() if there&#39;s a menu, or level.tick() if no menu.
-&nbsp;	public static void tick() {
+<b class="fc">&nbsp;	private static final String[] LEVEL_NAMES = {</b>
+&nbsp;		&quot;Wood&quot;,
+&nbsp;		&quot;Iron&quot;,
+&nbsp;		&quot;Gold&quot;,
+&nbsp;		&quot;Gem&quot;
+&nbsp;	};
 &nbsp;
-<b class="nc">&nbsp;		if (input.getMappedKey(&quot;FULLSCREEN&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;			Updater.FULLSCREEN = !Updater.FULLSCREEN;</b>
-<b class="nc">&nbsp;			Updater.updateFullscreen();</b>
-&nbsp;		}
+&nbsp;	public FishingRodItem(int level) {
+<b class="fc">&nbsp;		super(LEVEL_NAMES[level] + &quot; Fishing Rod&quot;, new LinkedSprite(SpriteType.Item,</b>
+<b class="fc">&nbsp;			LEVEL_NAMES[level].toLowerCase().replace(&quot;wood&quot;, &quot;wooden&quot;) + &quot;_fishing_rod&quot;));</b>
+<b class="fc">&nbsp;		this.level = level;</b>
+<b class="fc">&nbsp;	}</b>
 &nbsp;
-<b class="nc">&nbsp;		if (input.getMappedKey(&quot;screenshot&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;			screenshot++;</b>
-&nbsp;		}
-&nbsp;
-<b class="nc">&nbsp;		if (currentDisplay != displayQuery.peek() &amp;&amp; !displayQuery.isEmpty()) {</b>
-<b class="nc">&nbsp;			Display prevDisplay = currentDisplay; // For both null or not null.</b>
-<b class="nc">&nbsp;			currentDisplay = displayQuery.peek();</b>
-<b class="nc">&nbsp;			assert currentDisplay != null;</b>
-<b class="nc">&nbsp;			currentDisplay.init(prevDisplay);</b>
-&nbsp;		}
-&nbsp;
-<b class="nc">&nbsp;		if (currentDisplay != null &amp;&amp; displayQuery.isEmpty()) {</b>
-<b class="nc">&nbsp;			currentDisplay.onExit();</b>
-<b class="nc">&nbsp;			currentDisplay = null;</b>
-&nbsp;		}
-&nbsp;
-<b class="nc">&nbsp;		assert currentDisplay == displayQuery.peek(); // This should be true.</b>
-<b class="nc">&nbsp;		while (displayQuery.size() &gt; 1) {</b>
-<b class="nc">&nbsp;			Display prevDisplay = displayQuery.pop();</b>
-&nbsp;			// assert curDisplay == prevDisplay;
-<b class="nc">&nbsp;			currentDisplay = displayQuery.peek();</b>
-<b class="nc">&nbsp;			assert currentDisplay != null;</b>
-<b class="nc">&nbsp;			if (prevDisplay.getParent() == currentDisplay)</b>
-<b class="nc">&nbsp;				prevDisplay.onExit();</b>
-&nbsp;			else
-<b class="nc">&nbsp;				currentDisplay.init(prevDisplay);</b>
-<b class="nc">&nbsp;		}</b>
-&nbsp;
-<b class="nc">&nbsp;		Level level = levels[currentLevel];</b>
-<b class="nc">&nbsp;		if (Bed.sleeping()) {</b>
-&nbsp;			// IN BED
-<b class="nc">&nbsp;			if (gamespeed != 20) {</b>
-<b class="nc">&nbsp;				gamespeed = 20;</b>
-&nbsp;			}
-<b class="nc">&nbsp;			if (tickCount &gt; sleepEndTime) {</b>
-<b class="nc">&nbsp;				Logging.WORLD.trace(&quot;Passing midnight in bed.&quot;);</b>
-<b class="nc">&nbsp;				pastDay1 = true;</b>
-<b class="nc">&nbsp;				tickCount = 0;</b>
-&nbsp;			}
-<b class="nc">&nbsp;			if (tickCount &lt;= sleepStartTime &amp;&amp; tickCount &gt;= sleepEndTime) { // It has reached morning.</b>
-<b class="nc">&nbsp;				Logging.WORLD.trace(&quot;Reached morning, getting out of bed.&quot;);</b>
-<b class="nc">&nbsp;				gamespeed = 1;</b>
-<b class="nc">&nbsp;				Bed.restorePlayers();</b>
-&nbsp;			}
-&nbsp;		}
-&nbsp;
-&nbsp;		// Auto-save tick; marks when to do autosave.
-<b class="nc">&nbsp;		if (!paused)</b>
-<b class="nc">&nbsp;			asTick++;</b>
-<b class="nc">&nbsp;		if (asTick &gt; astime) {</b>
-<b class="nc">&nbsp;			if ((boolean) Settings.get(&quot;autosave&quot;) &amp;&amp; !gameOver &amp;&amp; player.health &gt; 0) {</b>
-&nbsp;
-<b class="nc">&nbsp;				new Save(WorldSelectDisplay.getWorldName());</b>
-&nbsp;			}
-&nbsp;
-<b class="nc">&nbsp;			asTick = 0;</b>
-&nbsp;		}
-&nbsp;
-&nbsp;		// Increment tickCount if the game is not paused
-<b class="nc">&nbsp;		if (!paused) setTime(tickCount + 1);</b>
-&nbsp;
-&nbsp;		// SCORE MODE ONLY
-&nbsp;
-<b class="nc">&nbsp;		if (isMode(&quot;minicraft.settings.mode.score&quot;) &amp;&amp; (!paused &amp;&amp; !gameOver)) {</b>
-<b class="nc">&nbsp;			if (scoreTime &lt;= 0) { // GAME OVER</b>
-<b class="nc">&nbsp;				gameOver = true;</b>
-<b class="nc">&nbsp;				setDisplay(new EndGameDisplay());</b>
-&nbsp;			}
-&nbsp;
-<b class="nc">&nbsp;			scoreTime--;</b>
-&nbsp;		}
-&nbsp;
-<b class="nc">&nbsp;		if (updateNoteTick) notetick++;</b>
-&nbsp;
-<b class="nc">&nbsp;		Sound.tick();</b>
-&nbsp;
-&nbsp;		// This is the general action statement thing! Regulates menus, mostly.
-<b class="nc">&nbsp;		if (!Renderer.canvas.hasFocus()) {</b>
-<b class="nc">&nbsp;			input.releaseAll();</b>
-&nbsp;		}
-<b class="nc">&nbsp;		if (Renderer.canvas.hasFocus()) {</b>
-<b class="nc">&nbsp;			gameTime++;</b>
-&nbsp;
-<b class="nc">&nbsp;			input.tick(); // INPUT TICK; no other class should call this, I think...especially the *Menu classes.</b>
-<b class="nc">&nbsp;			TutorialDisplayHandler.tick(input);</b>
-<b class="nc">&nbsp;			AdvancementElement.AdvancementTrigger.tick();</b>
-&nbsp;
-<b class="nc">&nbsp;			if (currentDisplay != null) {</b>
-&nbsp;				// A menu is active.
-<b class="nc">&nbsp;				if (player != null)</b>
-<b class="nc">&nbsp;					player.tick(); // It is CRUCIAL that the player is ticked HERE, before the menu is ticked. I&#39;m not quite sure why... the menus break otherwise, though.</b>
-<b class="nc">&nbsp;				currentDisplay.tick(input);</b>
-<b class="nc">&nbsp;				paused = true;</b>
-&nbsp;			} else {
-&nbsp;				// No menu, currently.
-<b class="nc">&nbsp;				paused = false;</b>
-&nbsp;
-&nbsp;				// If player is alive, but no level change, nothing happens here.
-<b class="nc">&nbsp;				if (player.isRemoved() &amp;&amp; Renderer.readyToRenderGameplay &amp;&amp; !Bed.inBed(player)) {</b>
-&nbsp;					// Makes delay between death and death menu.
-<b class="nc">&nbsp;					World.playerDeadTime++;</b>
-<b class="nc">&nbsp;					if (World.playerDeadTime &gt; 60) {</b>
-<b class="nc">&nbsp;						setDisplay(new PlayerDeathDisplay());</b>
-&nbsp;					}
-<b class="nc">&nbsp;				} else if (World.pendingLevelChange != 0) {</b>
-<b class="nc">&nbsp;					setDisplay(new LevelTransitionDisplay(World.pendingLevelChange));</b>
-<b class="nc">&nbsp;					World.pendingLevelChange = 0;</b>
-&nbsp;				}
-&nbsp;
-<b class="nc">&nbsp;				player.tick(); // Ticks the player when there&#39;s no menu.</b>
-&nbsp;
-<b class="nc">&nbsp;				if (level != null) {</b>
-<b class="nc">&nbsp;					level.tick(true);</b>
-<b class="nc">&nbsp;					Tile.tickCount++;</b>
-&nbsp;				}
-&nbsp;
-<b class="nc">&nbsp;				if (currentDisplay == null &amp;&amp; input.getMappedKey(&quot;F3&quot;).isClicked()) { // Shows debug info in upper-left</b>
-<b class="nc">&nbsp;					Renderer.showDebugInfo = !Renderer.showDebugInfo;</b>
-&nbsp;				}
-&nbsp;
-&nbsp;				// For debugging only
-&nbsp;				{
-&nbsp;					// Quick Level change: move the player for -1, or 1 levels
-<b class="nc">&nbsp;					if (isMode(&quot;minicraft.settings.mode.creative&quot;) &amp;&amp; input.getMappedKey(&quot;SHIFT-S&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;						Game.setDisplay(new LevelTransitionDisplay(-1));</b>
-&nbsp;
-<b class="nc">&nbsp;					} else if (isMode(&quot;minicraft.settings.mode.creative&quot;) &amp;&amp; input.getMappedKey(&quot;SHIFT-W&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;						Game.setDisplay(new LevelTransitionDisplay(1));</b>
-&nbsp;					}
-&nbsp;					
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-L&quot;).isClicked()) {</b>
-&nbsp;						// Print all players on all levels, and their coordinates.
-<b class="nc">&nbsp;						Logging.WORLD.info(&quot;Printing players on all levels.&quot;);</b>
-<b class="nc">&nbsp;						for (Level value : levels) {</b>
-<b class="nc">&nbsp;							if (value == null) continue;</b>
-<b class="nc">&nbsp;							value.printEntityLocs(Player.class);</b>
-&nbsp;						}
-&nbsp;					}
-&nbsp;
-&nbsp;					// Host-only cheats.
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-T-1&quot;).isClicked()) changeTimeOfDay(Time.Morning);</b>
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-T-2&quot;).isClicked()) changeTimeOfDay(Time.Day);</b>
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-T-3&quot;).isClicked()) changeTimeOfDay(Time.Evening);</b>
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-T-4&quot;).isClicked()) changeTimeOfDay(Time.Night);</b>
-&nbsp;
-<b class="nc">&nbsp;					String prevMode = (String) Settings.get(&quot;mode&quot;);</b>
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-F4-2&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;						Settings.set(&quot;mode&quot;, &quot;minicraft.settings.mode.creative&quot;);</b>
-<b class="nc">&nbsp;						Logging.WORLDNAMED.trace(&quot;Game mode changed from {} into {}.&quot;, prevMode, &quot;minicraft.settings.mode.creative&quot;);</b>
-&nbsp;					}
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-F4-1&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;						Settings.set(&quot;mode&quot;, &quot;minicraft.settings.mode.survival&quot;);</b>
-<b class="nc">&nbsp;						Logging.WORLDNAMED.trace(&quot;Game mode changed from {} into {}.&quot;, prevMode, &quot;minicraft.settings.mode.survival&quot;);</b>
-&nbsp;					}
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-F4-3&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;						Settings.set(&quot;mode&quot;, &quot;minicraft.settings.mode.score&quot;);</b>
-<b class="nc">&nbsp;						Logging.WORLDNAMED.trace(&quot;Game mode changed from {} into {}.&quot;, prevMode, &quot;minicraft.settings.mode.score&quot;);</b>
-&nbsp;					}
-&nbsp;
-<b class="nc">&nbsp;					if (isMode(&quot;minicraft.settings.mode.score&quot;) &amp;&amp; input.getMappedKey(&quot;F3-SHIFT-T&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;						scoreTime = normSpeed * 5; // 5 seconds</b>
-&nbsp;					}
-&nbsp;
-<b class="nc">&nbsp;					float prevSpeed = gamespeed;</b>
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-S-0&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;						gamespeed = 1;</b>
-<b class="nc">&nbsp;						Logging.WORLDNAMED.trace(&quot;Tick speed reset from {} into 1.&quot;, prevSpeed);</b>
-&nbsp;					}
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-S-equals&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;						if (gamespeed &lt; 1) gamespeed *= 2;</b>
-<b class="nc">&nbsp;						else if (normSpeed * gamespeed &lt; 2000) gamespeed++;</b>
-<b class="nc">&nbsp;						Logging.WORLDNAMED.trace(&quot;Tick speed increased from {} into {}.&quot;, prevSpeed, gamespeed);</b>
-&nbsp;					}
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-S-minus&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;						if (gamespeed &gt; 1) gamespeed--;</b>
-<b class="nc">&nbsp;						else if (normSpeed * gamespeed &gt; 5) gamespeed /= 2;</b>
-<b class="nc">&nbsp;						Logging.WORLDNAMED.trace(&quot;Tick speed decreased from {} into {}.&quot;, prevSpeed, gamespeed);</b>
-&nbsp;					}
-&nbsp;
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-h&quot;).isClicked()) player.health--;</b>
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-b&quot;).isClicked()) player.hunger--;</b>
-&nbsp;
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-M-0&quot;).isClicked()) player.moveSpeed = 1;</b>
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-M-equals&quot;).isClicked()) player.moveSpeed++;</b>
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-M-minus&quot;).isClicked() &amp;&amp; player.moveSpeed &gt; 1)</b>
-<b class="nc">&nbsp;						player.moveSpeed--; // -= 0.5D;</b>
-&nbsp;
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-u&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;						levels[currentLevel].setTile(player.x &gt;&gt; 4, player.y &gt;&gt; 4, Tiles.get(&quot;Stairs Up&quot;));</b>
-&nbsp;					}
-<b class="nc">&nbsp;					if (input.getMappedKey(&quot;F3-d&quot;).isClicked()) {</b>
-<b class="nc">&nbsp;						levels[currentLevel].setTile(player.x &gt;&gt; 4, player.y &gt;&gt; 4, Tiles.get(&quot;Stairs Down&quot;));</b>
-&nbsp;					}
-&nbsp;				} // End debug only cond.
-&nbsp;			} // End &quot;menu-null&quot; conditional
-&nbsp;		} // End hasfocus conditional
-<b class="nc">&nbsp;	} // End tick()</b>
-&nbsp;
-&nbsp;
-&nbsp;	// This is the proper way to change the tickCount.
-&nbsp;	public static void setTime(int ticks) {
-<b class="nc">&nbsp;		if (ticks &lt; Time.Morning.tickTime) ticks = 0; // Error correct</b>
-<b class="nc">&nbsp;		if (ticks &lt; Time.Day.tickTime) time = 0; // Morning</b>
-<b class="nc">&nbsp;		else if (ticks &lt; Time.Evening.tickTime) time = 1; // Day</b>
-<b class="nc">&nbsp;		else if (ticks &lt; Time.Night.tickTime) time = 2; // Evening</b>
-<b class="nc">&nbsp;		else if (ticks &lt; dayLength) time = 3; // Night</b>
-&nbsp;		else { // Back to morning
-<b class="nc">&nbsp;			time = 0;</b>
-<b class="nc">&nbsp;			ticks = 0;</b>
-<b class="nc">&nbsp;			pastDay1 = true;</b>
-&nbsp;		}
-<b class="nc">&nbsp;		tickCount = ticks;</b>
-<b class="nc">&nbsp;	}</b>
-&nbsp;
-&nbsp;	// This is the proper way to change the time of day.
-&nbsp;	public static void changeTimeOfDay(Time t) {
-<b class="nc">&nbsp;		setTime(t.tickTime);</b>
-<b class="nc">&nbsp;	}</b>
-&nbsp;
-&nbsp;	// This one works too.
-&nbsp;	public static void changeTimeOfDay(int t) {
-<b class="nc">&nbsp;		Time[] times = Time.values();</b>
-<b class="nc">&nbsp;		if (t &gt; 0 &amp;&amp; t &lt; times.length)</b>
-<b class="nc">&nbsp;			changeTimeOfDay(times[t]); // It just references the other one.</b>
-&nbsp;		else
-<b class="nc">&nbsp;			Logging.WORLD.info(&quot;Time &quot; + t + &quot; does not exist.&quot;);</b>
-<b class="nc">&nbsp;	}</b>
-&nbsp;
-&nbsp;	public static Time getTime() {
-<b class="nc">&nbsp;		Time[] times = Time.values();</b>
-<b class="nc">&nbsp;		return times[time];</b>
+&nbsp;	public static int getChance(int idx, int level) {
+<b class="fc">&nbsp;		return LEVEL_CHANCES[level][idx];</b>
 &nbsp;	}
 &nbsp;
-&nbsp;	/**
-&nbsp;	 * This adds a notification to all player games.
-&nbsp;	 */
-&nbsp;	public static void notifyAll(String msg) {
-<b class="nc">&nbsp;		notifyAll(msg, 0);</b>
-<b class="nc">&nbsp;	}</b>
+&nbsp;	@Override
+&nbsp;	public boolean interactOn(Tile tile, Level level, int xt, int yt, Player player, Direction attackDir) {
+<b class="fc">&nbsp;		if (tile == Tiles.get(&quot;water&quot;) &amp;&amp; !player.isSwimming()) { // Make sure not to use it if swimming</b>
+<b class="fc">&nbsp;			uses++;</b>
+<b class="fc">&nbsp;			player.isFishing = true;</b>
+<b class="fc">&nbsp;			player.fishingLevel = this.level;</b>
+<b class="fc">&nbsp;			return true;</b>
+&nbsp;		}
 &nbsp;
-&nbsp;	public static void notifyAll(String msg, int notetick) {
-<b class="nc">&nbsp;		msg = Localization.getLocalized(msg);</b>
-<b class="nc">&nbsp;		notifications.add(msg);</b>
-<b class="nc">&nbsp;		Updater.notetick = notetick;</b>
-<b class="nc">&nbsp;	}</b>
+<b class="fc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean canAttack() {
+<b class="fc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean isDepleted() {
+<b class="fc">&nbsp;		if (random.nextInt(100) &gt; 120 - uses + level * 6) { // Breaking is random, the lower the level, and the more times you use it, the higher the chance</b>
+<b class="fc">&nbsp;			Game.notifications.add(&quot;Your Fishing rod broke.&quot;);</b>
+<b class="fc">&nbsp;			return true;</b>
+&nbsp;		}
+<b class="fc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public @NotNull Item copy() {
+<b class="fc">&nbsp;		FishingRodItem item = new FishingRodItem(this.level);</b>
+<b class="fc">&nbsp;		item.uses = this.uses;</b>
+<b class="fc">&nbsp;		return item;</b>
+&nbsp;	}
 &nbsp;}
 </code>
 </pre>
@@ -470,7 +202,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-04-19 15:54</div>
+    <div style="float:right;">generated on 2024-04-24 14:15</div>
 </div>
 </body>
 </html>

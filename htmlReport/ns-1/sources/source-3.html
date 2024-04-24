@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
-  <title>Coverage Report > Initializer</title>
+  <title>Coverage Report > BucketItem</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">minicraft.core</a>
+    <a href="../index.html">minicraft.item</a>
 </div>
 
-<h1>Coverage Summary for Class: Initializer (minicraft.core)</h1>
+<h1>Coverage Summary for Class: BucketItem (minicraft.item)</h1>
 
 <table class="coverageStats">
 
@@ -34,63 +34,56 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 <th class="coverageStat 
 ">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
   Line, %
 </th>
 </tr>
 <tr>
-  <td class="name">Initializer</td>
+  <td class="name">BucketItem</td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/7)
+    (9/9)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    94.4%
   </span>
   <span class="absValue">
-    (0/93)
+    (34/36)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (39/39)
   </span>
 </td>
 </tr>
   <tr>
-    <td class="name">Initializer$1</td>
+    <td class="name">BucketItem$Fill</td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/2)
+    (2/2)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/4)
-  </span>
-</td>
-  </tr>
-  <tr>
-    <td class="name">Initializer$2</td>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/8)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/9)
+    (8/8)
   </span>
 </td>
   </tr>
@@ -98,18 +91,26 @@ Current scope:     <a href="../../index.html">all classes</a>
   <td class="name"><strong>Total</strong></td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/17)
+    (11/11)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    94.4%
   </span>
   <span class="absValue">
-    (0/106)
+    (34/36)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (47/47)
   </span>
 </td>
 </tr>
@@ -120,222 +121,116 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.core;
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
 &nbsp;
-&nbsp;import minicraft.core.io.FileHandler;
-&nbsp;import minicraft.core.io.Localization;
-&nbsp;import minicraft.util.Logging;
-&nbsp;import minicraft.util.TinylogLoggingProvider;
-&nbsp;import org.jetbrains.annotations.Nullable;
-&nbsp;import org.tinylog.provider.ProviderRegistry;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;import org.jetbrains.annotations.NotNull;
 &nbsp;
-&nbsp;import javax.imageio.ImageIO;
-&nbsp;import javax.swing.JFrame;
-&nbsp;import javax.swing.WindowConstants;
+&nbsp;import java.util.ArrayList;
 &nbsp;
-&nbsp;import java.awt.BorderLayout;
-&nbsp;import java.awt.Color;
-&nbsp;import java.awt.event.ComponentAdapter;
-&nbsp;import java.awt.event.ComponentEvent;
-&nbsp;import java.awt.event.WindowEvent;
-&nbsp;import java.awt.event.WindowListener;
-&nbsp;import java.awt.image.BufferedImage;
-&nbsp;import java.io.IOException;
+&nbsp;public class BucketItem extends StackableItem {
 &nbsp;
-&nbsp;public class Initializer extends Game {
-&nbsp;	private Initializer() {
+<b class="fc">&nbsp;	public enum Fill {</b>
+<b class="fc">&nbsp;		Empty(Tiles.get(&quot;hole&quot;), 2),</b>
+<b class="fc">&nbsp;		Water(Tiles.get(&quot;water&quot;), 0),</b>
+<b class="fc">&nbsp;		Lava(Tiles.get(&quot;lava&quot;), 1);</b>
+&nbsp;
+&nbsp;		public Tile contained;
+&nbsp;		public int offset;
+&nbsp;
+<b class="fc">&nbsp;		Fill(Tile contained, int offset) {</b>
+<b class="fc">&nbsp;			this.contained = contained;</b>
+<b class="fc">&nbsp;			this.offset = offset;</b>
+<b class="fc">&nbsp;		}</b>
 &nbsp;	}
 &nbsp;
-&nbsp;	/**
-&nbsp;	 * Reference to actual frame, also it may be null.
-&nbsp;	 */
-&nbsp;	static JFrame frame;
-&nbsp;	static int fra, tik; // These store the number of frames and ticks in the previous second; used for fps, at least.
+&nbsp;	protected static ArrayList&lt;Item&gt; getAllInstances() {
+<b class="fc">&nbsp;		ArrayList&lt;Item&gt; items = new ArrayList&lt;&gt;();</b>
 &nbsp;
-&nbsp;	public static JFrame getFrame() {
-<b class="nc">&nbsp;		return frame;</b>
+<b class="fc">&nbsp;		for (Fill fill : Fill.values())</b>
+<b class="fc">&nbsp;			items.add(new BucketItem(fill));</b>
+&nbsp;
+<b class="fc">&nbsp;		return items;</b>
 &nbsp;	}
 &nbsp;
-&nbsp;	public static int getCurFps() {
-<b class="nc">&nbsp;		return fra;</b>
+&nbsp;	private static Fill getFilling(Tile tile) {
+<b class="fc">&nbsp;		for (Fill fill : Fill.values())</b>
+<b class="fc">&nbsp;			if (fill.contained.id == tile.id)</b>
+<b class="fc">&nbsp;				return fill;</b>
+&nbsp;
+<b class="fc">&nbsp;		return null;</b>
 &nbsp;	}
 &nbsp;
-&nbsp;	static void parseArgs(String[] args) {
-&nbsp;		// Parses command line arguments
-&nbsp;		@Nullable
-<b class="nc">&nbsp;		String saveDir = null;</b>
-<b class="nc">&nbsp;		boolean enableHardwareAcceleration = true;</b>
-<b class="nc">&nbsp;		for (int i = 0; i &lt; args.length; i++) {</b>
-<b class="nc">&nbsp;			if (args[i].equalsIgnoreCase(&quot;--savedir&quot;) &amp;&amp; i + 1 &lt; args.length) {</b>
-<b class="nc">&nbsp;				i++;</b>
-<b class="nc">&nbsp;				saveDir = args[i];</b>
-<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--fullscreen&quot;)) {</b>
-<b class="nc">&nbsp;				Updater.FULLSCREEN = true;</b>
-<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-log-time&quot;)) {</b>
-<b class="nc">&nbsp;				Logging.logTime = true;</b>
-<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-log-thread&quot;)) {</b>
-<b class="nc">&nbsp;				Logging.logThread = true;</b>
-<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-log-trace&quot;)) {</b>
-<b class="nc">&nbsp;				Logging.logTrace = true;</b>
-<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-level&quot;)) {</b>
-<b class="nc">&nbsp;				Logging.logLevel = true;</b>
-<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-filelog-full&quot;)) {</b>
-<b class="nc">&nbsp;				Logging.fileLogFull = true;</b>
-<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-locale&quot;)) {</b>
-<b class="nc">&nbsp;				Localization.isDebugLocaleEnabled = true;</b>
-<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--debug-unloc-tracing&quot;)) {</b>
-<b class="nc">&nbsp;				Localization.unlocalizedStringTracing = true;</b>
-<b class="nc">&nbsp;			} else if (args[i].equalsIgnoreCase(&quot;--no-hardware-acceleration&quot;)) {</b>
-<b class="nc">&nbsp;				enableHardwareAcceleration = false;</b>
+&nbsp;	private Fill filling;
+&nbsp;
+&nbsp;	private BucketItem(Fill fill) {
+<b class="fc">&nbsp;		this(fill, 1);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private BucketItem(Fill fill, int count) {
+<b class="fc">&nbsp;		super(fill.toString() + &quot; Bucket&quot;, new LinkedSprite(SpriteType.Item, fill == Fill.Empty ? &quot;bucket&quot; :</b>
+&nbsp;			fill == Fill.Lava ? &quot;lava_bucket&quot; : &quot;water_bucket&quot;), count);
+<b class="fc">&nbsp;		this.filling = fill;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean interactOn(Tile tile, Level level, int xt, int yt, Player player, Direction attackDir) {
+<b class="fc">&nbsp;		Fill fill = getFilling(tile);</b>
+<b class="fc">&nbsp;		if (fill == null) return false;</b>
+&nbsp;
+<b class="fc">&nbsp;		if (filling != Fill.Empty) {</b>
+<b class="fc">&nbsp;			if (fill == Fill.Empty) {</b>
+<b class="fc">&nbsp;				level.setTile(xt, yt, filling.contained);</b>
+<b class="fc">&nbsp;				if (!Game.isMode(&quot;minicraft.settings.mode.creative&quot;))</b>
+<b class="fc">&nbsp;					player.activeItem = editBucket(player, Fill.Empty);</b>
+<b class="fc">&nbsp;				return true;</b>
+<b class="pc">&nbsp;			} else if (fill == Fill.Lava &amp;&amp; filling == Fill.Water) {</b>
+<b class="fc">&nbsp;				level.setTile(xt, yt, Tiles.get(&quot;Obsidian&quot;));</b>
+<b class="fc">&nbsp;				if (!Game.isMode(&quot;minicraft.settings.mode.creative&quot;))</b>
+<b class="fc">&nbsp;					player.activeItem = editBucket(player, Fill.Empty);</b>
+<b class="fc">&nbsp;				return true;</b>
 &nbsp;			}
+&nbsp;		} else { // This is an empty bucket
+<b class="fc">&nbsp;			level.setTile(xt, yt, Tiles.get(&quot;hole&quot;));</b>
+<b class="fc">&nbsp;			if (!Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) player.activeItem = editBucket(player, fill);</b>
+<b class="fc">&nbsp;			return true;</b>
 &nbsp;		}
-<b class="nc">&nbsp;		((TinylogLoggingProvider) ProviderRegistry.getLoggingProvider()).init();</b>
-&nbsp;		// Reference: https://stackoverflow.com/a/13832805
-<b class="nc">&nbsp;		if (enableHardwareAcceleration) System.setProperty(&quot;sun.java2d.opengl&quot;, &quot;true&quot;);</b>
 &nbsp;
-<b class="nc">&nbsp;		FileHandler.determineGameDir(saveDir);</b>
+<b class="fc">&nbsp;		return false;</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	/**
-&nbsp;	 * This is the main loop that runs the game. It:
-&nbsp;	 * -keeps track of the amount of time that has passed
-&nbsp;	 * -fires the ticks needed to run the game
-&nbsp;	 * -fires the command to render out the screen.
+&nbsp;	 * This method exists due to the fact that buckets are stackable, but only one should be changed at one time.
 &nbsp;	 */
-&nbsp;	static void run() {
-<b class="nc">&nbsp;		long lastTick = System.nanoTime();</b>
-<b class="nc">&nbsp;		long lastRender = System.nanoTime();</b>
-<b class="nc">&nbsp;		double unprocessed = 0;</b>
-<b class="nc">&nbsp;		int frames = 0;</b>
-<b class="nc">&nbsp;		int ticks = 0;</b>
-<b class="nc">&nbsp;		long lastTimer1 = System.currentTimeMillis();</b>
+&nbsp;	private BucketItem editBucket(Player player, Fill newFill) {
+<b class="fc">&nbsp;		if (count == 0) return null; // This honestly should never happen...</b>
+<b class="fc">&nbsp;		if (count == 1) return new BucketItem(newFill);</b>
 &nbsp;
-<b class="nc">&nbsp;		while (running) {</b>
-<b class="nc">&nbsp;			long now = System.nanoTime();</b>
-<b class="nc">&nbsp;			double nsPerTick = 1E9D / Updater.normSpeed; // Nanosecs per sec divided by ticks per sec = nanosecs per tick</b>
-<b class="nc">&nbsp;			if (currentDisplay == null) nsPerTick /= Updater.gamespeed;</b>
-<b class="nc">&nbsp;			unprocessed += (now - lastTick) / nsPerTick; // Figures out the unprocessed time between now and lastTick.</b>
-<b class="nc">&nbsp;			lastTick = now;</b>
-<b class="nc">&nbsp;			while (unprocessed &gt;= 1) { // If there is unprocessed time, then tick.</b>
-<b class="nc">&nbsp;				ticks++;</b>
-<b class="nc">&nbsp;				Updater.tick(); // Calls the tick method (in which it calls the other tick methods throughout the code.</b>
-<b class="nc">&nbsp;				unprocessed--;</b>
-&nbsp;			}
-&nbsp;
-<b class="nc">&nbsp;			now = System.nanoTime();</b>
-<b class="nc">&nbsp;			if (now &gt;= lastRender + 1E9D / MAX_FPS / 1.01) {</b>
-<b class="nc">&nbsp;				frames++;</b>
-<b class="nc">&nbsp;				lastRender = now;</b>
-<b class="nc">&nbsp;				Renderer.render();</b>
-&nbsp;			}
-&nbsp;
-&nbsp;			try {
-<b class="nc">&nbsp;				long curNano = System.nanoTime();</b>
-<b class="nc">&nbsp;				long untilNextTick = (long) (lastTick + nsPerTick - curNano);</b>
-<b class="nc">&nbsp;				long untilNextFrame = (long) (lastRender + 1E9D / MAX_FPS - curNano);</b>
-<b class="nc">&nbsp;				if (untilNextTick &gt; 1E3 &amp;&amp; untilNextFrame &gt; 1E3) {</b>
-<b class="nc">&nbsp;					double timeToWait = Math.min(untilNextTick, untilNextFrame) / 1.2; // in nanosecond</b>
-&nbsp;					//noinspection BusyWait
-<b class="nc">&nbsp;					Thread.sleep((long) Math.floor(timeToWait / 1E6), (int) ((timeToWait - Math.floor(timeToWait)) % 1E6));</b>
-&nbsp;				}
-<b class="nc">&nbsp;			} catch (InterruptedException ignored) {</b>
-<b class="nc">&nbsp;			}</b>
-&nbsp;
-<b class="nc">&nbsp;			if (System.currentTimeMillis() - lastTimer1 &gt; 1000) { //updates every 1 second</b>
-<b class="nc">&nbsp;				long interval = System.currentTimeMillis() - lastTimer1;</b>
-<b class="nc">&nbsp;				lastTimer1 = System.currentTimeMillis(); // Adds a second to the timer</b>
-&nbsp;
-<b class="nc">&nbsp;				fra = (int) Math.round(frames * 1000D / interval); // Saves total frames in last second</b>
-<b class="nc">&nbsp;				tik = (int) Math.round(ticks * 1000D / interval); // Saves total ticks in last second</b>
-<b class="nc">&nbsp;				frames = 0; // Resets frames</b>
-<b class="nc">&nbsp;				ticks = 0; // Resets ticks; ie, frames and ticks only are per second</b>
-&nbsp;			}
-<b class="nc">&nbsp;		}</b>
+&nbsp;		// This item object is a stack of buckets.
+<b class="fc">&nbsp;		count--;</b>
+<b class="fc">&nbsp;		if (player.getInventory().add(new BucketItem(newFill)) == 0) {</b>
+<b class="fc">&nbsp;			player.getLevel().dropItem(player.x, player.y, new BucketItem(newFill));</b>
+&nbsp;		}
+<b class="fc">&nbsp;		return this;</b>
 &nbsp;	}
 &nbsp;
-&nbsp;
-&nbsp;	// Creates and displays the JFrame window that the game appears in.
-&nbsp;	static void createAndDisplayFrame() {
-<b class="nc">&nbsp;		Renderer.canvas.setMinimumSize(new java.awt.Dimension(1, 1));</b>
-<b class="nc">&nbsp;		Renderer.canvas.setPreferredSize(Renderer.getWindowSize());</b>
-<b class="nc">&nbsp;		Renderer.canvas.setBackground(Color.BLACK);</b>
-<b class="nc">&nbsp;		JFrame frame = Initializer.frame = new JFrame(NAME);</b>
-<b class="nc">&nbsp;		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);</b>
-<b class="nc">&nbsp;		frame.setLayout(new BorderLayout()); // Sets the layout of the window</b>
-<b class="nc">&nbsp;		frame.add(Renderer.canvas, BorderLayout.CENTER); // Adds the game (which is a canvas) to the center of the screen.</b>
-<b class="nc">&nbsp;		frame.pack(); // Squishes everything into the preferredSize.</b>
-&nbsp;
-&nbsp;		try {
-<b class="nc">&nbsp;			BufferedImage logo = ImageIO.read(Game.class.getResourceAsStream(&quot;/resources/logo.png&quot;)); // Load the window logo</b>
-<b class="nc">&nbsp;			frame.setIconImage(logo);</b>
-<b class="nc">&nbsp;		} catch (IOException e) {</b>
-<b class="nc">&nbsp;			CrashHandler.errorHandle(e);</b>
-<b class="nc">&nbsp;		}</b>
-&nbsp;
-<b class="nc">&nbsp;		frame.setLocationRelativeTo(null); // The window will pop up in the middle of the screen when launched.</b>
-&nbsp;
-<b class="nc">&nbsp;		frame.addComponentListener(new ComponentAdapter() {</b>
-&nbsp;			public void componentResized(ComponentEvent e) {
-<b class="nc">&nbsp;				float w = frame.getWidth() - frame.getInsets().left - frame.getInsets().right;</b>
-<b class="nc">&nbsp;				float h = frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom;</b>
-<b class="nc">&nbsp;				Renderer.SCALE = Math.min(w / Renderer.WIDTH, h / Renderer.HEIGHT);</b>
-&nbsp;			}
-&nbsp;		});
-&nbsp;
-<b class="nc">&nbsp;		frame.addWindowListener(new WindowListener() {</b>
-&nbsp;			public void windowActivated(WindowEvent e) {
-<b class="nc">&nbsp;			}</b>
-&nbsp;
-&nbsp;			public void windowDeactivated(WindowEvent e) {
-<b class="nc">&nbsp;			}</b>
-&nbsp;
-&nbsp;			public void windowIconified(WindowEvent e) {
-<b class="nc">&nbsp;			}</b>
-&nbsp;
-&nbsp;			public void windowDeiconified(WindowEvent e) {
-<b class="nc">&nbsp;			}</b>
-&nbsp;
-&nbsp;			public void windowOpened(WindowEvent e) {
-<b class="nc">&nbsp;			}</b>
-&nbsp;
-&nbsp;			public void windowClosed(WindowEvent e) {
-<b class="nc">&nbsp;				Logging.GAMEHANDLER.debug(&quot;Window closed&quot;);</b>
-&nbsp;			}
-&nbsp;
-&nbsp;			public void windowClosing(WindowEvent e) {
-<b class="nc">&nbsp;				Logging.GAMEHANDLER.info(&quot;Window closing&quot;);</b>
-<b class="nc">&nbsp;				quit();</b>
-&nbsp;			}
-&nbsp;		});
+&nbsp;	public boolean equals(Item other) {
+<b class="pc">&nbsp;		return super.equals(other) &amp;&amp; filling == ((BucketItem) other).filling;</b>
 &nbsp;	}
 &nbsp;
-&nbsp;	/**
-&nbsp;	 * Launching the main window.
-&nbsp;	 */
-&nbsp;	static void launchWindow() {
-<b class="nc">&nbsp;		frame.setVisible(true);</b>
-<b class="nc">&nbsp;		frame.requestFocus();</b>
-<b class="nc">&nbsp;		Renderer.canvas.requestFocus();</b>
+&nbsp;	@Override
+&nbsp;	public int hashCode() {
+<b class="fc">&nbsp;		return super.hashCode() + filling.offset * 31;</b>
 &nbsp;	}
 &nbsp;
-&nbsp;	/**
-&nbsp;	 * Provides a String representation of the provided Throwable&#39;s stack trace
-&nbsp;	 * that is extracted via PrintStream.
-&nbsp;	 * @param throwable Throwable/Exception from which stack trace is to be
-&nbsp;	 * 	extracted.
-&nbsp;	 * @return String with provided Throwable&#39;s stack trace.
-&nbsp;	 */
-&nbsp;	public static String getExceptionTrace(final Throwable throwable) {
-<b class="nc">&nbsp;		final java.io.ByteArrayOutputStream bytestream = new java.io.ByteArrayOutputStream();</b>
-<b class="nc">&nbsp;		final java.io.PrintStream printStream = new java.io.PrintStream(bytestream);</b>
-<b class="nc">&nbsp;		throwable.printStackTrace(printStream);</b>
-&nbsp;		String exceptionStr;
-&nbsp;		try {
-<b class="nc">&nbsp;			exceptionStr = bytestream.toString(&quot;UTF-8&quot;);</b>
-<b class="nc">&nbsp;		} catch (Exception ex) {</b>
-<b class="nc">&nbsp;			exceptionStr = &quot;Unavailable&quot;;</b>
-<b class="nc">&nbsp;		}</b>
-<b class="nc">&nbsp;		return exceptionStr;</b>
+&nbsp;	public @NotNull BucketItem copy() {
+<b class="fc">&nbsp;		return new BucketItem(filling, count);</b>
 &nbsp;	}
 &nbsp;}
 </code>
@@ -361,7 +256,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-04-19 15:54</div>
+    <div style="float:right;">generated on 2024-04-24 14:15</div>
 </div>
 </body>
 </html>

@@ -36,7 +36,7 @@ public enum PotionType {
 	Escape(Color.get(1, 222, 162, 162), 0) {
 		public boolean toggleEffect(Player player, boolean addEffect) {
 			if (addEffect) {
-				int playerDepth = player.getLevel().depth;
+				int playerDepth = player.getLevel().depth; //depth is a final int and can't be mocked for different value
 
 				if (playerDepth == 0) {
 					// player is in overworld

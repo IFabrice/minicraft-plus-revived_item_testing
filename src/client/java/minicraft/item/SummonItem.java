@@ -49,7 +49,7 @@ public class SummonItem extends StackableItem {
 		switch (mob) {
 			case "Air Wizard":
 				// Check if we are on the right level
-				if (level.depth == 1) {
+				if (level.depth == 1) { // Can't initiate the depth of the level
 					if (!AirWizard.active) {
 
 						// Pay stamina

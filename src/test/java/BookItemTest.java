@@ -1,8 +1,10 @@
+import minicraft.core.io.Localization;
 import minicraft.item.BookItem;
 import minicraft.item.Item;
 import minicraft.item.Items;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 
 import java.util.ArrayList;
@@ -10,6 +12,8 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mockStatic;
 
 
 public class BookItemTest {
@@ -50,5 +54,20 @@ public class BookItemTest {
 		BookItem copiedBookItem = mockBookItem.copy();
 		assertEquals(mockBookItem.getName(),copiedBookItem.getName());
 		assertEquals(mockBookItem.sprite,copiedBookItem.sprite);
+	}
+
+	@Test
+	public void testGetDisplayName() {
+		String localizedString = "localized string";
+		try (MockedStatic<Localization> utilities = mockStatic(Localization.class)) {
+			utilities.when(() -> Localization.getLocalized(anyString()))
+				.thenReturn(localizedString);
+			assertEquals(" " + localizedString,mockBookItem.getDisplayName());
+		}
+	}
+
+	@Test
+	public void testIsDepleted() {
+		assertFalse(mockBookItem.isDepleted());
 	}
 }

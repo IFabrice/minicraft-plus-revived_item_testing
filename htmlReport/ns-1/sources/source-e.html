@@ -221,7 +221,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <b class="fc">&nbsp;	Escape(Color.get(1, 222, 162, 162), 0) {</b>
 &nbsp;		public boolean toggleEffect(Player player, boolean addEffect) {
 <b class="fc">&nbsp;			if (addEffect) {</b>
-<b class="fc">&nbsp;				int playerDepth = player.getLevel().depth;</b>
+<b class="fc">&nbsp;				int playerDepth = player.getLevel().depth; //depth is a final int and can&#39;t be mocked for different value</b>
 &nbsp;
 <b class="pc">&nbsp;				if (playerDepth == 0) {</b>
 &nbsp;					// player is in overworld
@@ -284,7 +284,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-04-19 13:35</div>
+    <div style="float:right;">generated on 2024-04-24 14:15</div>
 </div>
 </body>
 </html>

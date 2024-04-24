@@ -81,7 +81,7 @@ public class TileItem extends StackableItem {
 		items.add(new TileItem("Sign", new LinkedSprite(SpriteType.Item, "sign"), new TileModel("Sign", (model1, target, level, xt, yt, player, attackDir) -> {
 			Game.setDisplay(new SignDisplay(level, xt, yt));
 			return placeOverWithID.getTileData(model1, target, level, xt, yt, player, attackDir);
-		}), solidTiles));
+		}), solidTiles)); // have no control over this protected method
 
 		// Creative mode available tiles:
 		items.add(new TileItem("Farmland", SpriteLinker.missingTexture(SpriteType.Item), new TileModel("farmland"), "dirt", "grass", "hole"));
@@ -102,7 +102,7 @@ public class TileItem extends StackableItem {
 
 	protected TileItem(String name, LinkedSprite sprite, int count, TileModel model, String... validTiles) {
 		this(name, sprite, count, model, Arrays.asList(validTiles));
-	}
+	} // have no control over protected initiators
 
 	protected TileItem(String name, LinkedSprite sprite, int count, @Nullable TileModel model, List<String> validTiles) {
 		super(name, sprite, count);
@@ -160,7 +160,7 @@ public class TileItem extends StackableItem {
 
 		Logger.tag("TileItem").debug("{} cannot be placed on {}.", model, tile.name);
 
-		if (model != null) {
+		if (model != null) { // Is never null
 			String note = "";
 			if (model.tile.contains("WALL")) {
 				note = Localization.getLocalized("minicraft.notification.invalid_placement", Tiles.getName(validTiles.get(0)));

@@ -56,26 +56,26 @@ Current scope:     <a href="../../index.html">all classes</a>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    27.3%
+    100%
   </span>
   <span class="absValue">
-    (3/11)
+    (11/11)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    7.7%
+    92.3%
   </span>
   <span class="absValue">
-    (2/26)
+    (24/26)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    32.1%
+    100%
   </span>
   <span class="absValue">
-    (9/28)
+    (29/29)
   </span>
 </td>
 </tr>
@@ -125,55 +125,56 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;
 &nbsp;	// The return value is used to determine if the potion was used, which means being discarded.
 &nbsp;	public boolean interactOn(Tile tile, Level level, int xt, int yt, Player player, Direction attackDir) {
-<b class="nc">&nbsp;		if (type.equals(PotionType.Lava)) {</b>
-<b class="nc">&nbsp;			AchievementsDisplay.setAchievement(&quot;minicraft.achievement.lava&quot;, true);</b>
+<b class="fc">&nbsp;		if (type.equals(PotionType.Lava)) {</b>
+<b class="fc">&nbsp;			AchievementsDisplay.setAchievement(&quot;minicraft.achievement.lava&quot;, true);</b>
 &nbsp;		}
-<b class="nc">&nbsp;		return interactOn(applyPotion(player, type, true), player);</b>
+<b class="fc">&nbsp;		return interactOn(applyPotion(player, type, true), player);</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	protected boolean interactOn(boolean subClassSuccess, Player player) {
-<b class="nc">&nbsp;		if (subClassSuccess &amp;&amp; !Game.isMode(&quot;minicraft.settings.mode.creative&quot;))</b>
-<b class="nc">&nbsp;			player.tryAddToInvOrDrop(Items.get(&quot;glass bottle&quot;));</b>
-<b class="nc">&nbsp;		return super.interactOn(subClassSuccess);</b>
+<b class="fc">&nbsp;		if (subClassSuccess &amp;&amp; !Game.isMode(&quot;minicraft.settings.mode.creative&quot;))</b>
+<b class="fc">&nbsp;			player.tryAddToInvOrDrop(Items.get(&quot;glass bottle&quot;));</b>
+<b class="fc">&nbsp;		return super.interactOn(subClassSuccess);</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	/// Only ever called to load from file
 &nbsp;	public static boolean applyPotion(Player player, PotionType type, int time) {
-<b class="nc">&nbsp;		boolean result = applyPotion(player, type, time &gt; 0);</b>
-<b class="nc">&nbsp;		if (result &amp;&amp; time &gt; 0) player.addPotionEffect(type, time); // Overrides time</b>
-<b class="nc">&nbsp;		return result;</b>
+<b class="fc">&nbsp;		boolean result = applyPotion(player, type, time &gt; 0);</b>
+<b class="pc">&nbsp;		if (result &amp;&amp; time &gt; 0)</b>
+<b class="fc">&nbsp;			player.addPotionEffect(type, time); // Overrides time</b>
+<b class="fc">&nbsp;		return result;</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	/// Main apply potion method
 &nbsp;	public static boolean applyPotion(Player player, PotionType type, boolean addEffect) {
-<b class="nc">&nbsp;		if (player.getPotionEffects().containsKey(type) != addEffect) { // If hasEffect, and is disabling, or doesn&#39;t have effect, and is enabling...</b>
-<b class="nc">&nbsp;			if (!type.toggleEffect(player, addEffect))</b>
-<b class="nc">&nbsp;				return false; // Usage failed</b>
+<b class="fc">&nbsp;		if (player.getPotionEffects().containsKey(type) != addEffect) { // If hasEffect, and is disabling, or doesn&#39;t have effect, and is enabling...</b>
+<b class="fc">&nbsp;			if (!type.toggleEffect(player, addEffect))</b>
+<b class="fc">&nbsp;				return false; // Usage failed</b>
 &nbsp;		}
 &nbsp;
-<b class="nc">&nbsp;		if (addEffect &amp;&amp; type.duration &gt; 0) player.potioneffects.put(type, type.duration); // Add it</b>
-<b class="nc">&nbsp;		else player.potioneffects.remove(type);</b>
+<b class="fc">&nbsp;		if (addEffect &amp;&amp; type.duration &gt; 0) player.potioneffects.put(type, type.duration); // Add it</b>
+<b class="fc">&nbsp;		else player.potioneffects.remove(type);</b>
 &nbsp;
-<b class="nc">&nbsp;		return true;</b>
+<b class="fc">&nbsp;		return true;</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	@Override
 &nbsp;	public boolean equals(Item other) {
-<b class="nc">&nbsp;		return super.equals(other) &amp;&amp; ((PotionItem) other).type == type;</b>
+<b class="pc">&nbsp;		return super.equals(other) &amp;&amp; ((PotionItem) other).type == type;</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	@Override
 &nbsp;	public int hashCode() {
-<b class="nc">&nbsp;		return super.hashCode() + type.name.hashCode();</b>
+<b class="fc">&nbsp;		return super.hashCode() + type.name.hashCode();</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	@Override
 &nbsp;	public boolean interactsWithWorld() {
-<b class="nc">&nbsp;		return false;</b>
+<b class="fc">&nbsp;		return false;</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	public @NotNull PotionItem copy() {
-<b class="nc">&nbsp;		return new PotionItem(type, count);</b>
+<b class="fc">&nbsp;		return new PotionItem(type, count);</b>
 &nbsp;	}
 &nbsp;}
 </code>
@@ -199,7 +200,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-04-19 13:35</div>
+    <div style="float:right;">generated on 2024-04-24 14:15</div>
 </div>
 </body>
 </html>

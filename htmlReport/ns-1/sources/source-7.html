@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
-  <title>Coverage Report > VersionInfo</title>
+  <title>Coverage Report > FoodItem</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">minicraft.core</a>
+    <a href="../index.html">minicraft.item</a>
 </div>
 
-<h1>Coverage Summary for Class: VersionInfo (minicraft.core)</h1>
+<h1>Coverage Summary for Class: FoodItem (minicraft.item)</h1>
 
 <table class="coverageStats">
 <tr>
@@ -37,33 +37,45 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 <th class="coverageStat 
 ">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
   Line, %
 </th>
 </tr>
 <tr>
-  <td class="name">VersionInfo</td>
+  <td class="name">FoodItem</td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/1)
+    (1/1)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/2)
+    (6/6)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/9)
+    (6/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (24/24)
   </span>
 </td>
 </tr>
@@ -75,30 +87,69 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.core;
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
 &nbsp;
-&nbsp;import minicraft.saveload.Version;
-&nbsp;import org.json.JSONObject;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import org.jetbrains.annotations.NotNull;
 &nbsp;
-&nbsp;public class VersionInfo {
+&nbsp;import java.util.ArrayList;
 &nbsp;
-&nbsp;	public final Version version;
-&nbsp;	public final String releaseUrl;
-&nbsp;	public final String releaseName;
+&nbsp;public class FoodItem extends StackableItem {
 &nbsp;
-<b class="nc">&nbsp;	public VersionInfo(JSONObject releaseInfo) {</b>
-<b class="nc">&nbsp;		String versionTag = releaseInfo.getString(&quot;tag_name&quot;).substring(1); // Cut off the &quot;v&quot; at the beginning</b>
-<b class="nc">&nbsp;		version = new Version(versionTag);</b>
+&nbsp;	protected static ArrayList&lt;Item&gt; getAllInstances() {
+<b class="fc">&nbsp;		ArrayList&lt;Item&gt; items = new ArrayList&lt;&gt;();</b>
 &nbsp;
-<b class="nc">&nbsp;		releaseUrl = releaseInfo.getString(&quot;html_url&quot;);</b>
+<b class="fc">&nbsp;		items.add(new FoodItem(&quot;Baked Potato&quot;, new LinkedSprite(SpriteType.Item, &quot;baked_potato&quot;), 1));</b>
+<b class="fc">&nbsp;		items.add(new FoodItem(&quot;Apple&quot;, new LinkedSprite(SpriteType.Item, &quot;apple&quot;), 1));</b>
+<b class="fc">&nbsp;		items.add(new FoodItem(&quot;Raw Pork&quot;, new LinkedSprite(SpriteType.Item, &quot;pork&quot;), 1));</b>
+<b class="fc">&nbsp;		items.add(new FoodItem(&quot;Raw Fish&quot;, new LinkedSprite(SpriteType.Item, &quot;fish&quot;), 1));</b>
+<b class="fc">&nbsp;		items.add(new FoodItem(&quot;Raw Beef&quot;, new LinkedSprite(SpriteType.Item, &quot;beef&quot;), 1));</b>
+<b class="fc">&nbsp;		items.add(new FoodItem(&quot;Bread&quot;, new LinkedSprite(SpriteType.Item, &quot;bread&quot;), 2));</b>
+<b class="fc">&nbsp;		items.add(new FoodItem(&quot;Cooked Fish&quot;, new LinkedSprite(SpriteType.Item, &quot;cooked_fish&quot;), 3));</b>
+<b class="fc">&nbsp;		items.add(new FoodItem(&quot;Cooked Pork&quot;, new LinkedSprite(SpriteType.Item, &quot;cooked_pork&quot;), 3));</b>
+<b class="fc">&nbsp;		items.add(new FoodItem(&quot;Steak&quot;, new LinkedSprite(SpriteType.Item, &quot;cooked_beef&quot;), 3));</b>
+<b class="fc">&nbsp;		items.add(new FoodItem(&quot;Gold Apple&quot;, new LinkedSprite(SpriteType.Item, &quot;golden_apple&quot;), 10));</b>
 &nbsp;
-<b class="nc">&nbsp;		releaseName = releaseInfo.getString(&quot;name&quot;);</b>
+<b class="fc">&nbsp;		return items;</b>
 &nbsp;	}
 &nbsp;
-<b class="nc">&nbsp;	public VersionInfo(Version version, String releaseUrl, String releaseName) {</b>
-<b class="nc">&nbsp;		this.version = version;</b>
-<b class="nc">&nbsp;		this.releaseUrl = releaseUrl;</b>
-<b class="nc">&nbsp;		this.releaseName = releaseName;</b>
+&nbsp;	private final int feed; // The amount of hunger the food &quot;satisfies&quot; you by.
+&nbsp;	private static final int staminaCost = 2; // The amount of stamina it costs to consume the food.
+&nbsp;
+&nbsp;	private FoodItem(String name, LinkedSprite sprite, int feed) {
+<b class="fc">&nbsp;		this(name, sprite, 1, feed);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private FoodItem(String name, LinkedSprite sprite, int count, int feed) {
+<b class="fc">&nbsp;		super(name, sprite, count);</b>
+<b class="fc">&nbsp;		this.feed = feed;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * What happens when the player uses the item on a tile
+&nbsp;	 */
+&nbsp;	public boolean interactOn(Tile tile, Level level, int xt, int yt, Player player, Direction attackDir) {
+<b class="fc">&nbsp;		boolean success = false;</b>
+<b class="fc">&nbsp;		if (count &gt; 0 &amp;&amp; player.hunger &lt; Player.maxHunger &amp;&amp; player.payStamina(staminaCost)) { // If the player has hunger to fill, and stamina to pay...</b>
+<b class="fc">&nbsp;			player.hunger = Math.min(player.hunger + feed, Player.maxHunger); // Restore the hunger</b>
+<b class="fc">&nbsp;			success = true;</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		return super.interactOn(success);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean interactsWithWorld() {
+<b class="fc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public @NotNull FoodItem copy() {
+<b class="fc">&nbsp;		return new FoodItem(getName(), sprite, count, feed);</b>
 &nbsp;	}
 &nbsp;}
 </code>
@@ -124,7 +175,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-04-19 15:54</div>
+    <div style="float:right;">generated on 2024-04-24 14:15</div>
 </div>
 </body>
 </html>

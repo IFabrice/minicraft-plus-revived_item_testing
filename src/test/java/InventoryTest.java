@@ -220,6 +220,26 @@ public class InventoryTest {
 	}
 
 	@Test
+	public void testRemoveEmptyItems() {
+		testInventory.removeItems(mock(StackableItem.class),1);
+		assertEquals(0,testInventory.invSize());
+	}
+
+	@Test
+	public void testRemoveExcessCount() {
+		StackableItem mockItem = mock(StackableItem.class);
+		StackableItem mockCopy = mock(StackableItem.class);
+		mockItem.count = 10;
+		mockCopy.count = 10;
+		when(mockItem.copy()).thenReturn(mockCopy);
+		when(mockCopy.stacksWith(any())).thenReturn(true);
+		testInventory.add(mockItem);
+		testInventory.removeItems(mockItem,1);
+		assertEquals(1,testInventory.invSize());
+	}
+
+
+	@Test
 	public void testRemoveItemNoneStackingItems() {
 		Item nonStacking = mock(Item.class);
 		testInventory.add(nonStacking);
@@ -293,6 +313,7 @@ public class InventoryTest {
 		assertEquals(0,testInventory.count(null));
 	}
 
+
 	@Test
 	public void testCountOnNonStackableNonEqualItem() {
 		Item mockItem = mock(Item.class);
@@ -316,11 +337,15 @@ public class InventoryTest {
 		StackableItem mockItem = mock(StackableItem.class);
 		StackableItem mockItemCopy = mock(StackableItem.class);
 		StackableItem mockCountItem = mock(StackableItem.class);
+		StackableItem mockItem2 = mock(StackableItem.class);
+		StackableItem mockItem2Copy = mock(StackableItem.class);
 		when(mockItem.copy()).thenReturn(mockItemCopy);
+		when(mockItem2.copy()).thenReturn(mockItem2Copy);
 		when(mockItemCopy.stacksWith(mockCountItem)).thenReturn(true);
 		mockItem.count = 10;
 		mockItemCopy.count = 10;
 		testInventory.add(mockItem);
+		testInventory.add(mockItem2);
 		assertEquals(10,testInventory.count(mockCountItem));
 	}
 

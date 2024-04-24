@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
-  <title>Coverage Report > World</title>
+  <title>Coverage Report > FurnitureItem</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">minicraft.core</a>
+    <a href="../index.html">minicraft.item</a>
 </div>
 
-<h1>Coverage Summary for Class: World (minicraft.core)</h1>
+<h1>Coverage Summary for Class: FurnitureItem (minicraft.item)</h1>
 
 <table class="coverageStats">
 <tr>
@@ -37,33 +37,45 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 <th class="coverageStat 
 ">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
   Line, %
 </th>
 </tr>
 <tr>
-  <td class="name">World</td>
+  <td class="name">FurnitureItem</td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/1)
+    (1/1)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/13)
+    (6/6)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/95)
+    (8/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (37/37)
   </span>
 </td>
 </tr>
@@ -75,245 +87,117 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.core;
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
 &nbsp;
-&nbsp;import minicraft.core.io.Settings;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.Sound;
+&nbsp;import minicraft.entity.Direction;
 &nbsp;import minicraft.entity.furniture.Bed;
+&nbsp;import minicraft.entity.furniture.Chest;
+&nbsp;import minicraft.entity.furniture.Composter;
+&nbsp;import minicraft.entity.furniture.Crafter;
+&nbsp;import minicraft.entity.furniture.DungeonChest;
+&nbsp;import minicraft.entity.furniture.Furniture;
+&nbsp;import minicraft.entity.furniture.Lantern;
+&nbsp;import minicraft.entity.furniture.Spawner;
+&nbsp;import minicraft.entity.furniture.Tnt;
+&nbsp;import minicraft.entity.mob.Cow;
+&nbsp;import minicraft.entity.mob.Creeper;
+&nbsp;import minicraft.entity.mob.Knight;
+&nbsp;import minicraft.entity.mob.Pig;
 &nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.entity.mob.Sheep;
+&nbsp;import minicraft.entity.mob.Skeleton;
+&nbsp;import minicraft.entity.mob.Slime;
+&nbsp;import minicraft.entity.mob.Snake;
+&nbsp;import minicraft.entity.mob.Zombie;
 &nbsp;import minicraft.level.Level;
-&nbsp;import minicraft.network.Analytics;
-&nbsp;import minicraft.saveload.Load;
-&nbsp;import minicraft.screen.AchievementsDisplay;
-&nbsp;import minicraft.screen.CraftingDisplay;
-&nbsp;import minicraft.screen.LoadingDisplay;
-&nbsp;import minicraft.screen.PlayerDeathDisplay;
-&nbsp;import minicraft.screen.QuestsDisplay;
-&nbsp;import minicraft.screen.SignDisplay;
-&nbsp;import minicraft.screen.TutorialDisplayHandler;
-&nbsp;import minicraft.screen.WorldGenDisplay;
-&nbsp;import minicraft.screen.WorldSelectDisplay;
-&nbsp;import minicraft.util.AdvancementElement;
-&nbsp;import minicraft.util.Logging;
-&nbsp;import org.jetbrains.annotations.Nullable;
-&nbsp;import org.tinylog.Logger;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import org.jetbrains.annotations.NotNull;
 &nbsp;
-&nbsp;import java.util.Random;
+&nbsp;import java.util.ArrayList;
 &nbsp;
-&nbsp;public class World extends Game {
-&nbsp;	private World() {
-&nbsp;	}
+&nbsp;public class FurnitureItem extends Item {
 &nbsp;
-<b class="nc">&nbsp;	public static final int[] idxToDepth = { -3, -2, -1, 0, 1, -4 }; /// This is to map the level depths to each level&#39;s index in Game&#39;s levels array. This must ALWAYS be the same length as the levels array, of course.</b>
-&nbsp;	public static final int minLevelDepth, maxLevelDepth;
+&nbsp;	protected static ArrayList&lt;Item&gt; getAllInstances() {
+<b class="fc">&nbsp;		ArrayList&lt;Item&gt; items = new ArrayList&lt;&gt;();</b>
 &nbsp;
-<b class="nc">&nbsp;	static int worldSize = 128; // The size of the world</b>
+&nbsp;		/// There should be a spawner for each level of mob, or at least make the level able to be changed.
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Cow())));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Pig())));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Sheep())));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Slime(1))));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Zombie(1))));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Creeper(1))));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Skeleton(1))));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Snake(1))));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Knight(1))));</b>
 &nbsp;
-&nbsp;	static int playerDeadTime; // The time after you die before the dead menu shows up.
-&nbsp;	static int pendingLevelChange; // Used to determine if the player should change levels or not.
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Chest()));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new DungeonChest(null, true)));</b>
 &nbsp;
-&nbsp;	private static long seed;
-&nbsp;	private static Random random;
-&nbsp;
-&nbsp;	@Nullable
-&nbsp;	public static Action onChangeAction; // Allows action to be stored during a change schedule that should only occur once the screen is blacked out.
-&nbsp;
-<b class="nc">&nbsp;	private static long lastWorldExitTime = 0; // When the world exited.</b>
-<b class="nc">&nbsp;	private static long lastWorldEnterTime = 0; // When the world entered.</b>
-&nbsp;
-&nbsp;	static {
-&nbsp;		int min, max;
-<b class="nc">&nbsp;		min = max = idxToDepth[0];</b>
-<b class="nc">&nbsp;		for (int depth : idxToDepth) {</b>
-<b class="nc">&nbsp;			if (depth &lt; min)</b>
-<b class="nc">&nbsp;				min = depth;</b>
-<b class="nc">&nbsp;			if (depth &gt; max)</b>
-<b class="nc">&nbsp;				max = depth;</b>
+&nbsp;		// Add the various types of crafting furniture
+<b class="fc">&nbsp;		for (Crafter.Type type : Crafter.Type.values()) {</b>
+<b class="fc">&nbsp;			items.add(new FurnitureItem(new Crafter(type)));</b>
 &nbsp;		}
-<b class="nc">&nbsp;		minLevelDepth = min;</b>
-<b class="nc">&nbsp;		maxLevelDepth = max;</b>
+&nbsp;		// Add the various lanterns
+<b class="fc">&nbsp;		for (Lantern.Type type : Lantern.Type.values()) {</b>
+<b class="fc">&nbsp;			items.add(new FurnitureItem(new Lantern(type)));</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Tnt()));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Bed()));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Composter()));</b>
+&nbsp;
+<b class="fc">&nbsp;		return items;</b>
 &nbsp;	}
+&nbsp;
+&nbsp;	public Furniture furniture; // The furniture of this item
+&nbsp;	public boolean placed; // Value if the furniture has been placed or not.
+&nbsp;
+&nbsp;	public FurnitureItem(Furniture furniture) {
+<b class="fc">&nbsp;		super(furniture.name, furniture.itemSprite);</b>
+<b class="fc">&nbsp;		this.furniture = furniture; // Assigns the furniture to the item</b>
+<b class="fc">&nbsp;		placed = false;</b>
+<b class="fc">&nbsp;	}</b>
 &nbsp;
 &nbsp;	/**
-&nbsp;	 * This is for a contained way to find the index in the levels array of a level, based on it&#39;s depth. This is also helpful because add a new level in the future could change this.
+&nbsp;	 * Determines if you can attack enemies with furniture (you can&#39;t)
 &nbsp;	 */
-&nbsp;	public static int lvlIdx(int depth) {
-<b class="nc">&nbsp;		if (depth &gt; maxLevelDepth) return lvlIdx(minLevelDepth);</b>
-<b class="nc">&nbsp;		if (depth &lt; minLevelDepth) return lvlIdx(maxLevelDepth);</b>
-&nbsp;
-<b class="nc">&nbsp;		if (depth == -4) return 5;</b>
-&nbsp;
-<b class="nc">&nbsp;		return depth + 3;</b>
+&nbsp;	public boolean canAttack() {
+<b class="fc">&nbsp;		return false;</b>
 &nbsp;	}
 &nbsp;
-&nbsp;
 &nbsp;	/**
-&nbsp;	 * This method is used when respawning, and by initWorld to reset the vars. It does not generate any new terrain.
+&nbsp;	 * What happens when you press the &quot;Attack&quot; key with the furniture in your hands
 &nbsp;	 */
-&nbsp;	public static void resetGame() {
-<b class="nc">&nbsp;		resetGame(true);</b>
-&nbsp;	}
+&nbsp;	public boolean interactOn(Tile tile, Level level, int xt, int yt, Player player, Direction attackDir) {
+<b class="fc">&nbsp;		if (tile.mayPass(level, xt, yt, furniture)) { // If the furniture can go on the tile</b>
+<b class="fc">&nbsp;			Sound.play(&quot;craft&quot;);</b>
 &nbsp;
-&nbsp;	public static void resetGame(boolean keepPlayer) {
-<b class="nc">&nbsp;		Logging.WORLD.debug(&quot;Resetting...&quot;);</b>
-<b class="nc">&nbsp;		playerDeadTime = 0;</b>
-<b class="nc">&nbsp;		currentLevel = 3;</b>
-<b class="nc">&nbsp;		Updater.asTick = 0;</b>
-<b class="nc">&nbsp;		Updater.notifications.clear();</b>
+&nbsp;			// Placed furniture&#39;s X and Y positions
+<b class="fc">&nbsp;			furniture.x = xt * 16 + 8;</b>
+<b class="fc">&nbsp;			furniture.y = yt * 16 + 8;</b>
 &nbsp;
-&nbsp;		// Adds a new player
-<b class="nc">&nbsp;		if (keepPlayer) {</b>
-<b class="nc">&nbsp;			player = new Player(player, input);</b>
-&nbsp;		} else {
-<b class="nc">&nbsp;			player = new Player(null, input);</b>
+<b class="fc">&nbsp;			level.add(furniture); // Adds the furniture to the world</b>
+<b class="fc">&nbsp;			if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;))</b>
+<b class="fc">&nbsp;				furniture = furniture.copy();</b>
+&nbsp;			else
+<b class="fc">&nbsp;				placed = true; // The value becomes true, which removes it from the player&#39;s active item</b>
+&nbsp;
+<b class="fc">&nbsp;			return true;</b>
 &nbsp;		}
-&nbsp;
-<b class="nc">&nbsp;		if (levels[currentLevel] == null) return;</b>
-&nbsp;
-&nbsp;		// &quot;shouldRespawn&quot; is false on hardcore, or when making a new world.
-<b class="nc">&nbsp;		if (PlayerDeathDisplay.shouldRespawn) { // respawn, don&#39;t regenerate level.</b>
-<b class="nc">&nbsp;			Level level = levels[currentLevel];</b>
-<b class="nc">&nbsp;			player.respawn(level);</b>
-<b class="nc">&nbsp;			level.add(player); // Adds the player to the current level (always surface here)</b>
-&nbsp;		}
+<b class="fc">&nbsp;		return false;</b>
 &nbsp;	}
 &nbsp;
-&nbsp;	/**
-&nbsp;	 * This method is used to create a brand new world, or to load an existing one from a file.
-&nbsp;	 * For the loading screen updates to work, it it assumed that *this* is called by a thread *other* than the one rendering the current *menu*.
-&nbsp;	 **/
-&nbsp;	public static void initWorld() { // This is a full reset; everything.
-<b class="nc">&nbsp;		Logging.WORLD.debug(&quot;Resetting world...&quot;);</b>
-&nbsp;
-<b class="nc">&nbsp;		PlayerDeathDisplay.shouldRespawn = false;</b>
-<b class="nc">&nbsp;		resetGame();</b>
-<b class="nc">&nbsp;		player = new Player(null, input);</b>
-<b class="nc">&nbsp;		Bed.removePlayers();</b>
-<b class="nc">&nbsp;		Updater.gameTime = 0;</b>
-<b class="nc">&nbsp;		Updater.gamespeed = 1;</b>
-<b class="nc">&nbsp;		lastWorldEnterTime = System.currentTimeMillis();</b>
-&nbsp;
-<b class="nc">&nbsp;		Updater.changeTimeOfDay(Updater.Time.Morning); // Resets tickCount; game starts in the day, so that it&#39;s nice and bright.</b>
-<b class="nc">&nbsp;		gameOver = false;</b>
-&nbsp;
-<b class="nc">&nbsp;		levels = new Level[6];</b>
-&nbsp;
-<b class="nc">&nbsp;		Updater.scoreTime = (Integer) Settings.get(&quot;scoretime&quot;) * 60 * Updater.normSpeed;</b>
-&nbsp;
-<b class="nc">&nbsp;		LoadingDisplay.setPercentage(0); // This actually isn&#39;t necessary, I think; it&#39;s just in case.</b>
-&nbsp;
-<b class="nc">&nbsp;		Logging.WORLD.trace(&quot;Initializing world non-client...&quot;);</b>
-&nbsp;
-<b class="nc">&nbsp;		Logging.WORLDNAMED = Logger.tag(&quot;World/&quot; + WorldSelectDisplay.getWorldName().toUpperCase());</b>
-&nbsp;
-<b class="nc">&nbsp;		if (WorldSelectDisplay.hasLoadedWorld()) {</b>
-<b class="nc">&nbsp;			new Load(WorldSelectDisplay.getWorldName());</b>
-&nbsp;		} else {
-<b class="nc">&nbsp;			Analytics.WorldCreation.ping();</b>
-&nbsp;
-<b class="nc">&nbsp;			worldSize = (Integer) Settings.get(&quot;size&quot;);</b>
-&nbsp;
-<b class="nc">&nbsp;			seed = WorldGenDisplay.getSeed().orElse(new Random().nextLong());</b>
-<b class="nc">&nbsp;			random = new Random(seed);</b>
-&nbsp;
-<b class="nc">&nbsp;			float loadingInc = 100f / (maxLevelDepth - minLevelDepth + 1); // The .002 is for floating point errors, in case they occur.</b>
-<b class="nc">&nbsp;			for (int i = maxLevelDepth; i &gt;= minLevelDepth; i--) {</b>
-&nbsp;				// i = level depth; the array starts from the top because the parent level is used as a reference, so it should be constructed first. It is expected that the highest level will have a null parent.
-&nbsp;
-<b class="nc">&nbsp;				Logging.WORLD.trace(&quot;Generating level &quot; + i + &quot;...&quot;);</b>
-&nbsp;
-<b class="nc">&nbsp;				LoadingDisplay.setMessage(Level.getDepthString(i), false);</b>
-<b class="nc">&nbsp;				levels[lvlIdx(i)] = new Level(worldSize, worldSize, random.nextLong(), i, levels[lvlIdx(i + 1)], !WorldSelectDisplay.hasLoadedWorld());</b>
-&nbsp;
-<b class="nc">&nbsp;				LoadingDisplay.progress(loadingInc);</b>
-&nbsp;			}
-&nbsp;
-<b class="nc">&nbsp;			Logging.WORLD.trace(&quot;Level generation complete.&quot;);</b>
-&nbsp;
-<b class="nc">&nbsp;			Level level = levels[currentLevel]; // Sets level to the current level (3; surface)</b>
-<b class="nc">&nbsp;			Updater.pastDay1 = false;</b>
-<b class="nc">&nbsp;			player.findStartPos(level, seed); // Finds the start level for the player</b>
-<b class="nc">&nbsp;			level.add(player);</b>
-<b class="nc">&nbsp;			QuestsDisplay.resetGameQuests();</b>
-<b class="nc">&nbsp;			CraftingDisplay.resetRecipeUnlocks();</b>
-<b class="nc">&nbsp;			TutorialDisplayHandler.reset(true);</b>
-<b class="nc">&nbsp;			AdvancementElement.resetRecipeUnlockingElements();</b>
-<b class="nc">&nbsp;			SignDisplay.resetSignTexts();</b>
-&nbsp;		}
-&nbsp;
-<b class="nc">&nbsp;		Renderer.readyToRenderGameplay = true;</b>
-&nbsp;
-<b class="nc">&nbsp;		Renderer.signDisplayMenu = null;</b>
-&nbsp;
-<b class="nc">&nbsp;		PlayerDeathDisplay.shouldRespawn = true;</b>
-&nbsp;
-<b class="nc">&nbsp;		Logging.WORLD.trace(&quot;World initialized.&quot;);</b>
+&nbsp;	public boolean isDepleted() {
+<b class="fc">&nbsp;		return placed;</b>
 &nbsp;	}
 &nbsp;
-&nbsp;	public static long getWorldSeed() {
-<b class="nc">&nbsp;		return seed;</b>
-&nbsp;	}
-&nbsp;
-&nbsp;	public static void setWorldSeed(long seed) {
-<b class="nc">&nbsp;		World.seed = seed;</b>
-&nbsp;	}
-&nbsp;
-&nbsp;	/**
-&nbsp;	 * This method is called when you interact with stairs, this will give you the transition effect. While changeLevel(int) just changes the level.
-&nbsp;	 */
-&nbsp;	public static void scheduleLevelChange(int dir) {
-<b class="nc">&nbsp;		scheduleLevelChange(dir, null);</b>
-&nbsp;	}
-&nbsp;
-&nbsp;	public static void scheduleLevelChange(int dir, @Nullable Action changeAction) {
-<b class="nc">&nbsp;		onChangeAction = changeAction;</b>
-<b class="nc">&nbsp;		pendingLevelChange = dir;</b>
-&nbsp;	}
-&nbsp;
-&nbsp;	/**
-&nbsp;	 * This method changes the level that the player is currently on.
-&nbsp;	 * It takes 1 integer variable, which is used to tell the game which direction to go.
-&nbsp;	 * For example, &#39;changeLevel(1)&#39; will make you go up a level,
-&nbsp;	 * while &#39;changeLevel(-1)&#39; will make you go down a level.
-&nbsp;	 */
-&nbsp;	public static void changeLevel(int dir) {
-<b class="nc">&nbsp;		if (onChangeAction != null) {</b>
-<b class="nc">&nbsp;			onChangeAction.act();</b>
-<b class="nc">&nbsp;			onChangeAction = null;</b>
-&nbsp;		}
-&nbsp;
-<b class="nc">&nbsp;		levels[currentLevel].remove(player); // Removes the player from the current level.</b>
-&nbsp;
-<b class="nc">&nbsp;		int nextLevel = currentLevel + dir;</b>
-<b class="nc">&nbsp;		if (nextLevel &lt;= -1) nextLevel = levels.length - 1; // Fix accidental level underflow</b>
-<b class="nc">&nbsp;		if (nextLevel &gt;= levels.length) nextLevel = 0; // Fix accidental level overflow</b>
-<b class="nc">&nbsp;		Logging.WORLD.trace(&quot;Setting level from {} to {}&quot;, currentLevel, nextLevel);</b>
-<b class="nc">&nbsp;		currentLevel = nextLevel;</b>
-&nbsp;
-<b class="nc">&nbsp;		player.x = (player.x &gt;&gt; 4) * 16 + 8; // Sets the player&#39;s x coord (to center yourself on the stairs)</b>
-<b class="nc">&nbsp;		player.y = (player.y &gt;&gt; 4) * 16 + 8; // Sets the player&#39;s y coord (to center yourself on the stairs)</b>
-&nbsp;
-<b class="nc">&nbsp;		levels[currentLevel].add(player); // Adds the player to the level.</b>
-&nbsp;
-<b class="nc">&nbsp;		if (currentLevel == 0) {</b>
-<b class="nc">&nbsp;			AchievementsDisplay.setAchievement(&quot;minicraft.achievement.lowest_caves&quot;, true);</b>
-<b class="nc">&nbsp;		} else if (currentLevel == 5) {</b>
-<b class="nc">&nbsp;			AchievementsDisplay.setAchievement(&quot;minicraft.achievement.obsidian_dungeon&quot;, true);</b>
-&nbsp;		}
-&nbsp;	}
-&nbsp;
-&nbsp;	/**
-&nbsp;	 * Called when the world exits.
-&nbsp;	 */
-&nbsp;	public static void onWorldExits() {
-<b class="nc">&nbsp;		lastWorldExitTime = System.currentTimeMillis();</b>
-&nbsp;	}
-&nbsp;
-&nbsp;	public static long getLastWorldExitTime() {
-<b class="nc">&nbsp;		return lastWorldExitTime;</b>
-&nbsp;	}
-&nbsp;
-&nbsp;	public static long getLastWorldEnterTime() {
-<b class="nc">&nbsp;		return lastWorldEnterTime;</b>
+&nbsp;	public @NotNull FurnitureItem copy() {
+&nbsp;		// in case the item is a spawner, it will use the sprite position (sx, sy)
+&nbsp;		// instead if it is not, the constructor will obtain said sprite
+<b class="fc">&nbsp;		return new FurnitureItem(furniture.copy());</b>
 &nbsp;	}
 &nbsp;}
 </code>
@@ -339,7 +223,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-04-19 15:54</div>
+    <div style="float:right;">generated on 2024-04-24 14:15</div>
 </div>
 </body>
 </html>

@@ -56,26 +56,26 @@ Current scope:     <a href="../../index.html">all classes</a>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    33.3%
+    100%
   </span>
   <span class="absValue">
-    (5/15)
+    (15/15)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    15.8%
+    97.4%
   </span>
   <span class="absValue">
-    (6/38)
+    (37/38)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    38.9%
+    100%
   </span>
   <span class="absValue">
-    (21/54)
+    (54/54)
   </span>
 </td>
 </tr>
@@ -156,57 +156,57 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;	 */
 &nbsp;	@Override
 &nbsp;	public String getDisplayName() {
-<b class="nc">&nbsp;		if (!type.noLevel)</b>
-<b class="nc">&nbsp;			return &quot; &quot; + Localization.getLocalized(LEVEL_NAMES[level]) + &quot; &quot; + Localization.getLocalized(type.toString());</b>
-<b class="nc">&nbsp;		else return &quot; &quot; + Localization.getLocalized(type.toString());</b>
+<b class="fc">&nbsp;		if (!type.noLevel)</b>
+<b class="fc">&nbsp;			return &quot; &quot; + Localization.getLocalized(LEVEL_NAMES[level]) + &quot; &quot; + Localization.getLocalized(type.toString());</b>
+<b class="fc">&nbsp;		else return &quot; &quot; + Localization.getLocalized(type.toString());</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	public boolean isDepleted() {
-<b class="nc">&nbsp;		return dur &lt;= 0 &amp;&amp; type.durability &gt; 0;</b>
-&nbsp;	}
+<b class="pc">&nbsp;		return dur &lt;= 0 &amp;&amp; type.durability &gt; 0;</b>
+&nbsp;	} //type.durability is final and always greater than 0
 &nbsp;
 &nbsp;	/**
 &nbsp;	 * You can attack mobs with tools.
 &nbsp;	 */
 &nbsp;	public boolean canAttack() {
-<b class="nc">&nbsp;		return type != ToolType.Shears;</b>
+<b class="fc">&nbsp;		return type != ToolType.Shears;</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	public boolean payDurability() {
-<b class="nc">&nbsp;		if (dur &lt;= 0) return false;</b>
-<b class="nc">&nbsp;		if (!Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) dur--;</b>
-<b class="nc">&nbsp;		return true;</b>
+<b class="fc">&nbsp;		if (dur &lt;= 0) return false;</b>
+<b class="fc">&nbsp;		if (!Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) dur--;</b>
+<b class="fc">&nbsp;		return true;</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	public int getDamage() {
-<b class="nc">&nbsp;		return random.nextInt(5) + damage;</b>
+<b class="fc">&nbsp;		return random.nextInt(5) + damage;</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	/**
 &nbsp;	 * Gets the attack damage bonus from an item/tool (sword/axe)
 &nbsp;	 */
 &nbsp;	public int getAttackDamageBonus(Entity e) {
-<b class="nc">&nbsp;		if (!payDurability())</b>
-<b class="nc">&nbsp;			return 0;</b>
+<b class="fc">&nbsp;		if (!payDurability())</b>
+<b class="fc">&nbsp;			return 0;</b>
 &nbsp;
-<b class="nc">&nbsp;		if (e instanceof Mob) {</b>
-<b class="nc">&nbsp;			if (type == ToolType.Axe) {</b>
-<b class="nc">&nbsp;				return (level + 1) * 2 + random.nextInt(4); // Wood axe damage: 2-5; gem axe damage: 10-13.</b>
-<b class="nc">&nbsp;			} else if (type == ToolType.Sword) {</b>
-<b class="nc">&nbsp;				return (level + 1) * 3 + random.nextInt(2 + level * level); // Wood: 3-5 damage; gem: 15-32 damage.</b>
-<b class="nc">&nbsp;			} else if (type == ToolType.Claymore) {</b>
-<b class="nc">&nbsp;				return (level + 1) * 3 + random.nextInt(4 + level * level * 3); // Wood: 3-6 damage; gem: 15-66 damage.</b>
-<b class="nc">&nbsp;			} else if (type == ToolType.Pickaxe)</b>
-<b class="nc">&nbsp;				return (level + 1) + random.nextInt(2); // Wood: 3-6 damage; gem: 15-66 damage.</b>
-<b class="nc">&nbsp;			return 1;</b>
+<b class="fc">&nbsp;		if (e instanceof Mob) {</b>
+<b class="fc">&nbsp;			if (type == ToolType.Axe) {</b>
+<b class="fc">&nbsp;				return (level + 1) * 2 + random.nextInt(4); // Wood axe damage: 2-5; gem axe damage: 10-13.</b>
+<b class="fc">&nbsp;			} else if (type == ToolType.Sword) {</b>
+<b class="fc">&nbsp;				return (level + 1) * 3 + random.nextInt(2 + level * level); // Wood: 3-5 damage; gem: 15-32 damage.</b>
+<b class="fc">&nbsp;			} else if (type == ToolType.Claymore) {</b>
+<b class="fc">&nbsp;				return (level + 1) * 3 + random.nextInt(4 + level * level * 3); // Wood: 3-6 damage; gem: 15-66 damage.</b>
+<b class="fc">&nbsp;			} else if (type == ToolType.Pickaxe)</b>
+<b class="fc">&nbsp;				return (level + 1) + random.nextInt(2); // Wood: 3-6 damage; gem: 15-66 damage.</b>
+<b class="fc">&nbsp;			return 1;</b>
 &nbsp;		}
 &nbsp;
-<b class="nc">&nbsp;		return 0;</b>
+<b class="fc">&nbsp;		return 0;</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	@Override
 &nbsp;	public String getData() {
-<b class="nc">&nbsp;		return super.getData() + &quot;_&quot; + dur;</b>
+<b class="fc">&nbsp;		return super.getData() + &quot;_&quot; + dur;</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	/**
@@ -214,27 +214,27 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;	 */
 &nbsp;	@Override
 &nbsp;	public boolean equals(Item item) {
-<b class="nc">&nbsp;		if (item instanceof ToolItem) {</b>
-<b class="nc">&nbsp;			ToolItem other = (ToolItem) item;</b>
-<b class="nc">&nbsp;			return other.type == type &amp;&amp; other.level == level;</b>
+<b class="fc">&nbsp;		if (item instanceof ToolItem) {</b>
+<b class="fc">&nbsp;			ToolItem other = (ToolItem) item;</b>
+<b class="fc">&nbsp;			return other.type == type &amp;&amp; other.level == level;</b>
 &nbsp;		}
-<b class="nc">&nbsp;		return false;</b>
+<b class="fc">&nbsp;		return false;</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	@Override
 &nbsp;	public int hashCode() {
-<b class="nc">&nbsp;		return type.name().hashCode() + level;</b>
+<b class="fc">&nbsp;		return type.name().hashCode() + level;</b>
 &nbsp;	}
 &nbsp;
 &nbsp;	public @NotNull ToolItem copy() {
 &nbsp;		ToolItem ti;
-<b class="nc">&nbsp;		if (type.noLevel) {</b>
-<b class="nc">&nbsp;			ti = new ToolItem(type);</b>
+<b class="fc">&nbsp;		if (type.noLevel) {</b>
+<b class="fc">&nbsp;			ti = new ToolItem(type);</b>
 &nbsp;		} else {
-<b class="nc">&nbsp;			ti = new ToolItem(type, level);</b>
+<b class="fc">&nbsp;			ti = new ToolItem(type, level);</b>
 &nbsp;		}
-<b class="nc">&nbsp;		ti.dur = dur;</b>
-<b class="nc">&nbsp;		return ti;</b>
+<b class="fc">&nbsp;		ti.dur = dur;</b>
+<b class="fc">&nbsp;		return ti;</b>
 &nbsp;	}
 &nbsp;}
 </code>
@@ -260,7 +260,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-04-19 13:35</div>
+    <div style="float:right;">generated on 2024-04-24 14:15</div>
 </div>
 </body>
 </html>

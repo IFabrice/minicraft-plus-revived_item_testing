@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
-  <title>Coverage Report > Server</title>
+  <title>Coverage Report > FishingData</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">minicraft.core</a>
+    <a href="../index.html">minicraft.item</a>
 </div>
 
-<h1>Coverage Summary for Class: Server (minicraft.core)</h1>
+<h1>Coverage Summary for Class: FishingData (minicraft.item)</h1>
 
 <table class="coverageStats">
 <tr>
@@ -41,29 +41,29 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 </tr>
 <tr>
-  <td class="name">Server</td>
+  <td class="name">FishingData</td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/1)
+    (1/1)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    66.7%
   </span>
   <span class="absValue">
-    (0/1)
+    (2/3)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    90.9%
   </span>
   <span class="absValue">
-    (0/1)
+    (10/11)
   </span>
 </td>
 </tr>
@@ -75,9 +75,34 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.core;
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
 &nbsp;
-<b class="nc">&nbsp;public class Server {</b>
+&nbsp;import minicraft.saveload.Load;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;
+<b class="nc">&nbsp;public class FishingData {</b>
+&nbsp;
+<b class="fc">&nbsp;	public static final List&lt;String&gt; fishData = getData(&quot;fish&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;	public static final List&lt;String&gt; toolData = getData(&quot;tool&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;	public static final List&lt;String&gt; junkData = getData(&quot;junk&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;	public static final List&lt;String&gt; rareData = getData(&quot;rare&quot;);</b>
+&nbsp;
+&nbsp;	public static List&lt;String&gt; getData(String name) {
+&nbsp;		List&lt;String&gt; data;
+&nbsp;		try {
+<b class="fc">&nbsp;			data = Load.loadFile(&quot;/resources/data/fishing/&quot; + name + &quot;_loot.txt&quot;);</b>
+<b class="fc">&nbsp;		} catch (IOException e) {</b>
+<b class="fc">&nbsp;			e.printStackTrace();</b>
+<b class="fc">&nbsp;			data = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;		}</b>
+<b class="fc">&nbsp;		return data;</b>
+&nbsp;	}
 &nbsp;}
 </code>
 </pre>
@@ -102,7 +127,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-04-19 15:54</div>
+    <div style="float:right;">generated on 2024-04-24 14:15</div>
 </div>
 </body>
 </html>

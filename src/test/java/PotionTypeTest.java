@@ -193,7 +193,6 @@ public class PotionTypeTest {
 		assertFalse(escape.toggleEffect(mockPlayer,true));
 	}
 
-
 	@Test
 	public void testTransmitEffect() {
 		assertTrue(escape.transmitEffect());

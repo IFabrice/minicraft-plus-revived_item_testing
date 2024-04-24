@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
-  <title>Coverage Report > CrashHandler</title>
+  <title>Coverage Report > ArmorItem</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,18 +19,25 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">minicraft.core</a>
+    <a href="../index.html">minicraft.item</a>
 </div>
 
-<h1>Coverage Summary for Class: CrashHandler (minicraft.core)</h1>
+<h1>Coverage Summary for Class: ArmorItem (minicraft.item)</h1>
 
 <table class="coverageStats">
-
 <tr>
   <th class="name">Class</th>
 <th class="coverageStat 
 ">
+  Class, %
+</th>
+<th class="coverageStat 
+">
   Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
 </th>
 <th class="coverageStat 
 ">
@@ -38,81 +45,41 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 </tr>
 <tr>
-  <td class="name">CrashHandler</td>
+  <td class="name">ArmorItem</td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/14)
+    (1/1)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/138)
-  </span>
-</td>
-</tr>
-  <tr>
-    <td class="name">CrashHandler$ErrorInfo</td>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/7)
+    (6/6)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/11)
-  </span>
-</td>
-  </tr>
-  <tr>
-    <td class="name">CrashHandler$ErrorInfo$ErrorType</td>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/2)
+    (4/4)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/10)
-  </span>
-</td>
-  </tr>
-<tr>
-  <td class="name"><strong>Total</strong></td>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/23)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/159)
+    (22/22)
   </span>
 </td>
 </tr>
+
 </table>
 
 <br/>
@@ -120,336 +87,65 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.core;
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
 &nbsp;
-&nbsp;import kong.unirest.Empty;
-&nbsp;import kong.unirest.HttpResponse;
-&nbsp;import minicraft.core.CrashHandler.ErrorInfo.ErrorType;
-&nbsp;import minicraft.core.io.ClipboardHandler;
-&nbsp;import minicraft.network.Analytics;
-&nbsp;import minicraft.util.Logging;
-&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import org.jetbrains.annotations.NotNull;
 &nbsp;
-&nbsp;import javax.swing.BorderFactory;
-&nbsp;import javax.swing.BoxLayout;
-&nbsp;import javax.swing.JButton;
-&nbsp;import javax.swing.JDialog;
-&nbsp;import javax.swing.JLabel;
-&nbsp;import javax.swing.JPanel;
-&nbsp;import javax.swing.JScrollPane;
-&nbsp;import javax.swing.JTextArea;
-&nbsp;import javax.swing.UIManager;
-&nbsp;import javax.swing.WindowConstants;
+&nbsp;import java.util.ArrayList;
 &nbsp;
-&nbsp;import java.awt.BorderLayout;
-&nbsp;import java.awt.Font;
-&nbsp;import java.awt.GraphicsEnvironment;
-&nbsp;import java.awt.GridBagLayout;
-&nbsp;import java.io.PrintWriter;
-&nbsp;import java.io.StringWriter;
-&nbsp;import java.util.concurrent.Future;
+&nbsp;public class ArmorItem extends StackableItem {
 &nbsp;
-<b class="nc">&nbsp;public class CrashHandler {</b>
-&nbsp;	public static void crashHandle(Thread thread, Throwable throwable) {
-<b class="nc">&nbsp;		crashHandle(throwable);</b>
+&nbsp;	protected static ArrayList&lt;Item&gt; getAllInstances() {
+<b class="fc">&nbsp;		ArrayList&lt;Item&gt; items = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;		items.add(new ArmorItem(&quot;Leather Armor&quot;, new LinkedSprite(SpriteType.Item, &quot;leather_armor&quot;), .3f, 1));</b>
+<b class="fc">&nbsp;		items.add(new ArmorItem(&quot;Snake Armor&quot;, new LinkedSprite(SpriteType.Item, &quot;snake_armor&quot;), .4f, 2));</b>
+<b class="fc">&nbsp;		items.add(new ArmorItem(&quot;Iron Armor&quot;, new LinkedSprite(SpriteType.Item, &quot;iron_armor&quot;), .5f, 3));</b>
+<b class="fc">&nbsp;		items.add(new ArmorItem(&quot;Gold Armor&quot;, new LinkedSprite(SpriteType.Item, &quot;gold_armor&quot;), .7f, 4));</b>
+<b class="fc">&nbsp;		items.add(new ArmorItem(&quot;Gem Armor&quot;, new LinkedSprite(SpriteType.Item, &quot;gem_armor&quot;), 1f, 5));</b>
+&nbsp;
+<b class="fc">&nbsp;		return items;</b>
 &nbsp;	}
 &nbsp;
-&nbsp;	public static void crashHandle(Throwable throwable) {
-<b class="nc">&nbsp;		crashHandle(throwable, new ErrorInfo(true));</b>
+&nbsp;	private final float armor;
+&nbsp;	private final int staminaCost;
+&nbsp;	public final int level;
+&nbsp;
+&nbsp;	private ArmorItem(String name, LinkedSprite sprite, float health, int level) {
+<b class="fc">&nbsp;		this(name, sprite, 1, health, level);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private ArmorItem(String name, LinkedSprite sprite, int count, float health, int level) {
+<b class="fc">&nbsp;		super(name, sprite, count);</b>
+<b class="fc">&nbsp;		this.armor = health;</b>
+<b class="fc">&nbsp;		this.level = level;</b>
+<b class="fc">&nbsp;		staminaCost = 9;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean interactOn(Tile tile, Level level, int xt, int yt, Player player, Direction attackDir) {
+<b class="fc">&nbsp;		boolean success = false;</b>
+<b class="fc">&nbsp;		if (player.curArmor == null &amp;&amp; player.payStamina(staminaCost)) {</b>
+<b class="fc">&nbsp;			player.curArmor = this; // Set the current armor being worn to this.</b>
+<b class="fc">&nbsp;			player.armor = (int) (armor * Player.maxArmor); // Armor is how many hits are left</b>
+<b class="fc">&nbsp;			success = true;</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		return super.interactOn(success);</b>
 &nbsp;	}
 &nbsp;
-&nbsp;	/**
-&nbsp;	 * This handles application crashing errors by giving notification to the user clearly.&lt;br&gt;
-&nbsp;	 * The user can only exit the program.
-&nbsp;	 */
-&nbsp;	public static void crashHandle(Throwable throwable, ErrorInfo info) {
-<b class="nc">&nbsp;		Logging.CRASHHANDLER.error(throwable);</b>
-&nbsp;
-<b class="nc">&nbsp;		StringWriter string = new StringWriter();</b>
-<b class="nc">&nbsp;		PrintWriter printer = new PrintWriter(string);</b>
-<b class="nc">&nbsp;		throwable.printStackTrace(printer);</b>
-&nbsp;
-<b class="nc">&nbsp;		Future&lt;HttpResponse&lt;Empty&gt;&gt; ping = Analytics.Crashes.ping();</b>
-&nbsp;
-&nbsp;		// Ensure ping finishes before program closes.
-<b class="nc">&nbsp;		if (GraphicsEnvironment.isHeadless() &amp;&amp; ping != null) {</b>
-&nbsp;			try {
-<b class="nc">&nbsp;				ping.get();</b>
-<b class="nc">&nbsp;			} catch (Exception ignored) {</b>
-<b class="nc">&nbsp;			}</b>
-&nbsp;			return;
-&nbsp;		}
-&nbsp;
-<b class="nc">&nbsp;		Logging.CRASHHANDLER.error(&quot;Crash: &quot; + info.type.name + &quot;: &quot; + info.title + (info.message != null ? &quot;: &quot; + info.message : &quot;&quot;));</b>
-&nbsp;
-<b class="nc">&nbsp;		JDialog dialog = new JDialog(Initializer.frame, &quot;Crash: &quot; + info.type.name, true); // Displays the error type.</b>
-&nbsp;
-<b class="nc">&nbsp;		JLabel icon = new JLabel(UIManager.getIcon(info.serious ? &quot;OptionPane.errorIcon&quot; : &quot;OptionPane.warningIcon&quot;));</b>
-<b class="nc">&nbsp;		icon.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));</b>
-<b class="nc">&nbsp;		JPanel boxPanel1 = new JPanel(); // Styling the icon.</b>
-<b class="nc">&nbsp;		boxPanel1.setLayout(new BoxLayout(boxPanel1, BoxLayout.Y_AXIS));</b>
-<b class="nc">&nbsp;		boxPanel1.add(icon);</b>
-<b class="nc">&nbsp;		dialog.getContentPane().add(boxPanel1, BorderLayout.WEST);</b>
-&nbsp;
-<b class="nc">&nbsp;		JLabel title = new JLabel(info.title);</b>
-<b class="nc">&nbsp;		title.setFont(title.getFont().deriveFont(20.0f));</b>
-<b class="nc">&nbsp;		title.setAlignmentX(JLabel.CENTER_ALIGNMENT);</b>
-&nbsp;
-<b class="nc">&nbsp;		JPanel gridPanel = new JPanel(new GridBagLayout()); // Centers the components.</b>
-<b class="nc">&nbsp;		JPanel boxPanel2 = new JPanel();</b>
-<b class="nc">&nbsp;		boxPanel2.setLayout(new BoxLayout(boxPanel2, BoxLayout.Y_AXIS));</b>
-<b class="nc">&nbsp;		gridPanel.add(boxPanel2);</b>
-<b class="nc">&nbsp;		boxPanel2.add(title);</b>
-<b class="nc">&nbsp;		if (info.message != null &amp;&amp; info.message.length() &gt; 0) { // Displays the error message when available.</b>
-<b class="nc">&nbsp;			JLabel msg = new JLabel(info.message);</b>
-<b class="nc">&nbsp;			msg.setFont(title.getFont().deriveFont(12.5f).deriveFont(Font.PLAIN));</b>
-<b class="nc">&nbsp;			msg.setAlignmentX(JLabel.CENTER_ALIGNMENT);</b>
-<b class="nc">&nbsp;			boxPanel2.add(msg);</b>
-&nbsp;		}
-&nbsp;
-&nbsp;		// Add all components to the dialog.
-<b class="nc">&nbsp;		gridPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));</b>
-<b class="nc">&nbsp;		dialog.getContentPane().add(gridPanel, BorderLayout.NORTH);</b>
-<b class="nc">&nbsp;		dialog.getContentPane().add(getCrashPanel(info, getErrorScrollPane(string.toString()), dialog, string.toString()));</b>
-&nbsp;
-<b class="nc">&nbsp;		dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE); // Disables the close button.</b>
-<b class="nc">&nbsp;		dialog.pack();</b>
-<b class="nc">&nbsp;		dialog.setLocationRelativeTo(null);</b>
-<b class="nc">&nbsp;		dialog.setVisible(true); // Shows the dialog.</b>
-<b class="nc">&nbsp;		dialog.dispose();</b>
-&nbsp;
-&nbsp;		// Ensure ping finishes before program closes.
-<b class="nc">&nbsp;		if (ping != null) {</b>
-&nbsp;			try {
-<b class="nc">&nbsp;				ping.get();</b>
-<b class="nc">&nbsp;			} catch (Exception ignored) {</b>
-<b class="nc">&nbsp;			}</b>
-&nbsp;		}
-&nbsp;
-&nbsp;		// Exits the program when the dialog closes.
-<b class="nc">&nbsp;		Logging.CRASHHANDLER.error(&quot;Application closes due to the crash.&quot;);</b>
-<b class="nc">&nbsp;		System.exit(info.type.exitCode);</b>
+&nbsp;	@Override
+&nbsp;	public boolean interactsWithWorld() {
+<b class="fc">&nbsp;		return false;</b>
 &nbsp;	}
 &nbsp;
-&nbsp;	public static void errorHandle(Throwable throwable) {
-<b class="nc">&nbsp;		errorHandle(throwable, new ErrorInfo());</b>
-&nbsp;	}
-&nbsp;
-&nbsp;	public static void errorHandle(Throwable throwable, ErrorInfo info) {
-<b class="nc">&nbsp;		errorHandle(throwable, info, null);</b>
-&nbsp;	}
-&nbsp;
-&nbsp;	/**
-&nbsp;	 * This handles application crashing errors by giving notification to the user clearly.&lt;br&gt;
-&nbsp;	 * The user can ignore the error, continue handling the error or exit the program (only in serious errors or error reports).
-&nbsp;	 * @param handling The handling function of the error.
-&nbsp;	 */
-&nbsp;	public static void errorHandle(Throwable throwable, ErrorInfo info, @Nullable Action handling) {
-<b class="nc">&nbsp;		throwable.printStackTrace();</b>
-&nbsp;
-<b class="nc">&nbsp;		StringWriter string = new StringWriter();</b>
-<b class="nc">&nbsp;		PrintWriter printer = new PrintWriter(string);</b>
-<b class="nc">&nbsp;		throwable.printStackTrace(printer);</b>
-&nbsp;
-<b class="nc">&nbsp;		Future&lt;HttpResponse&lt;Empty&gt;&gt; ping = Analytics.Crashes.ping();</b>
-&nbsp;
-&nbsp;		// Ensure ping finishes before program closes.
-<b class="nc">&nbsp;		if (GraphicsEnvironment.isHeadless() &amp;&amp; ping != null) {</b>
-&nbsp;			try {
-<b class="nc">&nbsp;				ping.get();</b>
-<b class="nc">&nbsp;			} catch (Exception ignored) {</b>
-<b class="nc">&nbsp;			}</b>
-&nbsp;			return;
-&nbsp;		}
-&nbsp;
-<b class="nc">&nbsp;		Logging.CRASHHANDLER.error(info.type.name + &quot;: &quot; + info.title + (info.message != null ? &quot;: &quot; + info.message : &quot;&quot;));</b>
-&nbsp;
-<b class="nc">&nbsp;		JDialog dialog = new JDialog(Initializer.frame, &quot;Error: &quot; + info.type.name, true); // Displays the error type.</b>
-&nbsp;
-&nbsp;		// Sets the icon depends on the error type.
-<b class="nc">&nbsp;		JLabel icon = new JLabel(info.serious ? UIManager.getIcon(&quot;OptionPane.errorIcon&quot;) : info.type == ErrorType.REPORT ? UIManager.getIcon(&quot;OptionPane.informationIcon&quot;) : UIManager.getIcon(&quot;OptionPane.warningIcon&quot;));</b>
-<b class="nc">&nbsp;		icon.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));</b>
-<b class="nc">&nbsp;		JPanel boxPanel1 = new JPanel(); // Styling the icon.</b>
-<b class="nc">&nbsp;		boxPanel1.setLayout(new BoxLayout(boxPanel1, BoxLayout.Y_AXIS));</b>
-<b class="nc">&nbsp;		boxPanel1.add(icon);</b>
-<b class="nc">&nbsp;		dialog.getContentPane().add(boxPanel1, BorderLayout.WEST);</b>
-&nbsp;
-<b class="nc">&nbsp;		JLabel title = new JLabel(info.title);</b>
-<b class="nc">&nbsp;		title.setFont(title.getFont().deriveFont(20.0f));</b>
-<b class="nc">&nbsp;		title.setAlignmentX(JLabel.CENTER_ALIGNMENT);</b>
-&nbsp;
-<b class="nc">&nbsp;		JPanel gridPanel = new JPanel(new GridBagLayout()); // Centers the components.</b>
-<b class="nc">&nbsp;		JPanel boxPanel2 = new JPanel();</b>
-<b class="nc">&nbsp;		boxPanel2.setLayout(new BoxLayout(boxPanel2, BoxLayout.Y_AXIS));</b>
-<b class="nc">&nbsp;		gridPanel.add(boxPanel2);</b>
-<b class="nc">&nbsp;		boxPanel2.add(title);</b>
-<b class="nc">&nbsp;		if (info.message != null &amp;&amp; info.message.length() &gt; 0) { // Displays the error message when available.</b>
-<b class="nc">&nbsp;			JLabel msg = new JLabel(info.message);</b>
-<b class="nc">&nbsp;			msg.setFont(title.getFont().deriveFont(12.5f).deriveFont(Font.PLAIN));</b>
-<b class="nc">&nbsp;			msg.setAlignmentX(JLabel.CENTER_ALIGNMENT);</b>
-<b class="nc">&nbsp;			boxPanel2.add(msg);</b>
-&nbsp;		}
-&nbsp;
-&nbsp;		// Add all components to the dialog.
-<b class="nc">&nbsp;		gridPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));</b>
-<b class="nc">&nbsp;		dialog.getContentPane().add(gridPanel, BorderLayout.NORTH);</b>
-<b class="nc">&nbsp;		dialog.getContentPane().add(getErrorPanel(info, getErrorScrollPane(string.toString()), dialog, string.toString(), handling, ping));</b>
-&nbsp;
-<b class="nc">&nbsp;		dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE); // Disables the close button.</b>
-<b class="nc">&nbsp;		dialog.pack();</b>
-<b class="nc">&nbsp;		dialog.setLocationRelativeTo(null);</b>
-<b class="nc">&nbsp;		dialog.setVisible(true); // Shows the dialog.</b>
-&nbsp;	}
-&nbsp;
-&nbsp;	/**
-&nbsp;	 * Getting the stack trace display component.
-&nbsp;	 */
-&nbsp;	private static JScrollPane getErrorScrollPane(String stackTrace) {
-<b class="nc">&nbsp;		JTextArea errorDisplay = new JTextArea(stackTrace);</b>
-<b class="nc">&nbsp;		errorDisplay.setEditable(false);</b>
-<b class="nc">&nbsp;		return new JScrollPane(errorDisplay);</b>
-&nbsp;	}
-&nbsp;
-&nbsp;	/**
-&nbsp;	 * Getting the panel for crashing handling dialog.
-&nbsp;	 */
-&nbsp;	private static JPanel getCrashPanel(ErrorInfo info, JScrollPane errorPane, JDialog dialog, String stackTrace) {
-<b class="nc">&nbsp;		JPanel panel = new JPanel(new BorderLayout());</b>
-<b class="nc">&nbsp;		panel.add(errorPane);</b>
-<b class="nc">&nbsp;		JPanel buttonPanel = new JPanel();</b>
-&nbsp;
-<b class="nc">&nbsp;		JButton copyButton = new JButton(&quot;Copy Error&quot;); // Copies the information of the error.</b>
-<b class="nc">&nbsp;		ClipboardHandler clip = new ClipboardHandler();</b>
-<b class="nc">&nbsp;		copyButton.addActionListener(e -&gt; clip.setClipboardContents(info.type.name + &quot;: &quot; + info.title + (info.message != null ? &quot;: &quot; + info.message : &quot;&quot;) + &quot;\n&quot; + stackTrace));</b>
-<b class="nc">&nbsp;		buttonPanel.add(copyButton);</b>
-&nbsp;
-<b class="nc">&nbsp;		JButton exitButton = new JButton(&quot;Exit Program&quot;); // Closes the dialog to exit program.</b>
-<b class="nc">&nbsp;		exitButton.addActionListener(e -&gt; {</b>
-<b class="nc">&nbsp;			dialog.setVisible(false);</b>
-<b class="nc">&nbsp;			dialog.dispose();</b>
-&nbsp;		});
-&nbsp;
-<b class="nc">&nbsp;		dialog.getRootPane().setDefaultButton(exitButton);</b>
-<b class="nc">&nbsp;		buttonPanel.add(exitButton);</b>
-&nbsp;
-<b class="nc">&nbsp;		panel.add(buttonPanel, BorderLayout.SOUTH);</b>
-<b class="nc">&nbsp;		return panel;</b>
-&nbsp;	}
-&nbsp;
-&nbsp;	private static JPanel getErrorPanel(ErrorInfo info, JScrollPane errorPane, JDialog dialog, String stackTrace, Action callback, Future&lt;HttpResponse&lt;Empty&gt;&gt; ping) {
-<b class="nc">&nbsp;		JPanel panel = new JPanel(new BorderLayout());</b>
-<b class="nc">&nbsp;		panel.add(errorPane);</b>
-<b class="nc">&nbsp;		JPanel buttonPanel = new JPanel();</b>
-&nbsp;
-<b class="nc">&nbsp;		JButton copyButton = new JButton(&quot;Copy Error&quot;); // Copies the information of the error.</b>
-<b class="nc">&nbsp;		ClipboardHandler clip = new ClipboardHandler();</b>
-<b class="nc">&nbsp;		copyButton.addActionListener(e -&gt; clip.setClipboardContents(info.type.name + &quot;: &quot; + info.title + (info.message != null ? &quot;: &quot; + info.message : &quot;&quot;) + &quot;\n&quot; + stackTrace));</b>
-<b class="nc">&nbsp;		buttonPanel.add(copyButton);</b>
-&nbsp;
-<b class="nc">&nbsp;		if (info.serious || info.type == ErrorType.REPORT) { // Ability to exit program when the error is serious or error report.</b>
-<b class="nc">&nbsp;			JButton exitButton = new JButton(&quot;Exit Program&quot;);</b>
-<b class="nc">&nbsp;			exitButton.addActionListener(e -&gt; {</b>
-<b class="nc">&nbsp;				dialog.setVisible(false);</b>
-<b class="nc">&nbsp;				dialog.dispose();</b>
-&nbsp;
-&nbsp;				// Ensure ping finishes before program closes.
-<b class="nc">&nbsp;				if (ping != null) {</b>
-&nbsp;					try {
-<b class="nc">&nbsp;						ping.get();</b>
-<b class="nc">&nbsp;					} catch (Exception ignored) {</b>
-<b class="nc">&nbsp;					}</b>
-&nbsp;				}
-&nbsp;
-<b class="nc">&nbsp;				Logging.CRASHHANDLER.error(&quot;Application closes due to the error.&quot;);</b>
-<b class="nc">&nbsp;				System.exit(info.type.exitCode);</b>
-&nbsp;			});
-&nbsp;
-<b class="nc">&nbsp;			buttonPanel.add(exitButton);</b>
-&nbsp;		}
-&nbsp;
-<b class="nc">&nbsp;		if (callback != null) {</b>
-<b class="nc">&nbsp;			JButton ignoreButton = new JButton(&quot;Ignore&quot;); // Continues the program without handling the error with the callback.</b>
-<b class="nc">&nbsp;			ignoreButton.addActionListener(e -&gt; {</b>
-<b class="nc">&nbsp;				dialog.setVisible(false);</b>
-<b class="nc">&nbsp;				dialog.dispose();</b>
-&nbsp;			});
-<b class="nc">&nbsp;			buttonPanel.add(ignoreButton);</b>
-&nbsp;		}
-&nbsp;
-<b class="nc">&nbsp;		JButton continueButton = new JButton(&quot;Continue&quot;); // Continues the program and also handles the error with the callback.</b>
-<b class="nc">&nbsp;		continueButton.addActionListener(e -&gt; {</b>
-<b class="nc">&nbsp;			dialog.setVisible(false);</b>
-<b class="nc">&nbsp;			dialog.dispose();</b>
-<b class="nc">&nbsp;			if (callback != null) callback.act();</b>
-&nbsp;		});
-<b class="nc">&nbsp;		dialog.getRootPane().setDefaultButton(continueButton);</b>
-<b class="nc">&nbsp;		buttonPanel.add(continueButton);</b>
-&nbsp;
-<b class="nc">&nbsp;		panel.add(buttonPanel, BorderLayout.SOUTH);</b>
-<b class="nc">&nbsp;		return panel;</b>
-&nbsp;	}
-&nbsp;
-&nbsp;	public static class ErrorInfo {
-&nbsp;		public final String title;
-&nbsp;		public final ErrorType type;
-&nbsp;		public final String message;
-&nbsp;		public final boolean serious;
-&nbsp;
-&nbsp;		public ErrorInfo() {
-<b class="nc">&nbsp;			this(false);</b>
-&nbsp;		}
-&nbsp;
-&nbsp;		public ErrorInfo(boolean crashing) {
-<b class="nc">&nbsp;			this(crashing ? &quot;General Application Crash&quot; : &quot;General Application Error&quot;,</b>
-&nbsp;				crashing ? ErrorType.DEFAULT : ErrorType.REPORT);
-&nbsp;		}
-&nbsp;
-&nbsp;		public ErrorInfo(String topic) {
-<b class="nc">&nbsp;			this(topic, ErrorType.DEFAULT);</b>
-&nbsp;		}
-&nbsp;
-&nbsp;		public ErrorInfo(String topic, ErrorType type) {
-<b class="nc">&nbsp;			this(topic, type, type.exitCode != 0);</b>
-&nbsp;		}
-&nbsp;
-&nbsp;		public ErrorInfo(String topic, ErrorType type, boolean serious) {
-<b class="nc">&nbsp;			this(topic, type, serious, null);</b>
-&nbsp;		}
-&nbsp;
-&nbsp;		public ErrorInfo(String topic, ErrorType type, String message) {
-<b class="nc">&nbsp;			this(topic, type, type.exitCode &lt; 0, message);</b>
-&nbsp;		}
-&nbsp;
-<b class="nc">&nbsp;		public ErrorInfo(String topic, ErrorType type, boolean serious, String message) {</b>
-<b class="nc">&nbsp;			this.title = topic;</b>
-<b class="nc">&nbsp;			this.type = type;</b>
-<b class="nc">&nbsp;			this.message = message;</b>
-<b class="nc">&nbsp;			this.serious = serious;</b>
-&nbsp;		}
-&nbsp;
-&nbsp;		/**
-&nbsp;		 * The error types. Add more types when needed.
-&nbsp;		 */
-<b class="nc">&nbsp;		public static enum ErrorType {</b>
-<b class="nc">&nbsp;			DEFAULT(-1, &quot;Unhandled error&quot;),</b>
-<b class="nc">&nbsp;			UNEXPECTED(-2, &quot;Unexpected error&quot;),</b>
-<b class="nc">&nbsp;			UNHANDLEABLE(-3, &quot;Unhandleable error&quot;),</b>
-<b class="nc">&nbsp;			SERIOUS(1, &quot;Serious error&quot;),</b>
-<b class="nc">&nbsp;			HANDLED(0, &quot;Handled error&quot;),</b>
-<b class="nc">&nbsp;			REPORT(0, &quot;Error report&quot;),</b>
-&nbsp;			;
-&nbsp;
-&nbsp;			/**
-&nbsp;			 * The exit codes are referring to https://www.techiedelight.com/exit-codes-java-system-exit-method/
-&nbsp;			 */
-&nbsp;			public final int exitCode;
-&nbsp;			public final String name;
-&nbsp;
-<b class="nc">&nbsp;			ErrorType(int exitCode, String message) {</b>
-<b class="nc">&nbsp;				this.exitCode = exitCode;</b>
-<b class="nc">&nbsp;				this.name = message;</b>
-&nbsp;			}
-&nbsp;		}
+&nbsp;	public @NotNull ArmorItem copy() {
+<b class="fc">&nbsp;		return new ArmorItem(getName(), sprite, count, armor, level);</b>
 &nbsp;	}
 &nbsp;}
 </code>
@@ -475,7 +171,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-04-19 15:54</div>
+    <div style="float:right;">generated on 2024-04-24 14:15</div>
 </div>
 </body>
 </html>
