@@ -85,3 +85,5 @@ The files tested can all be found in the `src/client/item` folder
 2. **testConstructInvalidReqItems** and **testConstructorInvalidCreatedItems** reveals a fault in the constructor of the **Recipe** class, namely there is no error checking of the input for the constructor and no throws annotations are written on the class, although it you pass in a poorly formatted string, an error will occur
 3. **testGetAttackDamageBonusDurMobPickaxe** reveals a fault in the getAttackDamageBonus method of the **ToolItem** class, the attack damage bonus is stated to always be between 3 and 6 for wooden pickaxes, however this is not the case, the likely fault is that there is a math error in the calculation of a random bonus damage between these values
 
+# Presentation slides
+https://docs.google.com/presentation/d/1E694S9wW8zk4PG-As2q7P9memtDqbMaC/edit#slide=id.p4
