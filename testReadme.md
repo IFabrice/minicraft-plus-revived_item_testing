@@ -1,3 +1,20 @@
+# Testing tools
+- White box testing
+  - Junit
+  - Intellij coverage reportage
+- Black box testing
+  - **TODO: Michael fill**
+- Mock testing
+  - mockito inline library
+- Integration testing
+  - **TODO: Fabrice fill**
+
+**Note:** All tests can be found in the `src/test/java` folder. White box and mock tests are in the format `*Test` whilst black box are in the form `*BlackBoxTest`
+
+# SUT
+The files tested can all be found in the `src/client/item` folder
+
+
 # White box and mock tests
 
 ## Reproducing coverage results
