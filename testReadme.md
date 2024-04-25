@@ -1,11 +1,12 @@
 # White box and mock tests
 
 ## Reproducing coverage results
-
 **Note:** You will need to run the tests twice, unless tests that should pass will fail, I believe this may be related to using an unstable version of mockito, I talked to the professor about this problem but we couldn't find a solution
+[coverage_generation.mov](coverage_generation.mov)
 
 ## White box Coverage
-![Screenshot 2024-04-24 at 2.39.46 PM.png](..%2F..%2F..%2F..%2F..%2F..%2F..%2Fvar%2Ffolders%2Fsx%2F352rtltn5kx8dytr_5zgzfg00000gn%2FT%2FTemporaryItems%2FNSIRD_screencaptureui_KHdRqK%2FScreenshot%202024-04-24%20at%202.39.46%E2%80%AFPM.png)
+![coverage_report.png](coverage_report.png)
+
 
 ## Limitations to White box testing
 
