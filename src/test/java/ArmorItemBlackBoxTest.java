@@ -1,23 +1,13 @@
-import minicraft.core.Game;
-import minicraft.core.World;
-import minicraft.entity.Direction;
+import minicraft.core.io.InputHandler;
 import minicraft.entity.mob.Player;
 import minicraft.item.ArmorItem;
-import minicraft.item.BookItem;
-import minicraft.item.Inventory;
 import minicraft.item.Item;
 import minicraft.item.Items;
-import minicraft.level.Level;
-import minicraft.level.tile.Tile;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ArmorItemBlackBoxTest {
 
@@ -33,60 +23,6 @@ public class ArmorItemBlackBoxTest {
 		}
 	}
 
-	/*
-	@Test
-	public void testArmorReducesDamageInstance() {
-
-	}
-
-	@Test
-	public void testArmorDurabilityDecreasesFromDamage() {
-
-	}
-	// does not work
-	@Test
-	public void testArmorIsLostWhenPlayerDies() {
-		Player mockPlayer = mock(Player.class);
-		when(mockPlayer.payStamina(anyInt())).thenReturn(true);
-		armorItems.get(0).interactOn(null, null, 0, 0, mockPlayer, null);
-		doCallRealMethod().when(mockPlayer).pickupItem(any(ItemEntity.class));
-		ItemEntity item = mock(ItemEntity.class);
-        item.item = mock(Item.class);
-		Inventory inventory = mock(Inventory.class);
-		when(mockPlayer.getInventory()).thenReturn(inventory);
-		Level level = mock(Level.class);
-		Game game = mock(Game.class);
-		doCallRealMethod().when(mockPlayer).die();
-		mockPlayer.die();
-		assertNull(mockPlayer.curArmor);
-	}
-
-	// does not work
-	@Test
-	public void testArmorDisappearsWhenDurabilityIsZero() {
-		Player mockPlayer = mock(Player.class);
-		int health = mockPlayer.health;
-		when(mockPlayer.payStamina(anyInt())).thenReturn(true);
-		armorItems.get(0).interactOn(null, null, 0, 0, mockPlayer, null);
-		int durability = mockPlayer.armor;
-		doCallRealMethod().when(mockPlayer).hurt(anyInt(), eq(Direction.NONE));
-		mockPlayer.hurt(1000, Direction.NONE);
-		assertNull(mockPlayer.curArmor);
-	}
-
-	// does not work since I cannot access parameters
-	@Test
-	public void testArmorHasTenPointsOfItsMaterial() {
-		Player mockPlayer = mock(Player.class);
-		when(mockPlayer.payStamina(anyInt())).thenReturn(true);
-		armorItems.get(3).interactOn(null, null, 0, 0, mockPlayer, null);
-		final int durability = mockPlayer.armor;
-		doCallRealMethod().when(mockPlayer).hurt(any(Tile.class), anyInt(), anyInt(), anyInt());
-		mockPlayer.hurt(null, 0, 0, 100);
-		assert(mockPlayer.armor < durability);
-	}
-    */
-
 	// Error guessing on armor properties
 	@Test
 	public void testArmorHasExpectedProperties() {
@@ -97,30 +33,62 @@ public class ArmorItemBlackBoxTest {
 	}
 
 	// Testing that all available armor is retrieved
-	// Fails when run all at once, passes when run by itself?
 	@Test
 	public void testArmorHasAllArmors() {
 		assert(armorItems.size() == 5);
 	}
 
+	// Test that equipping armor works
+	@Test
+	public void testArmorEquipSucceeds() {
+		Player player = new Player(null, new InputHandler());
+		armorItems.get(0).interactOn(null, null, 0, 0, player, null);
+        assertSame(player.curArmor, armorItems.get(0));
+	}
+
+
+	// Ensures that player cannot put on armor if they already have armor on; error guessing
 	@Test
 	public void testArmorCannotBeEquippedIfPlayerHasArmorOn() {
-		Player mockPlayer = mock(Player.class);
-        when(mockPlayer.payStamina(anyInt())).thenReturn(true);
-		armorItems.get(0).interactOn(null, null, 0, 0, mockPlayer, null);
-		armorItems.get(1).interactOn(null, null, 0, 0, mockPlayer, null);
+		Player player = new Player(null, new InputHandler());
+		armorItems.get(0).interactOn(null, null, 0, 0, player, null);
+		armorItems.get(1).interactOn(null, null, 0, 0, player, null);
 		// ensure first armor equipped is not overwritten
-        assertNotSame(mockPlayer.curArmor, armorItems.get(1));
-		assertSame(mockPlayer.curArmor, armorItems.get(0));
+        assertNotSame(player.curArmor, armorItems.get(1));
+		assertSame(player.curArmor, armorItems.get(0));
+	}
+
+	// Armor should not modify existing player stats; error guessing
+	@Test
+	public void testArmorDoesNotAffectPlayerBaseHealth() {
+		Player player = new Player(null, new InputHandler());
+		int health = player.health;
+		armorItems.get(0).interactOn(null, null, 0, 0, player, null);
+		assertEquals(health, player.health);
 	}
 
 	@Test
-	public void testArmorDoesNotAffectPlayerBaseHealth() {
-		Player mockPlayer = mock(Player.class);
-		int health = mockPlayer.health;
-		when(mockPlayer.payStamina(anyInt())).thenReturn(true);
-		armorItems.get(0).interactOn(null, null, 0, 0, mockPlayer, null);
-		assertEquals(health, mockPlayer.health);
+	void testArmorCopyHasExpectedBehavior() {
+		for (ArmorItem armor : armorItems) {
+			Item item = armor.copy();
+			assertTrue(item.equals(armor));
+		}
 	}
 
+	// Partitioning on equals - same/different object
+	@Test
+	void testArmorEqualsTrue() {
+		for (ArmorItem armor : armorItems) {
+			ArmorItem a = armor;
+			assertTrue(armor.equals(a));
+		}
+	}
+
+	@Test
+	void testArmorEqualsFalse() {
+		Item item = Items.get("Grass");
+		for (ArmorItem armor : armorItems) {
+			assertFalse(armor.equals(item));
+		}
+	}
 }

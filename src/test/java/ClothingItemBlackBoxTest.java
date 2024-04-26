@@ -1,3 +1,4 @@
+import minicraft.core.io.InputHandler;
 import minicraft.entity.Direction;
 import minicraft.entity.mob.Player;
 import minicraft.item.ClothingItem;
@@ -10,7 +11,6 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 public class ClothingItemBlackBoxTest {
 	private static final ArrayList<ClothingItem> clothingItems = new ArrayList<>();
@@ -38,11 +38,35 @@ public class ClothingItemBlackBoxTest {
 	// testing expected behavior; player should be able to change clothes
 	@Test
 	public void testClothingSuccessfullyChanged() {
-		Player mockPlayer = mock(Player.class);
+		Player player = new Player(null, new InputHandler());
 		for (ClothingItem clothing : clothingItems) {
-			assertTrue(clothing.interactOn(null, null, 0, 0, mockPlayer, Direction.NONE));
+			assertTrue(clothing.interactOn(null, null, 0, 0, player, Direction.NONE));
 		}
+	}
 
+	// Testing expected functionality for copy
+	@Test
+	public void testClothingCopyIsSuccessful() {
+		for (ClothingItem clothing : clothingItems) {
+			Item item = clothing.copy();
+			assertTrue(item.equals(clothing));
+		}
+	}
 
+	// Partitioning on equals - same/different clothing
+	@Test
+	public void testClothingEqualsTrue() {
+		for (ClothingItem clothing : clothingItems) {
+			ClothingItem c = clothing;
+			assertTrue(clothing.equals(c));
+		}
+	}
+
+	@Test
+	public void testClothingEqualsFalse() {
+		Item item = Items.get("Grass");
+		for (ClothingItem clothing : clothingItems) {
+			assertFalse(clothing.equals(item));
+		}
 	}
 }
