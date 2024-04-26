@@ -7,7 +7,7 @@
 - Mock testing
   - mockito inline library
 - Integration testing
-  - **TODO: Fabrice fill**
+  - Junit
 
 **Note:** All tests can be found in the `src/test/java` folder. White box and mock tests are in the format `*Test` whilst black box are in the form `*BlackBoxTest`
 
@@ -84,6 +84,22 @@ The files tested can all be found in the `src/client/item` folder
 1. **testRemoveItemNoneStackingItemManyRemove** reveals a fault in the **inventor** class, inventory loops until i == size of the list of items being stored, however if you remove an item you change the size of the list, so let's say the inventory has two items and you remove the first item, the loop will terminate before checking whether to remove the second item. A fix would be to store before hand the initial size of the list and use this size for loop termination.
 2. **testConstructInvalidReqItems** and **testConstructorInvalidCreatedItems** reveals a fault in the constructor of the **Recipe** class, namely there is no error checking of the input for the constructor and no throws annotations are written on the class, although it you pass in a poorly formatted string, an error will occur
 3. **testGetAttackDamageBonusDurMobPickaxe** reveals a fault in the getAttackDamageBonus method of the **ToolItem** class, the attack damage bonus is stated to always be between 3 and 6 for wooden pickaxes, however this is not the case, the likely fault is that there is a math error in the calculation of a random bonus damage between these values
+
+# BlackBox 
+## coverage
+We were aiming at achieving each choice coverage of input partitioning. In situations where input partitioning was not possible, we attempted to use output partitioning, using the same coverage criterion. Some methods could not achieve ECC for reasons that have to do with the implementation of the functios. For instance, some functions could only return False. 
+
+## Blackbox limitations
+### Specifications
+It was challenging to do blackbox testing on module we focused on, since the whole code base has little to no specifications. We did our best to imagine what the specifications for each method would look like, and we wrote tests according to those specifications. 
+
+In addition, testing most of the classes needed the use of classes that are outside the scope of our target, and we either had to mock the functions or dive deep in understanding of how other classes work as well. We tried to learn and use those classes themselves, but we cannot be sure that we used all variations of the classes in achieving all choice coverage because we could not find all possible use cases. 
+
+### Methods definitions
+Most methods were defined as protected, and this limited the number of functions we could test as blackbox. 
+
+# Integration testing
+It was difficult to find integration points for the classes we tested since most of them integrate in classes that are outside the scope of our target. Logically, this make sense as well since most Items would not interact with each other in their definitions. We managed to find integrations in Inventory class and we created an integration test for Inventory class interacting with other classes. 
 
 # Presentation slides
 https://docs.google.com/presentation/d/1E694S9wW8zk4PG-As2q7P9memtDqbMaC/edit#slide=id.p4
