@@ -23,7 +23,7 @@ public class ArmorItemTest {
 	private static ArmorItem mockArmorItem;
 
 	@BeforeAll
-    public static void setUp() {
+	public static void setUp() {
 		ArrayList<Item> allItems = Items.getAll();
 		for (Item item : allItems) {
 			if (item instanceof ArmorItem) {
@@ -59,7 +59,7 @@ public class ArmorItemTest {
 		when(mockPlayer.payStamina(anyInt())).thenReturn(false);
 		boolean result = mockArmorItem.interactOn(null, null, 0, 0, mockPlayer, null);
 		//Main effect verification
-        assertFalse(result);
+		assertFalse(result);
 		ArmorItem initialCurrentArmor = mockPlayer.curArmor;
 		float initialArmor = mockPlayer.armor;
 		// Side effect verification
