@@ -107,3 +107,7 @@ It was difficult to find integration points for the classes we tested since most
 
 # Presentation slides
 https://docs.google.com/presentation/d/1E694S9wW8zk4PG-As2q7P9memtDqbMaC/edit#slide=id.p4
+
+# Instructions on how to run:
+To run our tests, please navigate to src/test/java. Each test file can be run individually, and our jacoco report can be acquired through the terminal with
+**$> gradlew jacocoTestReport**.
