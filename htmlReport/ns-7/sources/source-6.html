@@ -1,0 +1,153 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Insets</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.gfx</a>
+</div>
+
+<h1>Coverage Summary for Class: Insets (minicraft.gfx)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Insets</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (5/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    64.7%
+  </span>
+  <span class="absValue">
+    (11/17)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.gfx;
+&nbsp;
+&nbsp;public class Insets {
+&nbsp;
+&nbsp;	public int left, top, right, bottom;
+&nbsp;
+&nbsp;	public Insets() {
+<b class="nc">&nbsp;		this(0);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Insets(int dist) {
+<b class="fc">&nbsp;		this(dist, dist, dist, dist);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+<b class="fc">&nbsp;	public Insets(int left, int top, int right, int bottom) {</b>
+<b class="fc">&nbsp;		this.left = left;</b>
+<b class="fc">&nbsp;		this.top = top;</b>
+<b class="fc">&nbsp;		this.right = right;</b>
+<b class="fc">&nbsp;		this.bottom = bottom;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Rectangle addTo(Rectangle r) {
+<b class="nc">&nbsp;		return new Rectangle(r.getLeft() - left, r.getTop() - top, r.getRight() + right, r.getBottom() + bottom, Rectangle.CORNERS);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Rectangle subtractFrom(Rectangle r) {
+<b class="fc">&nbsp;		return new Rectangle(r.getLeft() + left, r.getTop() + top, r.getRight() - right, r.getBottom() - bottom, Rectangle.CORNERS);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Dimension addTo(Dimension d) {
+<b class="fc">&nbsp;		return new Dimension(d.width + left + right, d.height + top + bottom);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Dimension subtractFrom(Dimension d) {
+<b class="fc">&nbsp;		return new Dimension(d.width - left - right, d.height - top - bottom);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Insets addInsets(Insets s) {
+<b class="nc">&nbsp;		return new Insets(left + s.left, top + s.top, right + s.right, bottom + s.bottom);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Insets subtractInsets(Insets s) {
+<b class="nc">&nbsp;		return new Insets(left - s.left, top - s.top, right - s.right, bottom - s.bottom);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public String toString() {
+<b class="nc">&nbsp;		return super.toString() + &quot;[left=&quot; + left + &quot;,top=&quot; + top + &quot;,right=&quot; + right + &quot;,bottom=&quot; + bottom + &quot;]&quot;;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

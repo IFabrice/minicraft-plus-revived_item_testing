@@ -1,0 +1,355 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TileItem</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.item</a>
+</div>
+
+<h1>Coverage Summary for Class: TileItem (minicraft.item)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TileItem</td>
+<td class="coverageStat">
+  <span class="percent">
+    70%
+  </span>
+  <span class="absValue">
+    (7/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    86.7%
+  </span>
+  <span class="absValue">
+    (26/30)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    93%
+  </span>
+  <span class="absValue">
+    (80/86)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">TileItem$TileModel</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">TileItem$TileModel$TileDataGetter</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    81.2%
+  </span>
+  <span class="absValue">
+    (13/16)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    88.2%
+  </span>
+  <span class="absValue">
+    (30/34)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    93.8%
+  </span>
+  <span class="absValue">
+    (91/97)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.core.io.Sound;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.SpriteLinker;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;import minicraft.screen.AchievementsDisplay;
+&nbsp;import minicraft.screen.SignDisplay;
+&nbsp;import minicraft.util.AdvancementElement;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;import org.tinylog.Logger;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;public class TileItem extends StackableItem {
+&nbsp;
+&nbsp;	protected static ArrayList&lt;Item&gt; getAllInstances() {
+<b class="fc">&nbsp;		ArrayList&lt;Item&gt; items = new ArrayList&lt;&gt;();</b>
+&nbsp;
+&nbsp;		/// TileItem sprites all have 1x1 sprites.
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Flower&quot;, new LinkedSprite(SpriteType.Item, &quot;white_flower&quot;), new TileModel(&quot;flower&quot;), &quot;grass&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Acorn&quot;, new LinkedSprite(SpriteType.Item, &quot;acorn&quot;), new TileModel(&quot;tree Sapling&quot;), &quot;grass&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Dirt&quot;, new LinkedSprite(SpriteType.Item, &quot;dirt&quot;), new TileModel(&quot;dirt&quot;), &quot;hole&quot;, &quot;water&quot;, &quot;lava&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Natural Rock&quot;, new LinkedSprite(SpriteType.Item, &quot;stone&quot;), new TileModel(&quot;rock&quot;), &quot;hole&quot;, &quot;dirt&quot;, &quot;sand&quot;, &quot;grass&quot;, &quot;path&quot;, &quot;water&quot;, &quot;lava&quot;));</b>
+&nbsp;
+<b class="fc">&nbsp;		String[] solidTiles = { &quot;dirt&quot;, &quot;Wood Planks&quot;, &quot;Stone Bricks&quot;, &quot;Obsidian&quot;, &quot;Wool&quot;, &quot;Red Wool&quot;, &quot;Blue Wool&quot;,</b>
+&nbsp;			&quot;Green Wool&quot;, &quot;Yellow Wool&quot;, &quot;Black Wool&quot;, &quot;grass&quot;, &quot;sand&quot;, &quot;path&quot;, &quot;ornate stone&quot;, &quot;ornate obsidian&quot;, &quot;Raw Obsidian&quot;, &quot;Stone&quot; };
+<b class="fc">&nbsp;		TileModel.TileDataGetter placeOverWithID = (model1, target, level, xt, yt, player, attackDir) -&gt; target.id;</b>
+&nbsp;
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Plank&quot;, new LinkedSprite(SpriteType.Item, &quot;plank&quot;), new TileModel(&quot;Wood Planks&quot;), &quot;hole&quot;, &quot;water&quot;, &quot;cloud&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Plank Wall&quot;, new LinkedSprite(SpriteType.Item, &quot;plank_wall&quot;), new TileModel(&quot;Wood Wall&quot;), &quot;Wood Planks&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Wood Door&quot;, new LinkedSprite(SpriteType.Item, &quot;wood_door&quot;), new TileModel(&quot;Wood Door&quot;), &quot;Wood Planks&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Wood Fence&quot;, new LinkedSprite(SpriteType.Item, &quot;wood_fence&quot;), new TileModel(&quot;Wood Fence&quot;, placeOverWithID), solidTiles));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Stone&quot;, new LinkedSprite(SpriteType.Item, &quot;stone&quot;), new TileModel(&quot;Stone&quot;), &quot;hole&quot;, &quot;water&quot;, &quot;cloud&quot;, &quot;lava&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Stone Brick&quot;, new LinkedSprite(SpriteType.Item, &quot;stone_brick&quot;), new TileModel(&quot;Stone Bricks&quot;), &quot;hole&quot;, &quot;water&quot;, &quot;cloud&quot;, &quot;lava&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Ornate Stone&quot;, new LinkedSprite(SpriteType.Item, &quot;stone_brick&quot;), new TileModel(&quot;Ornate Stone&quot;), &quot;hole&quot;, &quot;water&quot;, &quot;cloud&quot;, &quot;lava&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Stone Wall&quot;, new LinkedSprite(SpriteType.Item, &quot;stone_wall&quot;), new TileModel(&quot;Stone Wall&quot;), &quot;Stone Bricks&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Stone Door&quot;, new LinkedSprite(SpriteType.Item, &quot;stone_door&quot;), new TileModel(&quot;Stone Door&quot;), &quot;Stone Bricks&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Stone Fence&quot;, new LinkedSprite(SpriteType.Item, &quot;stone_fence&quot;), new TileModel(&quot;Stone Fence&quot;, placeOverWithID), solidTiles));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Raw Obsidian&quot;, new LinkedSprite(SpriteType.Item, &quot;obsidian&quot;), new TileModel(&quot;Raw Obsidian&quot;), &quot;hole&quot;, &quot;water&quot;, &quot;cloud&quot;, &quot;lava&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Obsidian Brick&quot;, new LinkedSprite(SpriteType.Item, &quot;obsidian_brick&quot;), new TileModel(&quot;Obsidian&quot;), &quot;hole&quot;, &quot;water&quot;, &quot;cloud&quot;, &quot;lava&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Ornate Obsidian&quot;, new LinkedSprite(SpriteType.Item, &quot;obsidian_brick&quot;), new TileModel(&quot;Ornate Obsidian&quot;), &quot;hole&quot;, &quot;water&quot;, &quot;cloud&quot;, &quot;lava&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Obsidian Wall&quot;, new LinkedSprite(SpriteType.Item, &quot;obsidian_wall&quot;), new TileModel(&quot;Obsidian Wall&quot;), &quot;Obsidian&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Obsidian Door&quot;, new LinkedSprite(SpriteType.Item, &quot;obsidian_door&quot;), new TileModel(&quot;Obsidian Door&quot;), &quot;Obsidian&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Obsidian Fence&quot;, new LinkedSprite(SpriteType.Item, &quot;obsidian_fence&quot;), new TileModel(&quot;Obsidian Fence&quot;, placeOverWithID), solidTiles));</b>
+&nbsp;
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Wool&quot;, new LinkedSprite(SpriteType.Item, &quot;wool&quot;), new TileModel(&quot;Wool&quot;), &quot;hole&quot;, &quot;water&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Red Wool&quot;, new LinkedSprite(SpriteType.Item, &quot;red_wool&quot;), new TileModel(&quot;Red Wool&quot;), &quot;hole&quot;, &quot;water&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Blue Wool&quot;, new LinkedSprite(SpriteType.Item, &quot;blue_wool&quot;), new TileModel(&quot;Blue Wool&quot;), &quot;hole&quot;, &quot;water&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Green Wool&quot;, new LinkedSprite(SpriteType.Item, &quot;green_wool&quot;), new TileModel(&quot;Green Wool&quot;), &quot;hole&quot;, &quot;water&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Yellow Wool&quot;, new LinkedSprite(SpriteType.Item, &quot;yellow_wool&quot;), new TileModel(&quot;Yellow Wool&quot;), &quot;hole&quot;, &quot;water&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Black Wool&quot;, new LinkedSprite(SpriteType.Item, &quot;black_wool&quot;), new TileModel(&quot;Black Wool&quot;), &quot;hole&quot;, &quot;water&quot;));</b>
+&nbsp;
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Sand&quot;, new LinkedSprite(SpriteType.Item, &quot;sand&quot;), new TileModel(&quot;sand&quot;), &quot;hole&quot;, &quot;water&quot;, &quot;lava&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Cactus&quot;, new LinkedSprite(SpriteType.Item, &quot;cactus&quot;), new TileModel(&quot;cactus Sapling&quot;), &quot;sand&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Cloud&quot;, new LinkedSprite(SpriteType.Item, &quot;cloud&quot;), new TileModel(&quot;cloud&quot;), &quot;Infinite Fall&quot;));</b>
+&nbsp;
+<b class="fc">&nbsp;		TileModel.TileDataGetter seedPlanting = (model1, target, level, xt, yt, player, attackDir) -&gt; {</b>
+<b class="nc">&nbsp;			AchievementsDisplay.setAchievement(&quot;minicraft.achievement.plant_seed&quot;, true);</b>
+<b class="nc">&nbsp;			return TileModel.KEEP_DATA.getTileData(model1, target, level, xt, yt, player, attackDir);</b>
+&nbsp;		};
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Wheat Seeds&quot;, new LinkedSprite(SpriteType.Item, &quot;seed&quot;), new TileModel(&quot;wheat&quot;, seedPlanting), &quot;farmland&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Potato&quot;, new LinkedSprite(SpriteType.Item, &quot;potato&quot;), new TileModel(&quot;potato&quot;, TileModel.KEEP_DATA), &quot;farmland&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Carrot&quot;, new LinkedSprite(SpriteType.Item, &quot;carrot&quot;), new TileModel(&quot;carrot&quot;, TileModel.KEEP_DATA), &quot;farmland&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Tomato Seeds&quot;, new LinkedSprite(SpriteType.Item, &quot;seed&quot;), new TileModel(&quot;tomato&quot;, seedPlanting), &quot;farmland&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Heavenly Berries&quot;, new LinkedSprite(SpriteType.Item, &quot;heavenly_berries&quot;), new TileModel(&quot;heavenly berries&quot;, TileModel.KEEP_DATA), &quot;farmland&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Hellish Berries&quot;, new LinkedSprite(SpriteType.Item, &quot;hellish_berries&quot;), new TileModel(&quot;hellish berries&quot;, TileModel.KEEP_DATA), &quot;farmland&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Grass Seeds&quot;, new LinkedSprite(SpriteType.Item, &quot;seed&quot;), new TileModel(&quot;grass&quot;), &quot;dirt&quot;));</b>
+&nbsp;
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Torch&quot;, new LinkedSprite(SpriteType.Item, &quot;torch&quot;), new TileModel(&quot;Torch&quot;, placeOverWithID), solidTiles));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Sign&quot;, new LinkedSprite(SpriteType.Item, &quot;sign&quot;), new TileModel(&quot;Sign&quot;, (model1, target, level, xt, yt, player, attackDir) -&gt; {</b>
+<b class="nc">&nbsp;			Game.setDisplay(new SignDisplay(level, xt, yt));</b>
+<b class="nc">&nbsp;			return placeOverWithID.getTileData(model1, target, level, xt, yt, player, attackDir);</b>
+&nbsp;		}), solidTiles)); // have no control over this protected method
+&nbsp;
+&nbsp;		// Creative mode available tiles:
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Farmland&quot;, SpriteLinker.missingTexture(SpriteType.Item), new TileModel(&quot;farmland&quot;), &quot;dirt&quot;, &quot;grass&quot;, &quot;hole&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Hole&quot;, SpriteLinker.missingTexture(SpriteType.Item), new TileModel(&quot;hole&quot;), &quot;dirt&quot;, &quot;grass&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Lava&quot;, SpriteLinker.missingTexture(SpriteType.Item), new TileModel(&quot;lava&quot;), &quot;dirt&quot;, &quot;grass&quot;, &quot;hole&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Path&quot;, SpriteLinker.missingTexture(SpriteType.Item), new TileModel(&quot;path&quot;), &quot;dirt&quot;, &quot;grass&quot;, &quot;hole&quot;));</b>
+<b class="fc">&nbsp;		items.add(new TileItem(&quot;Water&quot;, SpriteLinker.missingTexture(SpriteType.Item), new TileModel(&quot;water&quot;), &quot;dirt&quot;, &quot;grass&quot;, &quot;hole&quot;));</b>
+&nbsp;
+<b class="fc">&nbsp;		return items;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public final @Nullable TileModel model;
+&nbsp;	public final List&lt;String&gt; validTiles;
+&nbsp;
+&nbsp;	protected TileItem(String name, LinkedSprite sprite, TileModel model, String... validTiles) {
+<b class="fc">&nbsp;		this(name, sprite, 1, model, Arrays.asList(validTiles));</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	protected TileItem(String name, LinkedSprite sprite, int count, TileModel model, String... validTiles) {
+<b class="nc">&nbsp;		this(name, sprite, count, model, Arrays.asList(validTiles));</b>
+<b class="nc">&nbsp;	} // have no control over protected initiators</b>
+&nbsp;
+&nbsp;	protected TileItem(String name, LinkedSprite sprite, int count, @Nullable TileModel model, List&lt;String&gt; validTiles) {
+<b class="fc">&nbsp;		super(name, sprite, count);</b>
+<b class="fc">&nbsp;		this.model = model;</b>
+<b class="fc">&nbsp;		this.validTiles = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;		for (String tile : validTiles)</b>
+<b class="fc">&nbsp;			this.validTiles.add(tile.toUpperCase());</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static class TileModel {
+<b class="fc">&nbsp;		public static final TileDataGetter DEFAULT_DATA = ((model, target, level, xt, yt, player, attackDir) -&gt; model.getDefaultData());</b>
+<b class="fc">&nbsp;		public static final TileDataGetter KEEP_DATA = ((model, target, level, xt, yt, player, attackDir) -&gt; level.getData(xt, yt));</b>
+&nbsp;
+&nbsp;		public final @NotNull String tile;
+&nbsp;		public final TileDataGetter data;
+&nbsp;
+&nbsp;		@FunctionalInterface
+&nbsp;		public interface TileDataGetter {
+&nbsp;			int getTileData(Tile model, Tile target, Level level, int xt, int yt, Player player, Direction attackDir);
+&nbsp;		}
+&nbsp;
+&nbsp;		public TileModel(String tile) {
+<b class="fc">&nbsp;			this(tile, DEFAULT_DATA);</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+<b class="fc">&nbsp;		public TileModel(String tile, TileDataGetter data) {</b>
+<b class="fc">&nbsp;			this.tile = tile.toUpperCase();</b>
+<b class="fc">&nbsp;			this.data = data;</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		public static Tile getTile(@Nullable TileModel model) {
+<b class="fc">&nbsp;			return model == null ? Tiles.get((short) 0) : Tiles.get(model.tile);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public static int getTileData(@Nullable TileModel model, Tile tile, Tile target, Level level, int xt, int yt, Player player, Direction attackDir) {
+<b class="fc">&nbsp;			if (model == null) return DEFAULT_DATA.getTileData(tile, target, level, xt, yt, player, attackDir);</b>
+<b class="fc">&nbsp;			return model.data.getTileData(tile, target, level, xt, yt, player, attackDir);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean interactOn(Tile tile, Level level, int xt, int yt, Player player, Direction attackDir) {
+<b class="fc">&nbsp;		for (String tilename : validTiles) {</b>
+<b class="fc">&nbsp;			if (tile.matches(level.getData(xt, yt), tilename)) {</b>
+<b class="fc">&nbsp;				Tile t = TileModel.getTile(model);</b>
+<b class="fc">&nbsp;				level.setTile(xt, yt, t, TileModel.getTileData(model, t, tile, level, xt, yt, player, attackDir));</b>
+<b class="fc">&nbsp;				AdvancementElement.AdvancementTrigger.PlacedTileTrigger.INSTANCE.trigger(</b>
+&nbsp;					new AdvancementElement.AdvancementTrigger.PlacedTileTrigger.PlacedTileTriggerConditionHandler.PlacedTileTriggerConditions(
+<b class="fc">&nbsp;						this, level.getTile(xt, yt), level.getData(xt, yt), xt, yt, level.depth</b>
+&nbsp;					));
+&nbsp;
+<b class="fc">&nbsp;				Sound.play(&quot;craft&quot;);</b>
+<b class="fc">&nbsp;				return super.interactOn(true);</b>
+&nbsp;			}
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+<b class="fc">&nbsp;		Logger.tag(&quot;TileItem&quot;).debug(&quot;{} cannot be placed on {}.&quot;, model, tile.name);</b>
+&nbsp;
+<b class="pc">&nbsp;		if (model != null) { // Is never null</b>
+<b class="fc">&nbsp;			String note = &quot;&quot;;</b>
+<b class="fc">&nbsp;			if (model.tile.contains(&quot;WALL&quot;)) {</b>
+<b class="fc">&nbsp;				note = Localization.getLocalized(&quot;minicraft.notification.invalid_placement&quot;, Tiles.getName(validTiles.get(0)));</b>
+<b class="fc">&nbsp;			} else if (model.tile.contains(&quot;DOOR&quot;)) {</b>
+<b class="fc">&nbsp;				note = Localization.getLocalized(&quot;minicraft.notification.invalid_placement&quot;, Tiles.getName(validTiles.get(0)));</b>
+<b class="fc">&nbsp;			} else if ((model.tile.contains(&quot;BRICK&quot;) || model.tile.contains(&quot;PLANK&quot;) || model.tile.equals(&quot;STONE&quot;) || model.tile.contains(&quot;ORNATE&quot;))) {</b>
+<b class="fc">&nbsp;				note = Localization.getLocalized(&quot;minicraft.notification.dig_hole&quot;);</b>
+&nbsp;			}
+&nbsp;
+<b class="fc">&nbsp;			if (note.length() &gt; 0) {</b>
+<b class="fc">&nbsp;				Game.notifications.add(note);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		return super.interactOn(false);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean equals(Item other) {
+<b class="pc">&nbsp;		return super.equals(other) &amp;&amp; (model == null || model.equals(((TileItem) other).model));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public int hashCode() {
+<b class="pc">&nbsp;		return super.hashCode() + (model == null ? 0xFF123 : model.hashCode());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public @NotNull TileItem copy() {
+<b class="fc">&nbsp;		return new TileItem(getName(), sprite, count, model, validTiles);</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-24 20:59</div>
+</div>
+</body>
+</html>

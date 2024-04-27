@@ -1,0 +1,203 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > BookDisplay</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen</a>
+</div>
+
+<h1>Coverage Summary for Class: BookDisplay (minicraft.screen)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">BookDisplay</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25%
+  </span>
+  <span class="absValue">
+    (1/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (30/45)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Font;
+&nbsp;import minicraft.gfx.MinicraftImage;
+&nbsp;import minicraft.gfx.Point;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.screen.entry.StringEntry;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Arrays;
+&nbsp;
+&nbsp;public class BookDisplay extends Display {
+&nbsp;
+&nbsp;	// null characters &quot;\0&quot; denote page breaks.
+&nbsp;	private static final String defaultBook = &quot;This book has no text.&quot;;
+&nbsp;
+&nbsp;	private static final int spacing = 3;
+&nbsp;	private static final int minX = 15, maxX = 15 + 8 * 32, minY = 8 * 5, maxY = 8 * 5 + 8 * 16;
+&nbsp;
+&nbsp;	// First array is page and second is line.
+&nbsp;	private String[][] lines;
+&nbsp;	private int page;
+&nbsp;
+&nbsp;	private final boolean hasTitle;
+&nbsp;	private final boolean showPageCount;
+&nbsp;	private final int pageOffset;
+&nbsp;
+&nbsp;	public BookDisplay(String book) {
+<b class="nc">&nbsp;		this(book, false);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+<b class="fc">&nbsp;	public BookDisplay(String book, boolean hasTitle) {// this(book, hasTitle, !hasTitle); }</b>
+&nbsp;		//public BookDisplay(String book, boolean hasTitle, boolean hideCountIfOnePage) {
+<b class="fc">&nbsp;		page = 0;</b>
+&nbsp;
+<b class="fc">&nbsp;		if (book == null) {</b>
+<b class="nc">&nbsp;			book = defaultBook;</b>
+<b class="nc">&nbsp;			hasTitle = false;</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		this.hasTitle = hasTitle;</b>
+&nbsp;
+<b class="fc">&nbsp;		ArrayList&lt;String[]&gt; pages = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;		String[] splitContents = book.split(&quot;\0&quot;);</b>
+<b class="fc">&nbsp;		for (String content : splitContents) {</b>
+<b class="fc">&nbsp;			String[] remainder = { content };</b>
+<b class="fc">&nbsp;			while (remainder[remainder.length - 1].length() &gt; 0) {</b>
+<b class="fc">&nbsp;				remainder = Font.getLines(remainder[remainder.length - 1], maxX - minX, maxY - minY, spacing, true);</b>
+<b class="fc">&nbsp;				pages.add(Arrays.copyOf(remainder, remainder.length - 1)); // Removes the last element of remainder, which is the leftover.</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		lines = pages.toArray(new String[pages.size()][]);</b>
+&nbsp;
+<b class="fc">&nbsp;		showPageCount = hasTitle || lines.length != 1;</b>
+<b class="fc">&nbsp;		pageOffset = showPageCount ? 1 : 0;</b>
+&nbsp;
+<b class="fc">&nbsp;		Menu.Builder builder = new Menu.Builder(true, spacing, RelPos.CENTER);</b>
+&nbsp;
+<b class="fc">&nbsp;		Menu pageCount = builder // The small rect for the title</b>
+<b class="fc">&nbsp;			.setPositioning(new Point(Screen.w / 2, 0), RelPos.BOTTOM)</b>
+<b class="fc">&nbsp;			.setEntries(StringEntry.useLines(Color.BLACK, &quot;Page&quot;, hasTitle ? &quot;Title&quot; : &quot;1/&quot; + lines.length))</b>
+<b class="fc">&nbsp;			.setSelection(1)</b>
+<b class="fc">&nbsp;			.createMenu();</b>
+&nbsp;
+<b class="fc">&nbsp;		builder</b>
+<b class="fc">&nbsp;			.setPositioning(new Point(Screen.w / 2, pageCount.getBounds().getBottom() + spacing), RelPos.BOTTOM)</b>
+<b class="fc">&nbsp;			.setSize(maxX - minX + MinicraftImage.boxWidth * 2, maxY - minY + MinicraftImage.boxWidth * 2)</b>
+<b class="fc">&nbsp;			.setShouldRender(false);</b>
+&nbsp;
+<b class="fc">&nbsp;		menus = new Menu[lines.length + pageOffset];</b>
+<b class="fc">&nbsp;		if (showPageCount) menus[0] = pageCount;</b>
+<b class="fc">&nbsp;		for (int i = 0; i &lt; lines.length; i++) {</b>
+<b class="fc">&nbsp;			menus[i + pageOffset] = builder.setEntries(StringEntry.useLines(Color.WHITE, lines[i])).createMenu();</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		menus[page + pageOffset].shouldRender = true;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void turnPage(int dir) {
+<b class="nc">&nbsp;		if (page + dir &gt;= 0 &amp;&amp; page + dir &lt; lines.length) {</b>
+<b class="nc">&nbsp;			menus[page + pageOffset].shouldRender = false;</b>
+<b class="nc">&nbsp;			page += dir;</b>
+<b class="nc">&nbsp;			if (showPageCount)</b>
+<b class="nc">&nbsp;				menus[0].updateSelectedEntry(new StringEntry(page == 0 &amp;&amp; hasTitle ? &quot;Title&quot; : (page + 1) + &quot;/&quot; + lines.length, Color.BLACK));</b>
+<b class="nc">&nbsp;			menus[page + pageOffset].shouldRender = true;</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick(InputHandler input) {
+<b class="nc">&nbsp;		if (input.inputPressed(&quot;menu&quot;) || input.inputPressed(&quot;exit&quot;)) Game.exitDisplay(); // Close the menu.</b>
+<b class="nc">&nbsp;		if (input.inputPressed(&quot;cursor-left&quot;)) turnPage(-1); // This is what turns the page back</b>
+<b class="nc">&nbsp;		if (input.inputPressed(&quot;cursor-right&quot;)) turnPage(1); // This is what turns the page forward</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

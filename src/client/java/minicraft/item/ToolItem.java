@@ -74,7 +74,7 @@ public class ToolItem extends Item {
 
 	public boolean isDepleted() {
 		return dur <= 0 && type.durability > 0;
-	}
+	} //type.durability is final and always greater than 0
 
 	/**
 	 * You can attack mobs with tools.

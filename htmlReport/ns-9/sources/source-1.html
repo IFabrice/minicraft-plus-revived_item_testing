@@ -1,0 +1,1325 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Level</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.level</a>
+</div>
+
+<h1>Coverage Summary for Class: Level (minicraft.level)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Level</td>
+<td class="coverageStat">
+  <span class="percent">
+    1.4%
+  </span>
+  <span class="absValue">
+    (1/73)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0.5%
+  </span>
+  <span class="absValue">
+    (3/617)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Level$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Level$TileCheck</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    2.7%
+  </span>
+  <span class="absValue">
+    (2/75)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0.6%
+  </span>
+  <span class="absValue">
+    (4/619)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.level;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.Updater;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.core.io.Settings;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.entity.ItemEntity;
+&nbsp;import minicraft.entity.furniture.Chest;
+&nbsp;import minicraft.entity.furniture.DungeonChest;
+&nbsp;import minicraft.entity.furniture.Lantern;
+&nbsp;import minicraft.entity.furniture.Spawner;
+&nbsp;import minicraft.entity.mob.AirWizard;
+&nbsp;import minicraft.entity.mob.Cow;
+&nbsp;import minicraft.entity.mob.Creeper;
+&nbsp;import minicraft.entity.mob.EnemyMob;
+&nbsp;import minicraft.entity.mob.Knight;
+&nbsp;import minicraft.entity.mob.Mob;
+&nbsp;import minicraft.entity.mob.MobAi;
+&nbsp;import minicraft.entity.mob.PassiveMob;
+&nbsp;import minicraft.entity.mob.Pig;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.entity.mob.Sheep;
+&nbsp;import minicraft.entity.mob.Skeleton;
+&nbsp;import minicraft.entity.mob.Slime;
+&nbsp;import minicraft.entity.mob.Snake;
+&nbsp;import minicraft.entity.mob.Zombie;
+&nbsp;import minicraft.gfx.Point;
+&nbsp;import minicraft.gfx.Rectangle;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;import minicraft.level.tile.TorchTile;
+&nbsp;import minicraft.level.tile.TreeTile;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import minicraft.util.MyUtils;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.Comparator;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.LinkedList;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Random;
+&nbsp;import java.util.Set;
+&nbsp;import java.util.function.BiPredicate;
+&nbsp;import java.util.function.Predicate;
+&nbsp;import java.util.function.ToIntFunction;
+&nbsp;
+<b class="fc">&nbsp;public class Level {</b>
+&nbsp;	private final Random random;
+&nbsp;
+<b class="fc">&nbsp;	private static final String[] levelNames = { &quot;Sky&quot;, &quot;Surface&quot;, &quot;Iron&quot;, &quot;Gold&quot;, &quot;Lava&quot;, &quot;Dungeon&quot; };</b>
+&nbsp;
+&nbsp;	public static String getLevelName(int depth) {
+<b class="nc">&nbsp;		return levelNames[-1 * depth + 1];</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static String getDepthString(int depth) {
+<b class="nc">&nbsp;		return Localization.getLocalized(&quot;minicraft.displays.loading.message.level&quot;, depth &lt; 0 ? &quot;B&quot; + (-depth) : depth);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static final int MOB_SPAWN_FACTOR = 100; // The chance of a mob actually trying to spawn when trySpawn is called equals: mobCount / maxMobCount * MOB_SPAWN_FACTOR. so, it basically equals the chance, 1/number, of a mob spawning when the mob cap is reached. I hope that makes sense...
+&nbsp;
+&nbsp;	public int w, h; // Width and height of the level
+&nbsp;	private final long seed; // The used seed that was used to generate the world
+&nbsp;
+&nbsp;	public short[] tiles; // An array of all the tiles in the world.
+&nbsp;	public short[] data; // An array of the data of the tiles in the world.
+&nbsp;
+&nbsp;	public final TreeTile.TreeType[] treeTypes; // An array of tree types
+&nbsp;
+&nbsp;	public final int depth; // Depth level of the level
+<b class="nc">&nbsp;	public int monsterDensity = 16; // Affects the number of monsters that are on the level, bigger the number the less monsters spawn.</b>
+&nbsp;	public int maxMobCount;
+&nbsp;	public int chestCount;
+<b class="nc">&nbsp;	public int mobCount = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;	private final Object entityLock = new Object(); // I will be using this lock to avoid concurrency exceptions in entities and sparks set</b>
+<b class="nc">&nbsp;	private final Set&lt;Entity&gt; entities = java.util.Collections.synchronizedSet(new HashSet&lt;&gt;()); // A list of all the entities in the world</b>
+<b class="nc">&nbsp;	private final Set&lt;Player&gt; players = java.util.Collections.synchronizedSet(new HashSet&lt;&gt;()); // A list of all the players in the world</b>
+<b class="nc">&nbsp;	private final List&lt;Entity&gt; entitiesToAdd = new ArrayList&lt;&gt;(); /// entities that will be added to the level on next tick are stored here. This is for the sake of multithreading optimization. (hopefully)</b>
+<b class="nc">&nbsp;	private final List&lt;Entity&gt; entitiesToRemove = new ArrayList&lt;&gt;(); /// entities that will be removed from the level on next tick are stored here. This is for the sake of multithreading optimization. (hopefully)</b>
+&nbsp;
+&nbsp;	// Creates a sorter for all the entities to be rendered.
+&nbsp;	//private static Comparator&lt;Entity&gt; spriteSorter = Comparator.comparingInt(e -&gt; e.y); // Broken
+&nbsp;	@SuppressWarnings(&quot;Convert2Lambda&quot;)
+<b class="fc">&nbsp;	private static Comparator&lt;Entity&gt; spriteSorter = Comparator.comparingInt(new ToIntFunction&lt;Entity&gt;() {</b>
+&nbsp;		@Override
+&nbsp;		public int applyAsInt(Entity e) {
+<b class="nc">&nbsp;			return e.y;</b>
+&nbsp;		}
+&nbsp;	});
+&nbsp;
+&nbsp;	public Entity[] getEntitiesToSave() {
+<b class="nc">&nbsp;		Entity[] allEntities = new Entity[entities.size() + entitiesToAdd.size()];</b>
+<b class="nc">&nbsp;		Entity[] toAdd = entitiesToAdd.toArray(new Entity[0]);</b>
+<b class="nc">&nbsp;		Entity[] current = getEntityArray();</b>
+<b class="nc">&nbsp;		System.arraycopy(current, 0, allEntities, 0, current.length);</b>
+<b class="nc">&nbsp;		System.arraycopy(toAdd, 0, allEntities, current.length, toAdd.length);</b>
+&nbsp;
+<b class="nc">&nbsp;		return allEntities;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// This is a solely a debug method I made, to make printing repetitive stuff easier.
+&nbsp;	// Should be changed to accept prepend and entity, or a tile (as an Object). It will get the coordinates and class name from the object, and will divide coords by 16 if passed an entity.
+&nbsp;	public void printLevelLoc(String prefix, int x, int y) {
+<b class="nc">&nbsp;		printLevelLoc(prefix, x, y, &quot;&quot;);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void printLevelLoc(String prefix, int x, int y, String suffix) {
+<b class="nc">&nbsp;		String levelName = getLevelName(depth);</b>
+&nbsp;
+<b class="nc">&nbsp;		Logging.WORLDNAMED.info(&quot;{} on {} level ({}, {}){}&quot;, prefix, levelName, x, y, suffix);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void printTileLocs(Tile t) {
+<b class="nc">&nbsp;		for (int x = 0; x &lt; w; x++)</b>
+<b class="nc">&nbsp;			for (int y = 0; y &lt; h; y++)</b>
+<b class="nc">&nbsp;				if (getTile(x, y).id == t.id)</b>
+<b class="nc">&nbsp;					printLevelLoc(t.name, x, y);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void printEntityLocs(Class&lt;? extends Entity&gt; c) {
+<b class="nc">&nbsp;		int numfound = 0;</b>
+<b class="nc">&nbsp;		for (Entity entity : getEntityArray()) {</b>
+<b class="nc">&nbsp;			if (c.isAssignableFrom(entity.getClass())) {</b>
+<b class="nc">&nbsp;				printLevelLoc(entity.toString(), entity.x &gt;&gt; 4, entity.y &gt;&gt; 4);</b>
+<b class="nc">&nbsp;				numfound++;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Logging.WORLDNAMED.info(&quot;Found &quot; + numfound + &quot; entities in level of depth &quot; + depth);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void updateMobCap() {
+<b class="nc">&nbsp;		maxMobCount = 150 + 150 * Settings.getIdx(&quot;diff&quot;);</b>
+<b class="nc">&nbsp;		if (depth == 1) maxMobCount /= 2;</b>
+<b class="nc">&nbsp;		if (depth == 0 || depth == -4 || depth == -5) maxMobCount = maxMobCount * 2 / 3;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+<b class="nc">&nbsp;	public Level(int w, int h, long seed, int level, Level parentLevel, boolean makeWorld) {</b>
+<b class="nc">&nbsp;		depth = level;</b>
+<b class="nc">&nbsp;		this.w = w;</b>
+<b class="nc">&nbsp;		this.h = h;</b>
+<b class="nc">&nbsp;		this.seed = seed;</b>
+<b class="nc">&nbsp;		random = new Random(seed);</b>
+&nbsp;		short[][] maps; // Multidimensional array (an array within a array), used for the map
+&nbsp;
+<b class="nc">&nbsp;		treeTypes = new TreeTile.TreeType[w * h];</b>
+&nbsp;		{
+<b class="nc">&nbsp;			LevelGen noise1 = new LevelGen(w, h, 32);</b>
+<b class="nc">&nbsp;			LevelGen noise2 = new LevelGen(w, h, 32);</b>
+<b class="nc">&nbsp;			TreeTile.TreeType[] types = TreeTile.TreeType.values();</b>
+<b class="nc">&nbsp;			for (int y = 0; y &lt; h; y++) { // Loop through height</b>
+<b class="nc">&nbsp;				for (int x = 0; x &lt; w; x++) { // Loop through width</b>
+&nbsp;					// Randomly selecting a tree type.
+<b class="nc">&nbsp;					int i = x + y * w;</b>
+<b class="nc">&nbsp;					double val = Math.abs(noise1.values[i] - noise2.values[i]) * 3 - 2;</b>
+&nbsp;					// This calculates a sort of distance based on the current coordinate.
+<b class="nc">&nbsp;					double xd = x / (w - 1.0) * 2 - 1;</b>
+<b class="nc">&nbsp;					double yd = y / (h - 1.0) * 2 - 1;</b>
+<b class="nc">&nbsp;					if (xd &lt; 0) xd = -xd;</b>
+<b class="nc">&nbsp;					if (yd &lt; 0) yd = -yd;</b>
+<b class="nc">&nbsp;					double dist = Math.max(xd, yd);</b>
+<b class="nc">&nbsp;					dist = dist * dist * dist * dist;</b>
+<b class="nc">&nbsp;					dist = dist * dist * dist * dist;</b>
+<b class="nc">&nbsp;					val += 1 - dist * 20;</b>
+<b class="nc">&nbsp;					val += 1.5; // Assuming the range of value is from 0 to 2.</b>
+<b class="nc">&nbsp;					val *= types.length / 2.0;</b>
+<b class="nc">&nbsp;					val += 1; // Incrementing index.</b>
+&nbsp;					// The original val mainly falls in small interval instead of averagely.
+<b class="nc">&nbsp;					val = 1.0 / (3 * types.length) * Math.pow(val - 5, 2); // Quadratically bloating the value.</b>
+<b class="nc">&nbsp;					int idx = (int) Math.round(val - 1); // Decrementing index.</b>
+<b class="nc">&nbsp;					treeTypes[x + y * w] = (idx &gt;= types.length || idx &lt; 0) ? TreeTile.TreeType.OAK // Oak by default.</b>
+&nbsp;						: types[idx];
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (level != -4 &amp;&amp; level != 0)</b>
+<b class="nc">&nbsp;			monsterDensity = 8;</b>
+&nbsp;
+<b class="nc">&nbsp;		updateMobCap();</b>
+&nbsp;
+<b class="nc">&nbsp;		if (!makeWorld) {</b>
+<b class="nc">&nbsp;			int arrsize = w * h;</b>
+<b class="nc">&nbsp;			tiles = new short[arrsize];</b>
+<b class="nc">&nbsp;			data = new short[arrsize];</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Logging.WORLD.debug(&quot;Making level &quot; + level + &quot;...&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		maps = LevelGen.createAndValidateMap(w, h, level, seed);</b>
+<b class="nc">&nbsp;		if (maps == null) {</b>
+<b class="nc">&nbsp;			Logging.WORLD.error(&quot;Level generation: Returned maps array is null&quot;);</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		tiles = maps[0]; // Assigns the tiles in the map</b>
+<b class="nc">&nbsp;		data = maps[1]; // Assigns the data of the tiles</b>
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;		if (level &lt; 0)</b>
+<b class="nc">&nbsp;			generateSpawnerStructures();</b>
+&nbsp;
+<b class="nc">&nbsp;		if (level == 0)</b>
+<b class="nc">&nbsp;			generateVillages();</b>
+&nbsp;
+<b class="nc">&nbsp;		if (level == -4)</b>
+<b class="nc">&nbsp;			generateDungeonStructures();</b>
+&nbsp;
+<b class="nc">&nbsp;		if (parentLevel != null) { // If the level above this one is not null (aka, if this isn&#39;t a sky level)</b>
+<b class="nc">&nbsp;			for (int y = 0; y &lt; h; y++) { // Loop through height</b>
+<b class="nc">&nbsp;				for (int x = 0; x &lt; w; x++) { // Loop through width</b>
+<b class="nc">&nbsp;					if (parentLevel.getTile(x, y) == Tiles.get(&quot;Stairs Down&quot;)) { // If the tile in the level above the current one is a stairs down then...</b>
+<b class="nc">&nbsp;						if (level == -4) { /// Make the obsidian wall formation around the stair in the dungeon level</b>
+<b class="nc">&nbsp;							Structure.dungeonGate.draw(this, x, y); // Te gate should not intersect with the boss room.</b>
+<b class="nc">&nbsp;							Structure.dungeonBossRoom.draw(this, w / 2, h / 2); // Generating the boss room at the center.</b>
+<b class="nc">&nbsp;						} else if (level == 0) { // Surface</b>
+<b class="nc">&nbsp;							Logging.WORLD.trace(&quot;Setting tiles around &quot; + x + &quot;,&quot; + y + &quot; to hard rock&quot;);</b>
+<b class="nc">&nbsp;							setAreaTiles(x, y, 1, Tiles.get(&quot;Hard Rock&quot;), 0); // surround the sky stairs with hard rock</b>
+&nbsp;						} else // Any other level, the up-stairs should have dirt on all sides.
+<b class="nc">&nbsp;							setAreaTiles(x, y, 1, Tiles.get(&quot;dirt&quot;), 0);</b>
+&nbsp;
+<b class="nc">&nbsp;						setTile(x, y, Tiles.get(&quot;Stairs Up&quot;)); // Set a stairs up tile in the same position on the current level</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		} else { // This is a sky level
+<b class="nc">&nbsp;			boolean placedHouse = false;</b>
+<b class="nc">&nbsp;			while (!placedHouse) {</b>
+&nbsp;
+<b class="nc">&nbsp;				int x = random.nextInt(this.w - 7);</b>
+<b class="nc">&nbsp;				int y = random.nextInt(this.h - 5);</b>
+&nbsp;
+<b class="nc">&nbsp;				if (this.getTile(x - 3, y - 2) == Tiles.get(&quot;Cloud&quot;) &amp;&amp; this.getTile(x + 3, y - 2) == Tiles.get(&quot;Cloud&quot;)) {</b>
+<b class="nc">&nbsp;					if (this.getTile(x - 3, y + 2) == Tiles.get(&quot;Cloud&quot;) &amp;&amp; this.getTile(x + 3, y + 2) == Tiles.get(&quot;Cloud&quot;)) {</b>
+<b class="nc">&nbsp;						Structure.airWizardHouse.draw(this, x, y);</b>
+&nbsp;
+<b class="nc">&nbsp;						placedHouse = true;</b>
+&nbsp;					}
+&nbsp;				}
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		checkChestCount(false);</b>
+&nbsp;
+<b class="nc">&nbsp;		checkAirWizard();</b>
+&nbsp;
+<b class="nc">&nbsp;		if (Logging.logLevel) printTileLocs(Tiles.get(&quot;Stairs Down&quot;));</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Level(int w, int h, int level, Level parentLevel, boolean makeWorld) {
+<b class="nc">&nbsp;		this(w, h, 0, level, parentLevel, makeWorld);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Level which the world is contained in
+&nbsp;	 */
+&nbsp;	public Level(int w, int h, int level, Level parentLevel) {
+<b class="nc">&nbsp;		this(w, h, level, parentLevel, true);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public long getSeed() {
+<b class="nc">&nbsp;		return seed;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void checkAirWizard() {
+<b class="nc">&nbsp;		checkAirWizard(true);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void checkAirWizard(boolean check) {
+<b class="nc">&nbsp;		if (depth == 1 &amp;&amp; !AirWizard.beaten) { // Add the airwizard to the surface</b>
+&nbsp;
+<b class="nc">&nbsp;			boolean found = false;</b>
+<b class="nc">&nbsp;			if (check) {</b>
+<b class="nc">&nbsp;				for (Entity e : entitiesToAdd)</b>
+<b class="nc">&nbsp;					if (e instanceof AirWizard) {</b>
+<b class="nc">&nbsp;						found = true;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					}
+<b class="nc">&nbsp;				for (Entity e : entities)</b>
+<b class="nc">&nbsp;					if (e instanceof AirWizard) {</b>
+<b class="nc">&nbsp;						found = true;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (!found) {</b>
+<b class="nc">&nbsp;				AirWizard aw = new AirWizard();</b>
+<b class="nc">&nbsp;				add(aw, w / 2, h / 2, true);</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void checkChestCount() {
+<b class="nc">&nbsp;		checkChestCount(true);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void checkChestCount(boolean check) {
+&nbsp;		// If the level is the dungeon, and we&#39;re not just loading the world...
+<b class="nc">&nbsp;		if (depth != -4) return;</b>
+&nbsp;
+<b class="nc">&nbsp;		int numChests = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (check) {</b>
+<b class="nc">&nbsp;			for (Entity e : entitiesToAdd)</b>
+<b class="nc">&nbsp;				if (e instanceof DungeonChest)</b>
+<b class="nc">&nbsp;					numChests++;</b>
+<b class="nc">&nbsp;			for (Entity e : entities)</b>
+<b class="nc">&nbsp;				if (e instanceof DungeonChest)</b>
+<b class="nc">&nbsp;					numChests++;</b>
+<b class="nc">&nbsp;			Logging.WORLDNAMED.debug(&quot;Found &quot; + numChests + &quot; chests.&quot;);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/// Make DungeonChests!
+<b class="nc">&nbsp;		for (int i = numChests; i &lt; 10 * (w / 128); i++) {</b>
+<b class="nc">&nbsp;			DungeonChest d = new DungeonChest(random);</b>
+<b class="nc">&nbsp;			boolean addedchest = false;</b>
+<b class="nc">&nbsp;			while (!addedchest) { // Keep running until we successfully add a DungeonChest</b>
+&nbsp;
+&nbsp;				// Pick a random tile:
+<b class="nc">&nbsp;				int x2 = random.nextInt(16 * w) / 16;</b>
+<b class="nc">&nbsp;				int y2 = random.nextInt(16 * h) / 16;</b>
+<b class="nc">&nbsp;				if (getTile(x2, y2) == Tiles.get(&quot;Grass&quot;)) {</b>
+<b class="nc">&nbsp;					boolean xaxis = random.nextBoolean();</b>
+<b class="nc">&nbsp;					if (xaxis) {</b>
+<b class="nc">&nbsp;						for (int s = x2; s &lt; w - s; s++) {</b>
+<b class="nc">&nbsp;							if (getTile(s, y2) == Tiles.get(&quot;Obsidian Wall&quot;) || getTile(s, y2) == Tiles.get(&quot;Ornate Obsidian&quot;)) {</b>
+<b class="nc">&nbsp;								d.x = s * 20 - 16;</b>
+<b class="nc">&nbsp;								d.y = y2 * 24 - 14;</b>
+&nbsp;							}
+&nbsp;						}
+&nbsp;					} else { // y axis
+<b class="nc">&nbsp;						for (int s = y2; s &lt; h - s; s++) {</b>
+<b class="nc">&nbsp;							if (getTile(x2, s) == Tiles.get(&quot;Obsidian Wall&quot;) || getTile(x2, s) == Tiles.get(&quot;Ornate Obsidian&quot;)) {</b>
+<b class="nc">&nbsp;								d.x = x2 * 23 - 14;</b>
+<b class="nc">&nbsp;								d.y = s * 21 - 16;</b>
+&nbsp;							}
+&nbsp;						}
+&nbsp;					}
+<b class="nc">&nbsp;					if (d.x == 0 &amp;&amp; d.y == 0) {</b>
+<b class="nc">&nbsp;						d.x = x2 * 16 - 8;</b>
+<b class="nc">&nbsp;						d.y = y2 * 16 - 8;</b>
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					add(d);</b>
+<b class="nc">&nbsp;					chestCount++;</b>
+<b class="nc">&nbsp;					addedchest = true;</b>
+&nbsp;				}
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void tickEntity(Entity entity) {
+<b class="nc">&nbsp;		if (entity == null) return;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (!entity.isRemoved()) entity.handleDespawn();</b>
+<b class="nc">&nbsp;		if (entity.isRemoved()) {</b>
+<b class="nc">&nbsp;			remove(entity);</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (entity != Game.player) { // Player is ticked separately, others are ticked on server</b>
+<b class="nc">&nbsp;			entity.tick(); /// The main entity tick call.</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (entity.isRemoved() || entity.getLevel() != this) {</b>
+<b class="nc">&nbsp;			remove(entity);</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void tick(boolean fullTick) {
+<b class="nc">&nbsp;		int count = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;		while (entitiesToAdd.size() &gt; 0) {</b>
+<b class="nc">&nbsp;			Entity entity = entitiesToAdd.get(0);</b>
+<b class="nc">&nbsp;			boolean inLevel = entities.contains(entity);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (!inLevel) {</b>
+<b class="nc">&nbsp;				if (Logging.logLevel)</b>
+<b class="nc">&nbsp;					printEntityStatus(&quot;Adding &quot;, entity, &quot;furniture.DungeonChest&quot;, &quot;mob.AirWizard&quot;, &quot;mob.Player&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;				synchronized (entityLock) {</b>
+<b class="nc">&nbsp;					entities.add(entity);</b>
+<b class="nc">&nbsp;					if (entity instanceof Player) {</b>
+<b class="nc">&nbsp;						players.add((Player) entity);</b>
+&nbsp;					}
+<b class="nc">&nbsp;				}</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			entitiesToAdd.remove(entity);</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		if (fullTick) {</b>
+&nbsp;			// This prevents any entity (or tile) tick action from happening on a server level with no players.
+&nbsp;
+<b class="nc">&nbsp;			for (int i = 0; i &lt; w * h / 50; i++) {</b>
+<b class="nc">&nbsp;				int xt = random.nextInt(w);</b>
+<b class="nc">&nbsp;				int yt = random.nextInt(w);</b>
+<b class="nc">&nbsp;				getTile(xt, yt).tick(this, xt, yt);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			// Entity loop
+<b class="nc">&nbsp;			for (Entity e : entities) {</b>
+<b class="nc">&nbsp;				tickEntity(e);</b>
+<b class="nc">&nbsp;				if (e instanceof Mob) count++;</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		while (entitiesToRemove.size() &gt; 0) {</b>
+<b class="nc">&nbsp;			Entity entity = entitiesToRemove.get(0);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (Logging.logLevel) printEntityStatus(&quot;Removing &quot;, entity, &quot;mob.Player&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;			entity.remove(this); // This will safely fail if the entity&#39;s level doesn&#39;t match this one.</b>
+<b class="nc">&nbsp;			synchronized (entityLock) {</b>
+<b class="nc">&nbsp;				entities.remove(entity);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+<b class="nc">&nbsp;			if (entity instanceof Player)</b>
+<b class="nc">&nbsp;				players.remove(entity);</b>
+<b class="nc">&nbsp;			entitiesToRemove.remove(entity);</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		mobCount = count;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (fullTick &amp;&amp; count &lt; maxMobCount)</b>
+<b class="nc">&nbsp;			trySpawn();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean entityNearPlayer(Entity entity) {
+<b class="nc">&nbsp;		for (Player player : players) {</b>
+<b class="nc">&nbsp;			if (Math.abs(player.x - entity.x) &lt; 128 &amp;&amp; Math.abs(player.y - entity.y) &lt; 76) {</b>
+<b class="nc">&nbsp;				return true;</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public double distanceOfClosestPlayer(Entity entity) {
+<b class="nc">&nbsp;		double distance = Math.hypot(w, h);</b>
+<b class="nc">&nbsp;		for (Player player : players) {</b>
+<b class="nc">&nbsp;			double d = Math.hypot(Math.abs(entity.x - player.x), Math.abs(entity.y - player.y));</b>
+<b class="nc">&nbsp;			if (d &lt; distance) distance = d;</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		return distance;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void printEntityStatus(String entityMessage, Entity entity, String... searching) {
+&nbsp;		// &quot;searching&quot; can contain any number of class names I want to print when found.
+<b class="nc">&nbsp;		String clazz = entity.getClass().getCanonicalName();</b>
+<b class="nc">&nbsp;		clazz = clazz.substring(clazz.lastIndexOf(&quot;.&quot;) + 1);</b>
+<b class="nc">&nbsp;		for (String search : searching) {</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				if (Class.forName(&quot;minicraft.entity.&quot; + search).isAssignableFrom(entity.getClass())) {</b>
+<b class="nc">&nbsp;					printLevelLoc(entityMessage + clazz, entity.x &gt;&gt; 4, entity.y &gt;&gt; 4, &quot;: &quot; + entity);</b>
+<b class="nc">&nbsp;					break;</b>
+&nbsp;				}
+<b class="nc">&nbsp;			} catch (ClassNotFoundException ex) {</b>
+<b class="nc">&nbsp;				ex.printStackTrace();</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void dropItem(int x, int y, int mincount, int maxcount, Item... items) {
+<b class="nc">&nbsp;		dropItem(x, y, mincount + random.nextInt(maxcount - mincount + 1), items);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void dropItem(int x, int y, int count, Item... items) {
+<b class="nc">&nbsp;		for (int i = 0; i &lt; count; i++)</b>
+<b class="nc">&nbsp;			dropItem(x, y, items);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void dropItem(int x, int y, Item... items) {
+<b class="nc">&nbsp;		for (Item i : items)</b>
+<b class="nc">&nbsp;			dropItem(x, y, i);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public ItemEntity dropItem(int x, int y, Item i) {
+&nbsp;		int ranx, rany;
+&nbsp;
+&nbsp;		do {
+<b class="nc">&nbsp;			ranx = x + random.nextInt(11) - 5;</b>
+<b class="nc">&nbsp;			rany = y + random.nextInt(11) - 5;</b>
+<b class="nc">&nbsp;		} while (ranx &gt;&gt; 4 != x &gt;&gt; 4 || rany &gt;&gt; 4 != y &gt;&gt; 4);</b>
+<b class="nc">&nbsp;		ItemEntity ie = new ItemEntity(i, ranx, rany);</b>
+<b class="nc">&nbsp;		add(ie);</b>
+<b class="nc">&nbsp;		return ie;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void renderBackground(Screen screen, int xScroll, int yScroll) {
+<b class="nc">&nbsp;		int xo = xScroll &gt;&gt; 4; // Latches to the nearest tile coordinate</b>
+<b class="nc">&nbsp;		int yo = yScroll &gt;&gt; 4;</b>
+<b class="nc">&nbsp;		int w = (Screen.w) &gt;&gt; 4; // There used to be a &quot;+15&quot; as in below method</b>
+<b class="nc">&nbsp;		int h = (Screen.h) &gt;&gt; 4;</b>
+<b class="nc">&nbsp;		screen.setOffset(xScroll, yScroll);</b>
+<b class="nc">&nbsp;		for (int y = yo; y &lt;= h + yo; y++) {</b>
+<b class="nc">&nbsp;			for (int x = xo; x &lt;= w + xo; x++) {</b>
+<b class="nc">&nbsp;				getTile(x, y).render(screen, this, x, y);</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;		screen.setOffset(0, 0);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void renderSprites(Screen screen, int xScroll, int yScroll) {
+<b class="nc">&nbsp;		int xo = xScroll &gt;&gt; 4; // Latches to the nearest tile coordinate</b>
+<b class="nc">&nbsp;		int yo = yScroll &gt;&gt; 4;</b>
+<b class="nc">&nbsp;		int w = (Screen.w + 15) &gt;&gt; 4;</b>
+<b class="nc">&nbsp;		int h = (Screen.h + 15) &gt;&gt; 4;</b>
+&nbsp;
+<b class="nc">&nbsp;		screen.setOffset(xScroll, yScroll);</b>
+<b class="nc">&nbsp;		sortAndRender(screen, getEntitiesInTiles(xo - 1, yo - 1, xo + w + 1, yo + h + 1));</b>
+&nbsp;
+<b class="nc">&nbsp;		screen.setOffset(0, 0);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void renderLight(Screen screen, int xScroll, int yScroll, int brightness) {
+<b class="nc">&nbsp;		int xo = xScroll &gt;&gt; 4;</b>
+<b class="nc">&nbsp;		int yo = yScroll &gt;&gt; 4;</b>
+<b class="nc">&nbsp;		int w = (Screen.w + 15) &gt;&gt; 4;</b>
+<b class="nc">&nbsp;		int h = (Screen.h + 15) &gt;&gt; 4;</b>
+&nbsp;
+<b class="nc">&nbsp;		screen.setOffset(xScroll, yScroll);</b>
+&nbsp;
+&nbsp;		// this specifies the maximum radius that the game will stop rendering the light from the source object once off screen
+<b class="nc">&nbsp;		int r = 8;</b>
+&nbsp;
+<b class="nc">&nbsp;		List&lt;Entity&gt; entities = getEntitiesInTiles(xo - r, yo - r, w + xo + r, h + yo + r);</b>
+<b class="nc">&nbsp;		for (Entity e : entities) {</b>
+<b class="nc">&nbsp;			int lr = e.getLightRadius();</b>
+<b class="nc">&nbsp;			if (lr &gt; 0) screen.renderLight(e.x - 1, e.y - 4, lr * brightness);</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int y = yo - r; y &lt;= h + yo + r; y++) {</b>
+<b class="nc">&nbsp;			for (int x = xo - r; x &lt;= w + xo + r; x++) {</b>
+<b class="nc">&nbsp;				if (x &lt; 0 || y &lt; 0 || x &gt;= this.w || y &gt;= this.h) continue;</b>
+&nbsp;
+<b class="nc">&nbsp;				int lr = getTile(x, y).getLightRadius(this, x, y);</b>
+<b class="nc">&nbsp;				if (lr &gt; 0) screen.renderLight(x * 16 + 8, y * 16 + 8, lr * brightness);</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;		screen.setOffset(0, 0);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void sortAndRender(Screen screen, List&lt;Entity&gt; list) {
+<b class="nc">&nbsp;		list.sort(spriteSorter);</b>
+<b class="nc">&nbsp;		for (Entity e : list) {</b>
+<b class="nc">&nbsp;			if (e.getLevel() == this &amp;&amp; !e.isRemoved())</b>
+<b class="nc">&nbsp;				e.render(screen);</b>
+&nbsp;			else
+<b class="nc">&nbsp;				remove(e);</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Tile getTile(int x, int y) {
+<b class="nc">&nbsp;		if (x &lt; 0 || y &lt; 0 || x &gt;= w || y &gt;= h /* || (x + y * w) &gt;= tiles.length*/) return Tiles.get(&quot;connector tile&quot;);</b>
+<b class="nc">&nbsp;		return Tiles.get(tiles[x + y * w]);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * @deprecated Currently unused, but this should be prevented being used.
+&nbsp;	 */
+&nbsp;	@Deprecated
+&nbsp;	public void setTile(int x, int y, String tilewithdata) {
+<b class="nc">&nbsp;		if (!tilewithdata.contains(&quot;_&quot;)) {</b>
+<b class="nc">&nbsp;			setTile(x, y, Tiles.get(tilewithdata));</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+<b class="nc">&nbsp;		String name = tilewithdata.substring(0, tilewithdata.indexOf(&quot;_&quot;));</b>
+<b class="nc">&nbsp;		int data = Tiles.get(name).getData(tilewithdata.substring(name.length() + 1));</b>
+<b class="nc">&nbsp;		setTile(x, y, Tiles.get(name), data);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void setTile(int x, int y, Tile t) {
+<b class="nc">&nbsp;		setTile(x, y, t, t.getDefaultData());</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void setTile(int x, int y, Tile t, int dataVal) {
+<b class="nc">&nbsp;		if (x &lt; 0 || y &lt; 0 || x &gt;= w || y &gt;= h) return;</b>
+&nbsp;
+<b class="nc">&nbsp;		tiles[x + y * w] = t.id;</b>
+<b class="nc">&nbsp;		data[x + y * w] = (short) dataVal;</b>
+<b class="nc">&nbsp;		t.onTileSet(this, x, y);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public int getData(int x, int y) {
+<b class="nc">&nbsp;		if (x &lt; 0 || y &lt; 0 || x &gt;= w || y &gt;= h) return 0;</b>
+<b class="nc">&nbsp;		return data[x + y * w] &amp; 0xFFFF;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void setData(int x, int y, int val) {
+<b class="nc">&nbsp;		if (x &lt; 0 || y &lt; 0 || x &gt;= w || y &gt;= h) return;</b>
+<b class="nc">&nbsp;		data[x + y * w] = (short) val;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void add(Entity e) {
+<b class="nc">&nbsp;		if (e == null) return;</b>
+<b class="nc">&nbsp;		add(e, e.x, e.y);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void add(Entity entity, int x, int y) {
+<b class="nc">&nbsp;		add(entity, x, y, false);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void add(Entity entity, int x, int y, boolean tileCoords) {
+<b class="nc">&nbsp;		if (entity == null) return;</b>
+<b class="nc">&nbsp;		if (tileCoords) {</b>
+<b class="nc">&nbsp;			x = x * 16 + 8;</b>
+<b class="nc">&nbsp;			y = y * 16 + 8;</b>
+&nbsp;		}
+<b class="nc">&nbsp;		entity.setLevel(this, x, y);</b>
+&nbsp;
+<b class="nc">&nbsp;		entitiesToRemove.remove(entity); // To make sure the most recent request is satisfied.</b>
+<b class="nc">&nbsp;		if (!entitiesToAdd.contains(entity))</b>
+<b class="nc">&nbsp;			entitiesToAdd.add(entity);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void remove(Entity e) {
+<b class="nc">&nbsp;		entitiesToAdd.remove(e);</b>
+<b class="nc">&nbsp;		if (!entitiesToRemove.contains(e))</b>
+<b class="nc">&nbsp;			entitiesToRemove.add(e);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Natural spawn.
+&nbsp;	 */
+&nbsp;	private void trySpawn() {
+<b class="nc">&nbsp;		int spawnSkipChance = (int) (MOB_SPAWN_FACTOR * Math.pow(mobCount, 2) / Math.pow(maxMobCount, 2));</b>
+<b class="nc">&nbsp;		if (spawnSkipChance &gt; 0 &amp;&amp; random.nextInt(spawnSkipChance) != 0)</b>
+<b class="nc">&nbsp;			return; // Hopefully will make mobs spawn a lot slower.</b>
+&nbsp;
+<b class="nc">&nbsp;		boolean spawned = false;</b>
+<b class="nc">&nbsp;		for (Player player : players) {</b>
+<b class="nc">&nbsp;			assert player.getLevel().depth == depth;</b>
+<b class="nc">&nbsp;			int lvl = -MyUtils.clamp(player.getLevel().depth, -4, 0);</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; 30 &amp;&amp; !spawned; i++) {</b>
+<b class="nc">&nbsp;				int rnd = random.nextInt(100);</b>
+<b class="nc">&nbsp;				int nx = random.nextInt(w) * 16 + 8, ny = random.nextInt(h) * 16 + 8;</b>
+<b class="nc">&nbsp;				double distance = Math.hypot(Math.abs(nx - player.x), Math.abs(ny - player.y));</b>
+<b class="nc">&nbsp;				if (distance &lt; 160) continue; // Spawns only far from 10 tiles away.</b>
+&nbsp;
+&nbsp;				//System.out.println(&quot;trySpawn on level &quot; + depth + &quot; of lvl &quot; + lvl + &quot; mob w/ rand &quot; + rnd + &quot; at tile &quot; + nx + &quot;,&quot; + ny);
+&nbsp;
+&nbsp;				// Spawns the enemy mobs; first part prevents enemy mob spawn on surface on first day, more or less.
+<b class="nc">&nbsp;				if ((Updater.getTime() == Updater.Time.Night &amp;&amp; Updater.pastDay1 || depth != 0) &amp;&amp; EnemyMob.checkStartPos(this, nx, ny)</b>
+<b class="nc">&nbsp;					&amp;&amp; !isLight(nx, ny)) { // if night or underground, with a valid tile and dim place, spawn an enemy mob.</b>
+&nbsp;
+<b class="nc">&nbsp;					if (depth != -4) { // Normal mobs</b>
+<b class="nc">&nbsp;						if (rnd &lt;= 40) add((new Slime(lvl)), nx, ny);</b>
+<b class="nc">&nbsp;						else if (rnd &lt;= 75) add((new Zombie(lvl)), nx, ny);</b>
+<b class="nc">&nbsp;						else if (rnd &gt;= 85) add((new Skeleton(lvl)), nx, ny);</b>
+<b class="nc">&nbsp;						else add((new Creeper(lvl)), nx, ny);</b>
+&nbsp;
+&nbsp;					} else { // Special dungeon mobs
+<b class="nc">&nbsp;						if (rnd &lt;= 40) add((new Snake(lvl)), nx, ny);</b>
+<b class="nc">&nbsp;						else if (rnd &lt;= 75) add((new Knight(lvl)), nx, ny);</b>
+<b class="nc">&nbsp;						else if (rnd &gt;= 85) add((new Snake(lvl)), nx, ny);</b>
+<b class="nc">&nbsp;						else add((new Knight(lvl)), nx, ny);</b>
+&nbsp;
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					spawned = true;</b>
+<b class="nc">&nbsp;					continue; // Only 1 mob is spawned at the same time.</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				if (depth == 0 &amp;&amp; PassiveMob.checkStartPos(this, nx, ny)) {</b>
+&nbsp;					// Spawns the friendly mobs.
+<b class="nc">&nbsp;					if (rnd &lt;= (Updater.getTime() == Updater.Time.Night ? 22 : 33)) add((new Cow()), nx, ny);</b>
+<b class="nc">&nbsp;					else if (rnd &gt;= 68) add((new Pig()), nx, ny);</b>
+<b class="nc">&nbsp;					else add((new Sheep()), nx, ny);</b>
+&nbsp;
+<b class="nc">&nbsp;					spawned = true;</b>
+&nbsp;				}
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void removeAllEnemies() {
+<b class="nc">&nbsp;		for (Entity e : getEntityArray()) {</b>
+<b class="nc">&nbsp;			if (e instanceof EnemyMob)</b>
+<b class="nc">&nbsp;				if (!(e instanceof AirWizard) || Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) // Don&#39;t remove the airwizard bosses! Unless in creative, since you can spawn more.</b>
+<b class="nc">&nbsp;					e.remove();</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void clearEntities() {
+<b class="nc">&nbsp;		entities.clear();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Entity[] getEntityArray() {
+&nbsp;		Entity[] entityArray;
+<b class="nc">&nbsp;		int index = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;		synchronized (entityLock) {</b>
+<b class="nc">&nbsp;			entityArray = new Entity[entities.size()];</b>
+<b class="nc">&nbsp;			for (Entity entity : entities) {</b>
+<b class="nc">&nbsp;				entityArray[index++] = entity;</b>
+<b class="nc">&nbsp;			}</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		return entityArray;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public List&lt;Entity&gt; getEntitiesInTiles(int xt, int yt, int radius) {
+<b class="nc">&nbsp;		return getEntitiesInTiles(xt, yt, radius, false);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@SafeVarargs
+&nbsp;	public final List&lt;Entity&gt; getEntitiesInTiles(int xt, int yt, int radius, boolean includeGiven, Class&lt;? extends Entity&gt;... entityClasses) {
+<b class="nc">&nbsp;		return getEntitiesInTiles(xt - radius, yt - radius, xt + radius, yt + radius, includeGiven, entityClasses);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Get entities in a certain area on the level.
+&nbsp;	 * @param xt0 Left
+&nbsp;	 * @param yt0 Top
+&nbsp;	 * @param xt1 Right
+&nbsp;	 * @param yt1 Bottom
+&nbsp;	 */
+&nbsp;	public List&lt;Entity&gt; getEntitiesInTiles(int xt0, int yt0, int xt1, int yt1) {
+<b class="nc">&nbsp;		return getEntitiesInTiles(xt0, yt0, xt1, yt1, false);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Get entities in a certain area on the level, and filter them by class.
+&nbsp;	 * @param xt0 Left
+&nbsp;	 * @param yt0 Top
+&nbsp;	 * @param xt1 Right
+&nbsp;	 * @param yt1 Bottom
+&nbsp;	 * @param includeGiven If we should accept entities that match the provided entityClasses. If false, we ignore the provided entityClasses.
+&nbsp;	 * @param entityClasses Entities to accept.
+&nbsp;	 * @return A list of entities in the area.
+&nbsp;	 */
+&nbsp;	@SafeVarargs
+&nbsp;	public final List&lt;Entity&gt; getEntitiesInTiles(int xt0, int yt0, int xt1, int yt1, boolean includeGiven, Class&lt;? extends Entity&gt;... entityClasses) {
+<b class="nc">&nbsp;		List&lt;Entity&gt; contained = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;		for (Entity e : getEntityArray()) {</b>
+<b class="nc">&nbsp;			int xt = e.x &gt;&gt; 4;</b>
+<b class="nc">&nbsp;			int yt = e.y &gt;&gt; 4;</b>
+&nbsp;
+&nbsp;			// Check if entity is in area.
+<b class="nc">&nbsp;			if (xt &gt;= xt0 &amp;&amp; xt &lt;= xt1 &amp;&amp; yt &gt;= yt0 &amp;&amp; yt &lt;= yt1) {</b>
+<b class="nc">&nbsp;				boolean matches = false;</b>
+&nbsp;
+&nbsp;				// Look through all entity classes to see if they match the current entity we are at.
+<b class="nc">&nbsp;				for (int i = 0; !matches &amp;&amp; i &lt; entityClasses.length; i++)</b>
+&nbsp;					// If the current entity and an entity class match.
+<b class="nc">&nbsp;					matches = entityClasses[i].isAssignableFrom(e.getClass());</b>
+&nbsp;
+&nbsp;				// Add if the current entity matches an entity class and includeGiven is true.
+&nbsp;				// If includeGiven is false, add if it doesn&#39;t match.
+<b class="nc">&nbsp;				if (matches == includeGiven)</b>
+<b class="nc">&nbsp;					contained.add(e);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return contained;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Check if there is an entity on the specified tile.
+&nbsp;	 * @param x The x position of the tile.
+&nbsp;	 * @param y The y position of the tile
+&nbsp;	 * @return True if there is an entity on the tile.
+&nbsp;	 */
+&nbsp;	public final boolean isEntityOnTile(int x, int y) {
+<b class="nc">&nbsp;		for (Entity e : getEntityArray()) {</b>
+<b class="nc">&nbsp;			int xt = e.x &gt;&gt; 4;</b>
+<b class="nc">&nbsp;			int yt = e.y &gt;&gt; 4;</b>
+&nbsp;
+<b class="nc">&nbsp;			if (xt == x &amp;&amp; yt == y) {</b>
+<b class="nc">&nbsp;				return true;</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public List&lt;Entity&gt; getEntitiesInRect(Rectangle area) {
+<b class="nc">&nbsp;		List&lt;Entity&gt; result = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;		for (Entity e : getEntityArray()) {</b>
+<b class="nc">&nbsp;			if (e.isTouching(area))</b>
+<b class="nc">&nbsp;				result.add(e);</b>
+&nbsp;		}
+<b class="nc">&nbsp;		return result;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public List&lt;Entity&gt; getEntitiesInRect(Predicate&lt;Entity&gt; filter, Rectangle area) {
+<b class="nc">&nbsp;		List&lt;Entity&gt; result = new LinkedList&lt;&gt;();</b>
+<b class="nc">&nbsp;		for (Entity entity : entities) {</b>
+<b class="nc">&nbsp;			if (filter.test(entity) &amp;&amp; entity.isTouching(area)) {</b>
+<b class="nc">&nbsp;				result.add(entity);</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;		return result;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/// Finds all entities that are an instance of the given entity.
+&nbsp;	public Entity[] getEntitiesOfClass(Class&lt;? extends Entity&gt; targetClass) {
+<b class="nc">&nbsp;		ArrayList&lt;Entity&gt; matches = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;		for (Entity e : getEntityArray()) {</b>
+<b class="nc">&nbsp;			if (targetClass.isAssignableFrom(e.getClass()))</b>
+<b class="nc">&nbsp;				matches.add(e);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return matches.toArray(new Entity[0]);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Player[] getPlayers() {
+<b class="nc">&nbsp;		return players.toArray(new Player[0]);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Player getClosestPlayer(int x, int y) {
+<b class="nc">&nbsp;		Player[] players = getPlayers();</b>
+<b class="nc">&nbsp;		if (players.length == 0)</b>
+<b class="nc">&nbsp;			return null;</b>
+&nbsp;
+<b class="nc">&nbsp;		Player closest = players[0];</b>
+<b class="nc">&nbsp;		int xd = closest.x - x;</b>
+<b class="nc">&nbsp;		int yd = closest.y - y;</b>
+<b class="nc">&nbsp;		for (int i = 1; i &lt; players.length; i++) {</b>
+<b class="nc">&nbsp;			int curxd = players[i].x - x;</b>
+<b class="nc">&nbsp;			int curyd = players[i].y - y;</b>
+<b class="nc">&nbsp;			if (xd * xd + yd * yd &gt; curxd * curxd + curyd * curyd) {</b>
+<b class="nc">&nbsp;				closest = players[i];</b>
+<b class="nc">&nbsp;				xd = curxd;</b>
+<b class="nc">&nbsp;				yd = curyd;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return closest;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Calculates maximum position can be reached by an entity with the front boundary of hit box by tile hit box.
+&nbsp;	 * @param sgn One-dimensional direction of displacement
+&nbsp;	 * @param d Displacement vector
+&nbsp;	 * @param hitBoxLeft The left boundary of hit box
+&nbsp;	 * @param hitBoxRight The right boundary of hit box
+&nbsp;	 * @param hitBoxFront The front boundary of hit box
+&nbsp;	 * @param frontTilePassableCheck The check of whether the front boundary of hit box hits the tile hit box;
+&nbsp;	 * 	the first parameter takes the front tile position and second one takes the horizontal position
+&nbsp;	 * @return The maximum front position can be reached by tile hit box check
+&nbsp;	 */
+&nbsp;	public static int calculateMaxFrontClosestTile(int sgn, int d, int hitBoxLeft, int hitBoxRight, int hitBoxFront,
+&nbsp;	                                               BiPredicate&lt;Integer, Integer&gt; frontTilePassableCheck) {
+<b class="nc">&nbsp;		int hitBoxFront1 = hitBoxFront + d; // After maximum movement</b>
+<b class="nc">&nbsp;		int hitBoxLeftTile = hitBoxLeft &gt;&gt; 4;</b>
+<b class="nc">&nbsp;		int hitBoxRightTile = hitBoxRight &gt;&gt; 4;</b>
+<b class="nc">&nbsp;		int hitBoxFrontTile = hitBoxFront &gt;&gt; 4;</b>
+<b class="nc">&nbsp;		int hitBoxFrontTile1 = hitBoxFront1 &gt;&gt; 4;</b>
+<b class="nc">&nbsp;		int maxFrontTile = hitBoxFrontTile1; // Value for full tile movement</b>
+&nbsp;		// Skips the current tile by adding 1.
+&nbsp;		mainLoop:
+<b class="nc">&nbsp;		for (int front = hitBoxFrontTile + sgn; sgn &lt; 0 ? front &gt;= hitBoxFrontTile1 : front &lt;= hitBoxFrontTile1; front += sgn) {</b>
+<b class="nc">&nbsp;			for (int horTile = hitBoxLeftTile; horTile &lt;= hitBoxRightTile; horTile++) {</b>
+<b class="nc">&nbsp;				if (!frontTilePassableCheck.test(front, horTile)) {</b>
+<b class="nc">&nbsp;					maxFrontTile = front - sgn; // Rolls back a tile by subtracting 1.</b>
+<b class="nc">&nbsp;					break mainLoop; // Tile hit box check stops.</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return hitBoxFront +</b>
+<b class="nc">&nbsp;			(sgn &gt; 0 ? Math.min(d, (maxFrontTile &lt;&lt; 4) - hitBoxFront + (1 &lt;&lt; 4) - 1) : Math.max(d, (maxFrontTile &lt;&lt; 4) - hitBoxFront));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Point[] getAreaTilePositions(int x, int y, int r) {
+<b class="nc">&nbsp;		return getAreaTilePositions(x, y, r, r);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Point[] getAreaTilePositions(int x, int y, int rx, int ry) {
+<b class="nc">&nbsp;		ArrayList&lt;Point&gt; local = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;		for (int yp = y - ry; yp &lt;= y + ry; yp++)</b>
+<b class="nc">&nbsp;			for (int xp = x - rx; xp &lt;= x + rx; xp++)</b>
+<b class="nc">&nbsp;				if (xp &gt;= 0 &amp;&amp; xp &lt; w &amp;&amp; yp &gt;= 0 &amp;&amp; yp &lt; h)</b>
+<b class="nc">&nbsp;					local.add(new Point(xp, yp));</b>
+<b class="nc">&nbsp;		return local.toArray(new Point[0]);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Tile[] getAreaTiles(int x, int y, int r) {
+<b class="nc">&nbsp;		return getAreaTiles(x, y, r, r);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Tile[] getAreaTiles(int x, int y, int rx, int ry) {
+<b class="nc">&nbsp;		ArrayList&lt;Tile&gt; local = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;		for (Point p : getAreaTilePositions(x, y, rx, ry))</b>
+<b class="nc">&nbsp;			local.add(getTile(p.x, p.y));</b>
+&nbsp;
+<b class="nc">&nbsp;		return local.toArray(new Tile[0]);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void setAreaTiles(int xt, int yt, int r, Tile tile, int data) {
+<b class="nc">&nbsp;		setAreaTiles(xt, yt, r, tile, data, false);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void setAreaTiles(int xt, int yt, int r, Tile tile, int data, boolean overwriteStairs) {
+<b class="nc">&nbsp;		for (int y = yt - r; y &lt;= yt + r; y++) {</b>
+<b class="nc">&nbsp;			for (int x = xt - r; x &lt;= xt + r; x++) {</b>
+<b class="nc">&nbsp;				if (overwriteStairs || (!getTile(x, y).name.toLowerCase().contains(&quot;stairs&quot;)))</b>
+<b class="nc">&nbsp;					setTile(x, y, tile, data);</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void setAreaTiles(int xt, int yt, int r, Tile tile, int data, String[] blacklist) {
+<b class="nc">&nbsp;		for (int y = yt - r; y &lt;= yt + r; y++) {</b>
+<b class="nc">&nbsp;			for (int x = xt - r; x &lt;= xt + r; x++) {</b>
+<b class="nc">&nbsp;				if (!Arrays.asList(blacklist).contains(getTile(x, y).name.toLowerCase()))</b>
+<b class="nc">&nbsp;					setTile(x, y, tile, data);</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@FunctionalInterface
+&nbsp;	public interface TileCheck {
+&nbsp;		boolean check(Tile t, int x, int y);
+&nbsp;	}
+&nbsp;
+&nbsp;	public List&lt;Point&gt; getMatchingTiles(Tile search) {
+<b class="nc">&nbsp;		return getMatchingTiles((t, x, y) -&gt; t.equals(search));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public List&lt;Point&gt; getMatchingTiles(Tile... search) {
+<b class="nc">&nbsp;		return getMatchingTiles((t, x, y) -&gt; {</b>
+<b class="nc">&nbsp;			for (Tile poss : search)</b>
+<b class="nc">&nbsp;				if (t.equals(poss))</b>
+<b class="nc">&nbsp;					return true;</b>
+<b class="nc">&nbsp;			return false;</b>
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;	public List&lt;Point&gt; getMatchingTiles(TileCheck condition) {
+<b class="nc">&nbsp;		List&lt;Point&gt; matches = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;		for (int y = 0; y &lt; h; y++)</b>
+<b class="nc">&nbsp;			for (int x = 0; x &lt; w; x++)</b>
+<b class="nc">&nbsp;				if (condition.check(getTile(x, y), x, y))</b>
+<b class="nc">&nbsp;					matches.add(new Point(x, y));</b>
+&nbsp;
+<b class="nc">&nbsp;		return matches;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean isLight(int x, int y) {
+<b class="nc">&nbsp;		for (Tile t : getAreaTiles(x, y, 3))</b>
+<b class="nc">&nbsp;			if (t instanceof TorchTile)</b>
+<b class="nc">&nbsp;				return true;</b>
+<b class="nc">&nbsp;		for (Entity e : getEntitiesInRect(e -&gt; e instanceof Lantern, new Rectangle(x, y, 8, 8, Rectangle.CENTER_DIMS))) {</b>
+<b class="nc">&nbsp;			int xx = (e.x &gt;&gt; 4) - x, yy = (e.y &gt;&gt; 4) - y, rr = e.getLightRadius() - 1;</b>
+<b class="nc">&nbsp;			if (xx * xx + yy * yy &lt; rr * rr)</b>
+<b class="nc">&nbsp;				return true;</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void generateSpawnerStructures() {
+<b class="nc">&nbsp;		if (depth != -4) {</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; 18 / -depth * (w / 128); i++) {</b>
+&nbsp;
+&nbsp;				/// For generating spawner dungeons
+&nbsp;				MobAi m;
+<b class="nc">&nbsp;				int r = random.nextInt(5);</b>
+&nbsp;
+<b class="nc">&nbsp;				if (r == 1) {</b>
+<b class="nc">&nbsp;					m = new Skeleton(-depth);</b>
+<b class="nc">&nbsp;				} else if (r == 2 || r == 0) {</b>
+<b class="nc">&nbsp;					m = new Slime(-depth);</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					m = new Zombie(-depth);</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				Spawner sp = new Spawner(m);</b>
+<b class="nc">&nbsp;				int x3 = random.nextInt(16 * w) / 16;</b>
+<b class="nc">&nbsp;				int y3 = random.nextInt(16 * h) / 16;</b>
+<b class="nc">&nbsp;				if (getTile(x3, y3) == Tiles.get(&quot;dirt&quot;)) {</b>
+<b class="nc">&nbsp;					boolean xaxis2 = random.nextBoolean();</b>
+&nbsp;
+<b class="nc">&nbsp;					if (xaxis2) {</b>
+<b class="nc">&nbsp;						for (int s2 = x3; s2 &lt; w - s2; s2++) {</b>
+<b class="nc">&nbsp;							if (getTile(s2, y3) == Tiles.get(&quot;rock&quot;)) {</b>
+<b class="nc">&nbsp;								sp.x = s2 * 16 - 24;</b>
+<b class="nc">&nbsp;								sp.y = y3 * 16 - 24;</b>
+&nbsp;							}
+&nbsp;						}
+&nbsp;					} else {
+<b class="nc">&nbsp;						for (int s2 = y3; s2 &lt; h - s2; s2++) {</b>
+<b class="nc">&nbsp;							if (getTile(x3, s2) == Tiles.get(&quot;rock&quot;)) {</b>
+<b class="nc">&nbsp;								sp.x = x3 * 16 - 24;</b>
+<b class="nc">&nbsp;								sp.y = s2 * 16 - 24;</b>
+&nbsp;							}
+&nbsp;						}
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					if (sp.x == 0 &amp;&amp; sp.y == 0) {</b>
+<b class="nc">&nbsp;						sp.x = x3 * 16 - 8;</b>
+<b class="nc">&nbsp;						sp.y = y3 * 16 - 8;</b>
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					if (getTile(sp.x / 16, sp.y / 16) == Tiles.get(&quot;rock&quot;)) {</b>
+<b class="nc">&nbsp;						setTile(sp.x / 16, sp.y / 16, Tiles.get(&quot;dirt&quot;));</b>
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					Structure.mobDungeonCenter.draw(this, sp.x / 16, sp.y / 16);</b>
+&nbsp;
+<b class="nc">&nbsp;					if (getTile(sp.x / 16, sp.y / 16 - 4) == Tiles.get(&quot;dirt&quot;)) {</b>
+<b class="nc">&nbsp;						Structure.mobDungeonNorth.draw(this, sp.x / 16, sp.y / 16 - 5);</b>
+&nbsp;					}
+<b class="nc">&nbsp;					if (getTile(sp.x / 16, sp.y / 16 + 4) == Tiles.get(&quot;dirt&quot;)) {</b>
+<b class="nc">&nbsp;						Structure.mobDungeonSouth.draw(this, sp.x / 16, sp.y / 16 + 5);</b>
+&nbsp;					}
+<b class="nc">&nbsp;					if (getTile(sp.x / 16 + 4, sp.y / 16) == Tiles.get(&quot;dirt&quot;)) {</b>
+<b class="nc">&nbsp;						Structure.mobDungeonEast.draw(this, sp.x / 16 + 5, sp.y / 16);</b>
+&nbsp;					}
+<b class="nc">&nbsp;					if (getTile(sp.x / 16 - 4, sp.y / 16) == Tiles.get(&quot;dirt&quot;)) {</b>
+<b class="nc">&nbsp;						Structure.mobDungeonWest.draw(this, sp.x / 16 - 5, sp.y / 16);</b>
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					add(sp);</b>
+<b class="nc">&nbsp;					for (int rpt = 0; rpt &lt; 2; rpt++) {</b>
+<b class="nc">&nbsp;						if (random.nextInt(2) != 0) continue;</b>
+<b class="nc">&nbsp;						Chest c = new Chest();</b>
+<b class="nc">&nbsp;						int chance = -depth;</b>
+&nbsp;
+<b class="nc">&nbsp;						c.populateInvRandom(random, &quot;minidungeon&quot;, chance);</b>
+&nbsp;
+<b class="nc">&nbsp;						add(c, sp.x - 16 + rpt * 32, sp.y - 16);</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		} else {
+<b class="nc">&nbsp;			for (int i = 0; i &lt; 18 * (w / 128); i++) {</b>
+&nbsp;
+&nbsp;				/// For generating spawner dungeons
+&nbsp;				MobAi m;
+<b class="nc">&nbsp;				int r = random.nextInt(2);</b>
+&nbsp;
+<b class="nc">&nbsp;				if (r == 1) {</b>
+<b class="nc">&nbsp;					m = new Knight(2);</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					m = new Snake(2);</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				Spawner sp = new Spawner(m);</b>
+<b class="nc">&nbsp;				int x3 = random.nextInt(16 * w) / 16;</b>
+<b class="nc">&nbsp;				int y3 = random.nextInt(16 * h) / 16;</b>
+<b class="nc">&nbsp;				if (getTile(x3, y3) == Tiles.get(&quot;Obsidian&quot;)) {</b>
+<b class="nc">&nbsp;					boolean xaxis2 = random.nextBoolean();</b>
+&nbsp;
+<b class="nc">&nbsp;					if (xaxis2) {</b>
+<b class="nc">&nbsp;						for (int s2 = x3; s2 &lt; w - s2; s2++) {</b>
+<b class="nc">&nbsp;							if (getTile(s2, y3) == Tiles.get(&quot;Obsidian Wall&quot;)) {</b>
+<b class="nc">&nbsp;								sp.x = s2 * 16 - 24;</b>
+<b class="nc">&nbsp;								sp.y = y3 * 16 - 24;</b>
+&nbsp;							}
+&nbsp;						}
+&nbsp;					} else {
+<b class="nc">&nbsp;						for (int s2 = y3; s2 &lt; h - s2; s2++) {</b>
+<b class="nc">&nbsp;							if (getTile(x3, s2) == Tiles.get(&quot;Obsidian Wall&quot;)) {</b>
+<b class="nc">&nbsp;								sp.x = x3 * 16 - 24;</b>
+<b class="nc">&nbsp;								sp.y = s2 * 16 - 24;</b>
+&nbsp;							}
+&nbsp;						}
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					if (sp.x == 0 &amp;&amp; sp.y == 0) {</b>
+<b class="nc">&nbsp;						sp.x = x3 * 16 - 8;</b>
+<b class="nc">&nbsp;						sp.y = y3 * 16 - 8;</b>
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					if (getTile(sp.x / 16, sp.y / 16) == Tiles.get(&quot;Obsidian Wall&quot;)) {</b>
+<b class="nc">&nbsp;						setTile(sp.x / 16, sp.y / 16, Tiles.get(&quot;dirt&quot;));</b>
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					Structure.dungeonSpawner.draw(this, sp.x / 16, sp.y / 16);</b>
+&nbsp;
+<b class="nc">&nbsp;					add(sp);</b>
+<b class="nc">&nbsp;					for (int rpt = 0; rpt &lt; 2; rpt++) {</b>
+<b class="nc">&nbsp;						if (random.nextInt(2) != 0) continue;</b>
+<b class="nc">&nbsp;						DungeonChest c = new DungeonChest(random);</b>
+<b class="nc">&nbsp;						chestCount++;</b>
+&nbsp;
+<b class="nc">&nbsp;						add(c, sp.x - 16 + rpt * 32, sp.y - 16);</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void generateVillages() {
+<b class="nc">&nbsp;		int lastVillageX = 0;</b>
+<b class="nc">&nbsp;		int lastVillageY = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int i = 0; i &lt; w / 128 * 2; i++) {</b>
+&nbsp;			// Makes 2-8 villages based on world size
+&nbsp;
+<b class="nc">&nbsp;			for (int t = 0; t &lt; 10; t++) {</b>
+&nbsp;				// Tries 10 times for each one
+&nbsp;
+<b class="nc">&nbsp;				int x = random.nextInt(w);</b>
+<b class="nc">&nbsp;				int y = random.nextInt(h);</b>
+&nbsp;
+&nbsp;				// Makes sure the village isn&#39;t to close to the previous village
+<b class="nc">&nbsp;				if (getTile(x, y) == Tiles.get(&quot;grass&quot;) &amp;&amp; (Math.abs(x - lastVillageX) &gt; 16 &amp;&amp; Math.abs(y - lastVillageY) &gt; 16)) {</b>
+<b class="nc">&nbsp;					lastVillageX = x;</b>
+<b class="nc">&nbsp;					lastVillageY = y;</b>
+&nbsp;
+&nbsp;					// A number between 2 and 4
+<b class="nc">&nbsp;					int numHouses = random.nextInt(3) + 2;</b>
+&nbsp;
+&nbsp;					// Loops for each house in the village
+<b class="nc">&nbsp;					for (int hs = 0; hs &lt; numHouses; hs++) {</b>
+<b class="nc">&nbsp;						boolean hasChest = random.nextBoolean();</b>
+<b class="nc">&nbsp;						boolean twoDoors = random.nextBoolean();</b>
+<b class="nc">&nbsp;						int overlay = random.nextInt(2) + 1;</b>
+&nbsp;
+&nbsp;						// Basically just gets what offset this house should have from the center of the village
+<b class="nc">&nbsp;						int xo = hs == 0 || hs == 3 ? -4 : 4;</b>
+<b class="nc">&nbsp;						int yo = hs &lt; 2 ? -4 : 4;</b>
+&nbsp;
+<b class="nc">&nbsp;						xo += random.nextInt(5) - 2;</b>
+<b class="nc">&nbsp;						yo += random.nextInt(5) - 2;</b>
+&nbsp;
+<b class="nc">&nbsp;						if (twoDoors) {</b>
+<b class="nc">&nbsp;							Structure.villageHouseTwoDoor.draw(this, x + xo, y + yo);</b>
+&nbsp;						} else {
+<b class="nc">&nbsp;							Structure.villageHouseNormal.draw(this, x + xo, y + yo);</b>
+&nbsp;						}
+&nbsp;
+&nbsp;						// Make the village look ruined
+<b class="nc">&nbsp;						if (overlay == 1) {</b>
+<b class="nc">&nbsp;							Structure.villageRuinedOverlay1.draw(this, x + xo, y + yo);</b>
+&nbsp;						} else { // overlay == 2
+<b class="nc">&nbsp;							Structure.villageRuinedOverlay2.draw(this, x + xo, y + yo);</b>
+&nbsp;						}
+&nbsp;
+&nbsp;						// Add a chest to some of the houses
+<b class="nc">&nbsp;						if (hasChest) {</b>
+<b class="nc">&nbsp;							Chest c = new Chest();</b>
+<b class="nc">&nbsp;							c.populateInvRandom(random, &quot;villagehouse&quot;, 1);</b>
+<b class="nc">&nbsp;							add(c, (x + random.nextInt(2) + xo) &lt;&lt; 4, (y + random.nextInt(2) + yo) &lt;&lt; 4);</b>
+&nbsp;						}
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					break;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void generateDungeonStructures() {
+<b class="nc">&nbsp;		for (int i = 0; i &lt; Math.sqrt(w); i++) {</b>
+<b class="nc">&nbsp;			int x = random.nextInt(w - 2) + 1;</b>
+<b class="nc">&nbsp;			int y = random.nextInt(h - 2) + 1;</b>
+&nbsp;
+<b class="nc">&nbsp;			if (x &gt; 8 &amp;&amp; y &gt; 8) {</b>
+<b class="nc">&nbsp;				if (x &lt; w - 8 &amp;&amp; y &lt; w - 8) {</b>
+<b class="nc">&nbsp;					if (random.nextInt(2) == 1) {</b>
+<b class="nc">&nbsp;						Structure.dungeonGarden.draw(this, x, y);</b>
+&nbsp;					} else {
+<b class="nc">&nbsp;						Structure.dungeonChest.draw(this, x, y, furniture -&gt; {</b>
+<b class="nc">&nbsp;							if (furniture instanceof DungeonChest)</b>
+<b class="nc">&nbsp;								((DungeonChest) furniture).populateInv(random);</b>
+<b class="nc">&nbsp;						});</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Regenerating/repairing the boss room in the dungeon.
+&nbsp;	 */
+&nbsp;	public void regenerateBossRoom() {
+<b class="nc">&nbsp;		if (depth == -4) {</b>
+<b class="nc">&nbsp;			Structure.dungeonBossRoom.draw(tiles, w / 2, h / 2, w); // Generating the boss room at the center.</b>
+<b class="nc">&nbsp;			for (int x = w / 2 - 4; x &lt; w / 2 + 5; x++) { // Resetting tile data.</b>
+<b class="nc">&nbsp;				for (int y = h / 2 - 4; y &lt; h / 2 + 5; y++) {</b>
+<b class="nc">&nbsp;					setData(x, y, 0);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public String toString() {
+<b class="nc">&nbsp;		return &quot;Level(depth=&quot; + depth + &quot;)&quot;;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

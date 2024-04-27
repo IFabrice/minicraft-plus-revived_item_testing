@@ -1,0 +1,196 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Chest</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.entity.furniture</a>
+</div>
+
+<h1>Coverage Summary for Class: Chest (minicraft.entity.furniture)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Chest</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    37.5%
+  </span>
+  <span class="absValue">
+    (3/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    22.6%
+  </span>
+  <span class="absValue">
+    (7/31)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.entity.furniture;
+&nbsp;
+&nbsp;import minicraft.core.CrashHandler;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.ItemHolder;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.item.Inventory;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.item.Items;
+&nbsp;import minicraft.saveload.Load;
+&nbsp;import minicraft.screen.ContainerDisplay;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Random;
+&nbsp;
+&nbsp;public class Chest extends Furniture implements ItemHolder {
+&nbsp;	private Inventory inventory; // Inventory of the chest
+&nbsp;
+&nbsp;	public Chest() {
+<b class="fc">&nbsp;		this(&quot;Chest&quot;);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Chest(String name) {
+<b class="fc">&nbsp;		this(name, new LinkedSprite(SpriteType.Item, &quot;chest&quot;));</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Creates a chest with a custom name.
+&nbsp;	 * @param name Name of chest.
+&nbsp;	 */
+&nbsp;	public Chest(String name, LinkedSprite itemSprite) {
+<b class="fc">&nbsp;		super(name, new LinkedSprite(SpriteType.Entity, &quot;chest&quot;), itemSprite, 3, 3); // Name of the chest</b>
+&nbsp;
+<b class="fc">&nbsp;		inventory = new Inventory(); // Initialize the inventory.</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This is what occurs when the player uses the &quot;Menu&quot; command near this
+&nbsp;	 */
+&nbsp;	public boolean use(Player player) {
+<b class="nc">&nbsp;		Game.setDisplay(new ContainerDisplay(player, this));</b>
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void populateInvRandom(Random random, String lootTable, @SuppressWarnings(&quot;unused&quot;) int depth) { // depth is unused
+&nbsp;		try {
+<b class="nc">&nbsp;			String[] lines = Load.loadFile(&quot;/resources/data/chestloot/&quot; + lootTable + &quot;.txt&quot;).toArray(new String[] {});</b>
+&nbsp;
+<b class="nc">&nbsp;			for (String line : lines) {</b>
+&nbsp;				//System.out.println(line);
+<b class="nc">&nbsp;				String[] data = line.split(&quot;,&quot;);</b>
+<b class="nc">&nbsp;				if (!line.startsWith(&quot;:&quot;)) {</b>
+<b class="nc">&nbsp;					inventory.tryAdd(random, Integer.parseInt(data[0]), Items.get(data[1]), data.length &lt; 3 ? 1 : Integer.parseInt(data[2]));</b>
+<b class="nc">&nbsp;				} else if (inventory.invSize() == 0) {</b>
+&nbsp;					// Adds the &quot;fallback&quot; items to ensure there&#39;s some stuff
+<b class="nc">&nbsp;					String[] fallbacks = line.substring(1).split(&quot;:&quot;);</b>
+<b class="nc">&nbsp;					for (String item : fallbacks) {</b>
+<b class="nc">&nbsp;						inventory.add(Items.get(item.split(&quot;,&quot;)[0]), Integer.parseInt(item.split(&quot;,&quot;)[1]));</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+<b class="nc">&nbsp;		} catch (IOException e) {</b>
+<b class="nc">&nbsp;			CrashHandler.errorHandle(e, new CrashHandler.ErrorInfo(&quot;Loot table&quot;, CrashHandler.ErrorInfo.ErrorType.REPORT, &quot;Couldn&#39;t read loot table \&quot;&quot; + lootTable + &quot;.txt&quot; + &quot;\&quot;&quot;));</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean interact(Player player, @Nullable Item item, Direction attackDir) {
+<b class="nc">&nbsp;		if (inventory.invSize() == 0)</b>
+<b class="nc">&nbsp;			return super.interact(player, item, attackDir);</b>
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public Inventory getInventory() {
+<b class="nc">&nbsp;		return inventory;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void die() {
+<b class="nc">&nbsp;		if (level != null) {</b>
+<b class="nc">&nbsp;			List&lt;Item&gt; items = inventory.getItems();</b>
+<b class="nc">&nbsp;			level.dropItem(x, y, items.toArray(new Item[0]));</b>
+&nbsp;		}
+<b class="nc">&nbsp;		super.die();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

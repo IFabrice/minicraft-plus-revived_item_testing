@@ -1,0 +1,233 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Item</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.item</a>
+</div>
+
+<h1>Coverage Summary for Class: Item (minicraft.item)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Item</td>
+<td class="coverageStat">
+  <span class="percent">
+    35.7%
+  </span>
+  <span class="absValue">
+    (5/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (12/24)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Item$MockitoMock$JWqLZb2I</td>
+  </tr>
+  <tr>
+    <td class="name">Item$MockitoMock$JWqLZb2I$auxiliary$UxeaXOWb</td>
+  </tr>
+  <tr>
+    <td class="name">Item$MockitoMock$JWqLZb2I$auxiliary$vdfXocws</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    35.7%
+  </span>
+  <span class="absValue">
+    (5/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (12/24)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
+&nbsp;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.gfx.Font;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.gfx.SpriteLinker;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;
+&nbsp;public abstract class Item {
+&nbsp;
+&nbsp;	/* Note: Most of the stuff in the class is expanded upon in StackableItem/PowerGloveItem/FurnitureItem/etc */
+&nbsp;
+&nbsp;	private final String name;
+&nbsp;	public LinkedSprite sprite;
+&nbsp;
+<b class="fc">&nbsp;	public boolean used_pending = false; // This is for multiplayer, when an item has been used, and is pending server response as to the outcome, this is set to true so it cannot be used again unless the server responds that the item wasn&#39;t used. Which should basically replace the item anyway, soo... yeah. this never gets set back.</b>
+&nbsp;
+<b class="fc">&nbsp;	protected Item(String name) {</b>
+<b class="fc">&nbsp;		sprite = SpriteLinker.missingTexture(SpriteType.Item);</b>
+<b class="fc">&nbsp;		this.name = name;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+<b class="fc">&nbsp;	protected Item(String name, LinkedSprite sprite) {</b>
+<b class="fc">&nbsp;		this.name = name;</b>
+<b class="fc">&nbsp;		this.sprite = sprite;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Renders an item on the HUD
+&nbsp;	 */
+&nbsp;	public void renderHUD(Screen screen, int x, int y, int fontColor) {
+<b class="nc">&nbsp;		String dispName = getDisplayName();</b>
+<b class="nc">&nbsp;		screen.render(x, y, sprite);</b>
+<b class="nc">&nbsp;		Font.drawBackground(dispName, screen, x + 8, y, fontColor);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Determines what happens when the player interacts with a tile
+&nbsp;	 */
+&nbsp;	public boolean interactOn(Tile tile, Level level, int xt, int yt, Player player, Direction attackDir) {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returning true causes this item to be removed from the player&#39;s active item slot
+&nbsp;	 */
+&nbsp;	public boolean isDepleted() {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns if the item can attack mobs or not
+&nbsp;	 */
+&nbsp;	public boolean canAttack() {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Sees if an item equals another item
+&nbsp;	 */
+&nbsp;	public boolean equals(Item item) {
+<b class="fc">&nbsp;		return item != null &amp;&amp; item.getClass().equals(getClass()) &amp;&amp; item.name.equals(name);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public int hashCode() {
+<b class="fc">&nbsp;		return name.hashCode();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This returns a copy of this item, in all necessary detail.
+&nbsp;	 */
+&nbsp;	@NotNull
+&nbsp;	public abstract Item copy();
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public String toString() {
+<b class="nc">&nbsp;		return name + &quot;-Item&quot;;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Gets the necessary data to send over a connection. This data should always be directly input-able into Items.get() to create a valid item with the given properties.
+&nbsp;	 */
+&nbsp;	public String getData() {
+<b class="nc">&nbsp;		return name;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Gets the description used for display item information.
+&nbsp;	 */
+&nbsp;	public String getDescription() {
+<b class="nc">&nbsp;		return getName();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public final String getName() {
+<b class="fc">&nbsp;		return name;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// Returns the String that should be used to display this item in a menu or list.
+&nbsp;	public String getDisplayName() {
+<b class="nc">&nbsp;		return &quot; &quot; + Localization.getLocalized(getName());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean interactsWithWorld() {
+<b class="nc">&nbsp;		return true;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

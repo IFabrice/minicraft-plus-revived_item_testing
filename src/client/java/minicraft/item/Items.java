@@ -56,7 +56,7 @@ public class Items {
 	@NotNull
 	public static Item get(String name) {
 		Item i = get(name, false);
-		if (i == null) return new UnknownItem("NULL"); // Technically shouldn't ever happen
+		if (i == null) return new UnknownItem("NULL"); // Technically shouldn't ever happen, since get returns unknownItem if item is not found
 		return i;
 	}
 

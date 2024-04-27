@@ -1,0 +1,175 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > RelPos</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen</a>
+</div>
+
+<h1>Coverage Summary for Class: RelPos (minicraft.screen)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">RelPos</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    57.1%
+  </span>
+  <span class="absValue">
+    (4/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    70.4%
+  </span>
+  <span class="absValue">
+    (19/27)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen;
+&nbsp;
+&nbsp;import minicraft.gfx.Dimension;
+&nbsp;import minicraft.gfx.Point;
+&nbsp;import minicraft.gfx.Rectangle;
+&nbsp;import minicraft.util.MyUtils;
+&nbsp;
+&nbsp;// stands for &quot;Relative Position&quot;
+<b class="fc">&nbsp;public enum RelPos {</b>
+<b class="fc">&nbsp;	TOP_LEFT, TOP, TOP_RIGHT,</b>
+<b class="fc">&nbsp;	LEFT, CENTER, RIGHT,</b>
+<b class="fc">&nbsp;	BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT;</b>
+&nbsp;
+&nbsp;	public int xIndex, yIndex;
+&nbsp;
+&nbsp;	// I think this way, the enums will all be constructed before this gets called, so there won&#39;t be any mishaps with number of values.
+&nbsp;	static {
+<b class="fc">&nbsp;		for (RelPos rp : RelPos.values()) {</b>
+<b class="fc">&nbsp;			int ord = rp.ordinal();</b>
+<b class="fc">&nbsp;			rp.xIndex = ord % 3;</b>
+<b class="fc">&nbsp;			rp.yIndex = ord / 3;</b>
+&nbsp;		}
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static RelPos getPos(int xIndex, int yIndex) {
+<b class="nc">&nbsp;		return values()[MyUtils.clamp(xIndex, 0, 2) + MyUtils.clamp(yIndex, 0, 2) * 3];</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public RelPos getOpposite() {
+<b class="nc">&nbsp;		int nx = -(xIndex - 1) + 1;</b>
+<b class="nc">&nbsp;		int ny = -(yIndex - 1) + 1;</b>
+<b class="nc">&nbsp;		return getPos(nx, ny);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * positions the given rect around the given anchor. The double size is what aligns it to a point rather than a rect.
+&nbsp;	 */
+&nbsp;	public Point positionRect(Dimension rectSize, Point anchor) {
+<b class="fc">&nbsp;		Rectangle bounds = new Rectangle(anchor.x, anchor.y, rectSize.width * 2, rectSize.height * 2, Rectangle.CENTER_DIMS);</b>
+<b class="fc">&nbsp;		return positionRect(rectSize, bounds);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// the point is returned as a rectangle with the given dimension and the found location, within the provided dummy rectangle.
+&nbsp;	public Rectangle positionRect(Dimension rectSize, Point anchor, Rectangle dummy) {
+<b class="fc">&nbsp;		Point pos = positionRect(rectSize, anchor);</b>
+<b class="fc">&nbsp;		dummy.setSize(rectSize, RelPos.TOP_LEFT);</b>
+<b class="fc">&nbsp;		dummy.setPosition(pos, RelPos.TOP_LEFT);</b>
+<b class="fc">&nbsp;		return dummy;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * positions the given rect to a relative position in the container.
+&nbsp;	 */
+&nbsp;	public Point positionRect(Dimension rectSize, Rectangle container) {
+<b class="fc">&nbsp;		Point tlcorner = container.getCenter();</b>
+&nbsp;
+&nbsp;		// this moves the inner box correctly
+<b class="fc">&nbsp;		tlcorner.x += ((xIndex - 1) * container.getWidth() / 2) - (xIndex * rectSize.width / 2);</b>
+<b class="fc">&nbsp;		tlcorner.y += ((yIndex - 1) * container.getHeight() / 2) - (yIndex * rectSize.height / 2);</b>
+&nbsp;
+<b class="fc">&nbsp;		return tlcorner;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// the point is returned as a rectangle with the given dimension and the found location, within the provided dummy rectangle.
+&nbsp;	public Rectangle positionRect(Dimension rectSize, Rectangle container, Rectangle dummy) {
+<b class="nc">&nbsp;		Point pos = positionRect(rectSize, container);</b>
+<b class="nc">&nbsp;		dummy.setSize(rectSize, RelPos.TOP_LEFT);</b>
+<b class="nc">&nbsp;		dummy.setPosition(pos, RelPos.TOP_LEFT);</b>
+<b class="nc">&nbsp;		return dummy;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

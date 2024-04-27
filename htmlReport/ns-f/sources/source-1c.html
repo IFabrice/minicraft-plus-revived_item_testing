@@ -1,0 +1,1217 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ResourcePackDisplay</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen</a>
+</div>
+
+<h1>Coverage Summary for Class: ResourcePackDisplay (minicraft.screen)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ResourcePackDisplay</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/25)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/397)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">ResourcePackDisplay$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">ResourcePackDisplay$2</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">ResourcePackDisplay$3</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">ResourcePackDisplay$ResourcePack</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/50)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">ResourcePackDisplay$ResourcePack$FilesFilter</td>
+  </tr>
+  <tr>
+    <td class="name">ResourcePackDisplay$WatcherThread</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/32)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/40)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/486)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen;
+&nbsp;
+&nbsp;import minicraft.core.CrashHandler;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.Renderer;
+&nbsp;import minicraft.core.io.FileHandler;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.core.io.Sound;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Font;
+&nbsp;import minicraft.gfx.MinicraftImage;
+&nbsp;import minicraft.gfx.Point;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.gfx.SpriteAnimation;
+&nbsp;import minicraft.gfx.SpriteLinker;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.saveload.Save;
+&nbsp;import minicraft.screen.entry.ListEntry;
+&nbsp;import minicraft.screen.entry.SelectEntry;
+&nbsp;import minicraft.util.BookData;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;import org.json.JSONException;
+&nbsp;import org.json.JSONObject;
+&nbsp;
+&nbsp;import javax.imageio.ImageIO;
+&nbsp;
+&nbsp;import java.awt.image.BufferedImage;
+&nbsp;import java.io.BufferedInputStream;
+&nbsp;import java.io.BufferedReader;
+&nbsp;import java.io.Closeable;
+&nbsp;import java.io.File;
+&nbsp;import java.io.FileOutputStream;
+&nbsp;import java.io.IOException;
+&nbsp;import java.io.InputStream;
+&nbsp;import java.io.InputStreamReader;
+&nbsp;import java.io.UncheckedIOException;
+&nbsp;import java.net.MalformedURLException;
+&nbsp;import java.net.URISyntaxException;
+&nbsp;import java.net.URL;
+&nbsp;import java.nio.charset.StandardCharsets;
+&nbsp;import java.nio.file.FileSystems;
+&nbsp;import java.nio.file.Path;
+&nbsp;import java.nio.file.Paths;
+&nbsp;import java.nio.file.StandardWatchEventKinds;
+&nbsp;import java.nio.file.WatchEvent;
+&nbsp;import java.nio.file.WatchService;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Collections;
+&nbsp;import java.util.Enumeration;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Locale;
+&nbsp;import java.util.Objects;
+&nbsp;import java.util.zip.ZipEntry;
+&nbsp;import java.util.zip.ZipFile;
+&nbsp;import java.util.zip.ZipOutputStream;
+&nbsp;
+<b class="nc">&nbsp;public class ResourcePackDisplay extends Display {</b>
+&nbsp;	/* Resource Pack
+&nbsp;	 * Current complete structure of resource packs:
+&nbsp;	 * &lt;root&gt;
+&nbsp;	 * 	├──	pack.json
+&nbsp;	 * 	├──	pack.png
+&nbsp;	 * 	└──	assets TODO Restructure the structure with the new IDS later
+&nbsp;	 * 		├──	books
+&nbsp;	 * 		│	└──	&lt;name&gt;.txt
+&nbsp;	 * 		├──	localization
+&nbsp;	 * 		│	└──	&lt;locale&gt;.json
+&nbsp;	 * 		├──	sound
+&nbsp;	 * 		│	└──	&lt;name&gt;.wav
+&nbsp;	 * 		└──	textures
+&nbsp;	 * 			├──	entity
+&nbsp;	 * 			│	└──	&lt;entity_name&gt;.png
+&nbsp;	 * 			├──	item
+&nbsp;	 * 			│	└──	&lt;item_name&gt;.png
+&nbsp;	 * 			├──	tile
+&nbsp;	 * 			│	├──	&lt;tile_name&gt;.png
+&nbsp;	 * 			│	└──	[&lt;tile_name&gt;.png.json]
+&nbsp;	 * 			└──	gui
+&nbsp;	 * 				├──	font.png
+&nbsp;	 * 				├──	hud.png
+&nbsp;	 * 				└──	title.png
+&nbsp;	 *
+&nbsp;	 * pack.json
+&nbsp;	 * 	├──	(name) String
+&nbsp;	 * 	├──	(description) String
+&nbsp;	 * 	├──	pack_format int
+&nbsp;	 * 	└──	(language object)
+&nbsp;	 * 		└──	&lt;locale&gt;
+&nbsp;	 * 			├──	name String
+&nbsp;	 * 			└──	region String
+&nbsp;	 */
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;	private static final ArrayList&lt;ResourcePack&gt; resourcePacks = new ArrayList&lt;&gt;(); // Packs that are not loaded.</b>
+<b class="nc">&nbsp;	private static final File FOLDER_LOCATION = new File(FileHandler.gameDir + &quot;/resourcepacks&quot;);</b>
+&nbsp;	@SuppressWarnings(&quot;unused&quot;)
+&nbsp;	private static final int VERSION = 1;
+&nbsp;
+&nbsp;	private static final ResourcePack defaultPack; // Used to check if the resource pack default.
+&nbsp;	private static final MinicraftImage defaultLogo;
+<b class="nc">&nbsp;	private static ArrayList&lt;ResourcePack&gt; loadedPacks = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;	private static ArrayList&lt;ResourcePack&gt; loadQuery = new ArrayList&lt;&gt;();</b>
+&nbsp;
+&nbsp;	private static final int padding = 10;
+&nbsp;
+&nbsp;	private WatcherThread fileWatcher;
+<b class="nc">&nbsp;	private ArrayList&lt;ListEntry&gt; entries0 = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;	private ArrayList&lt;ListEntry&gt; entries1 = new ArrayList&lt;&gt;();</b>
+&nbsp;	private Menu.Builder builder0;
+&nbsp;	private Menu.Builder builder1;
+<b class="nc">&nbsp;	private boolean changed = false;</b>
+&nbsp;
+&nbsp;	static { // Initializing the default pack and logo.
+&nbsp;		// Add the default pack.
+<b class="nc">&nbsp;		URL defaultPackURL = Game.class.getProtectionDomain().getCodeSource().getLocation();</b>
+<b class="nc">&nbsp;		if (Game.class.getProtectionDomain().getCodeSource().getLocation().toString().endsWith(&quot;/&quot;)) { // If the source is a directory.</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				File zip = File.createTempFile(&quot;resources&quot;, &quot;.zip&quot;);</b>
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_RESOURCEPACK.info(&quot;Created temp zip file: {}&quot;, zip.getAbsolutePath());</b>
+<b class="nc">&nbsp;				if (zip.exists()) zip.delete(); // Delete if exists.</b>
+<b class="nc">&nbsp;				try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip))) {</b>
+<b class="nc">&nbsp;					ArrayList&lt;String&gt; assets = FileHandler.listAssets();</b>
+<b class="nc">&nbsp;					assets.add(&quot;pack.json&quot;);</b>
+<b class="nc">&nbsp;					assets.add(&quot;pack.png&quot;);</b>
+<b class="nc">&nbsp;					for (String name : assets) { // Copy only assets and pack configuration.</b>
+<b class="nc">&nbsp;						if (name.startsWith(&quot;assets/&quot;) || name.equals(&quot;pack.json&quot;) || name.equals(&quot;pack.png&quot;)) {</b>
+<b class="nc">&nbsp;							out.putNextEntry(new ZipEntry(name));</b>
+<b class="nc">&nbsp;							if (!name.endsWith(&quot;/&quot;)) {</b>
+&nbsp;								int b;
+<b class="nc">&nbsp;								InputStream stream = Game.class.getResourceAsStream(&quot;/&quot; + name);</b>
+<b class="nc">&nbsp;								while ((b = stream.read()) != -1) // Write per byte.</b>
+<b class="nc">&nbsp;									out.write(b);</b>
+&nbsp;							}
+&nbsp;
+<b class="nc">&nbsp;							out.closeEntry();</b>
+&nbsp;						}
+<b class="nc">&nbsp;					}</b>
+<b class="nc">&nbsp;				} catch (IOException e) {</b>
+<b class="nc">&nbsp;					CrashHandler.crashHandle(e);</b>
+<b class="nc">&nbsp;				}</b>
+&nbsp;
+&nbsp;				try {
+<b class="nc">&nbsp;					defaultPackURL = zip.toURI().toURL();</b>
+<b class="nc">&nbsp;				} catch (MalformedURLException e) {</b>
+<b class="nc">&nbsp;					CrashHandler.crashHandle(e);</b>
+<b class="nc">&nbsp;				}</b>
+<b class="nc">&nbsp;			} catch (IOException e) {</b>
+<b class="nc">&nbsp;				CrashHandler.crashHandle(e);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Default resources
+<b class="nc">&nbsp;		defaultPack = Objects.requireNonNull(loadPackMetadata(defaultPackURL));</b>
+<b class="nc">&nbsp;		loadedPacks.add(defaultPack);</b>
+&nbsp;		try {
+<b class="nc">&nbsp;			defaultLogo = MinicraftImage.createDefaultCompatible(ImageIO.read(Objects.requireNonNull(ResourcePackDisplay.class.getResourceAsStream(&quot;/resources/default_pack.png&quot;))));</b>
+<b class="nc">&nbsp;		} catch (IOException e) {</b>
+<b class="nc">&nbsp;			CrashHandler.crashHandle(e);</b>
+<b class="nc">&nbsp;			throw new UncheckedIOException(e);</b>
+<b class="nc">&nbsp;		} catch (MinicraftImage.MinicraftImageDimensionIncompatibleException | NullPointerException e) {</b>
+<b class="nc">&nbsp;			CrashHandler.crashHandle(e);</b>
+&nbsp;			//noinspection ProhibitedExceptionThrown
+<b class="nc">&nbsp;			throw new RuntimeException(e);</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Initializing the Display.
+&nbsp;	 */
+&nbsp;	public ResourcePackDisplay() {
+<b class="nc">&nbsp;		super(true, true);</b>
+<b class="nc">&nbsp;		initPacks();</b>
+&nbsp;
+&nbsp;		// Left Hand Side
+<b class="nc">&nbsp;		builder0 = new Menu.Builder(false, 2, RelPos.LEFT)</b>
+<b class="nc">&nbsp;			.setDisplayLength(8)</b>
+<b class="nc">&nbsp;			.setPositioning(new Point(0, 60), RelPos.BOTTOM_RIGHT);</b>
+&nbsp;
+&nbsp;		// Right Hand Side
+<b class="nc">&nbsp;		builder1 = new Menu.Builder(false, 2, RelPos.RIGHT)</b>
+<b class="nc">&nbsp;			.setDisplayLength(8)</b>
+<b class="nc">&nbsp;			.setPositioning(new Point(Screen.w, 60), RelPos.BOTTOM_LEFT);</b>
+&nbsp;
+<b class="nc">&nbsp;		reloadEntries();</b>
+&nbsp;
+<b class="nc">&nbsp;		menus = new Menu[] {</b>
+<b class="nc">&nbsp;			builder0.setEntries(entries0)</b>
+<b class="nc">&nbsp;				.createMenu(),</b>
+<b class="nc">&nbsp;			builder1.setEntries(entries1)</b>
+<b class="nc">&nbsp;				.createMenu()</b>
+&nbsp;		};
+&nbsp;
+<b class="nc">&nbsp;		if (menus[1].getBounds().getLeft() - menus[0].getBounds().getRight() &lt; padding)</b>
+<b class="nc">&nbsp;			menus[1].translate(menus[0].getBounds().getRight() - menus[1].getBounds().getLeft() + padding, 0);</b>
+&nbsp;
+<b class="nc">&nbsp;		fileWatcher = new WatcherThread();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	protected void onSelectionChange(int oldSel, int newSel) {
+<b class="nc">&nbsp;		super.onSelectionChange(oldSel, newSel);</b>
+<b class="nc">&nbsp;		if (oldSel == newSel)</b>
+&nbsp;			return; // this also serves as a protection against access to menus[0] when such may not exist.
+<b class="nc">&nbsp;		menus[0].translate(-menus[0].getBounds().getLeft(), 0);</b>
+<b class="nc">&nbsp;		menus[1].translate(Screen.w - menus[1].getBounds().getRight(), 0);</b>
+<b class="nc">&nbsp;		if (newSel == 0) {</b>
+<b class="nc">&nbsp;			if (menus[1].getBounds().getLeft() - menus[0].getBounds().getRight() &lt; padding)</b>
+<b class="nc">&nbsp;				menus[1].translate(menus[0].getBounds().getRight() - menus[1].getBounds().getLeft() + padding, 0);</b>
+<b class="nc">&nbsp;		} else if (newSel == 1) {</b>
+<b class="nc">&nbsp;			if (menus[1].getBounds().getLeft() - menus[0].getBounds().getRight() &lt; padding)</b>
+<b class="nc">&nbsp;				menus[0].translate(-(menus[0].getBounds().getRight() - menus[1].getBounds().getLeft() + padding), 0);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Reloading the entries to refresh the current pack list.
+&nbsp;	 */
+&nbsp;	private void reloadEntries() {
+<b class="nc">&nbsp;		entries0.clear(); // First list: unloaded.</b>
+<b class="nc">&nbsp;		for (ResourcePack pack : resourcePacks) { // First list: all available resource packs.</b>
+<b class="nc">&nbsp;			entries0.add(new SelectEntry(pack.name, () -&gt; Game.setDisplay(new PopupDisplay(null, pack.name, pack.description)), false) {</b>
+&nbsp;				@Override
+&nbsp;				public int getColor(boolean isSelected) {
+<b class="nc">&nbsp;					if (selection == 1) return SelectEntry.COL_UNSLCT;</b>
+<b class="nc">&nbsp;					return super.getColor(isSelected);</b>
+&nbsp;				}
+&nbsp;			});
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		entries1.clear(); // Second list: to be loaded.</b>
+<b class="nc">&nbsp;		for (ResourcePack pack : loadedPacks) { // Second List: loaded resource packs.</b>
+<b class="nc">&nbsp;			entries1.add(new SelectEntry(pack.name, () -&gt; Game.setDisplay(new PopupDisplay(null, pack.name, pack.description)), false) {</b>
+&nbsp;				@Override
+&nbsp;				public int getColor(boolean isSelected) {
+<b class="nc">&nbsp;					if (selection == 0) return SelectEntry.COL_UNSLCT;</b>
+<b class="nc">&nbsp;					return super.getColor(isSelected);</b>
+&nbsp;				}
+&nbsp;			});
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Applying the reloaded entries into the display.
+&nbsp;	 */
+&nbsp;	private void refreshEntries() {
+<b class="nc">&nbsp;		reloadEntries();</b>
+<b class="nc">&nbsp;		Menu[] newMenus = new Menu[] {</b>
+<b class="nc">&nbsp;			builder0.setEntries(entries0)</b>
+<b class="nc">&nbsp;				.createMenu(),</b>
+<b class="nc">&nbsp;			builder1.setEntries(entries1)</b>
+<b class="nc">&nbsp;				.createMenu()</b>
+&nbsp;		};
+&nbsp;
+&nbsp;		// Reapplying selections.
+<b class="nc">&nbsp;		newMenus[0].setSelection(menus[0].getSelection());</b>
+<b class="nc">&nbsp;		newMenus[1].setSelection(menus[1].getSelection());</b>
+&nbsp;
+<b class="nc">&nbsp;		menus = newMenus;</b>
+&nbsp;
+&nbsp;		// Translate position.
+<b class="nc">&nbsp;		onSelectionChange(selection ^ 1, selection);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Watching the directory changes. Allowing hot-loading.
+&nbsp;	 */
+&nbsp;	private class WatcherThread extends Thread implements Closeable {
+&nbsp;		private WatchService watcher;
+<b class="nc">&nbsp;		private volatile Thread running = this;</b>
+&nbsp;
+<b class="nc">&nbsp;		WatcherThread() {</b>
+<b class="nc">&nbsp;			super(&quot;Resource Pack File Watcher&quot;);</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				watcher = FileSystems.getDefault().newWatchService();</b>
+<b class="nc">&nbsp;				FOLDER_LOCATION.toPath().register(watcher, StandardWatchEventKinds.ENTRY_CREATE,</b>
+&nbsp;					StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
+<b class="nc">&nbsp;			} catch (IOException e) {</b>
+<b class="nc">&nbsp;				CrashHandler.errorHandle(e, new CrashHandler.ErrorInfo(&quot;Unable to Watch File&quot;, CrashHandler.ErrorInfo.ErrorType.UNHANDLEABLE, &quot;Unable to create file water service.&quot;));</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+<b class="nc">&nbsp;			start();</b>
+<b class="nc">&nbsp;			Logging.RESOURCEHANDLER_RESOURCEPACK.debug(&quot;WatcherThread started.&quot;);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public void run() {
+<b class="nc">&nbsp;			while (running == this) {</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					ArrayList&lt;URL&gt; urls = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;					for (WatchEvent&lt;?&gt; event : watcher.take().pollEvents()) {</b>
+<b class="nc">&nbsp;						if (event.kind() == StandardWatchEventKinds.OVERFLOW)</b>
+<b class="nc">&nbsp;							continue;</b>
+&nbsp;
+&nbsp;						@SuppressWarnings(&quot;unchecked&quot;)
+<b class="nc">&nbsp;						WatchEvent&lt;Path&gt; ev = (WatchEvent&lt;Path&gt;) event;</b>
+<b class="nc">&nbsp;						Path filename = ev.context();</b>
+&nbsp;
+&nbsp;						try {
+<b class="nc">&nbsp;							urls.add(FOLDER_LOCATION.toPath().resolve(filename).toFile().toURI().toURL());</b>
+<b class="nc">&nbsp;						} catch (IOException e) {</b>
+<b class="nc">&nbsp;							e.printStackTrace();</b>
+<b class="nc">&nbsp;							continue;</b>
+<b class="nc">&nbsp;						}</b>
+<b class="nc">&nbsp;					}</b>
+&nbsp;
+<b class="nc">&nbsp;					if (urls.size() &gt; 0) {</b>
+<b class="nc">&nbsp;						Logging.RESOURCEHANDLER_RESOURCEPACK.debug(&quot;Refreshing resource packs.&quot;);</b>
+<b class="nc">&nbsp;						refreshResourcePacks(urls);</b>
+<b class="nc">&nbsp;						refreshEntries();</b>
+&nbsp;					}
+<b class="nc">&nbsp;				} catch (InterruptedException e) {</b>
+<b class="nc">&nbsp;					Logging.RESOURCEHANDLER_RESOURCEPACK.trace(&quot;File watcher terminated.&quot;);</b>
+&nbsp;					return;
+<b class="nc">&nbsp;				}</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			Logging.RESOURCEHANDLER_RESOURCEPACK.trace(&quot;File watcher terminated.&quot;);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public void close() {
+<b class="nc">&nbsp;			running = null;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void onExit() {
+<b class="nc">&nbsp;		resourcePacks.clear(); // Releases unloaded packs.</b>
+<b class="nc">&nbsp;		fileWatcher.close(); // Removes watcher.</b>
+<b class="nc">&nbsp;		new Save();</b>
+<b class="nc">&nbsp;		if (changed) reloadResources();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick(InputHandler input) {
+&nbsp;		// Overrides the default tick handler.
+<b class="nc">&nbsp;		if (input.getMappedKey(&quot;shift+cursor-right&quot;).isClicked()) { // Move the selected pack to the second list.</b>
+<b class="nc">&nbsp;			if (selection == 0 &amp;&amp; resourcePacks.size() &gt; 0) {</b>
+<b class="nc">&nbsp;				loadedPacks.add(loadedPacks.indexOf(defaultPack), resourcePacks.remove(menus[0].getSelection()));</b>
+<b class="nc">&nbsp;				changed = true;</b>
+<b class="nc">&nbsp;				refreshEntries();</b>
+<b class="nc">&nbsp;				Sound.play(&quot;select&quot;);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			return;
+<b class="nc">&nbsp;		} else if (input.getMappedKey(&quot;shift+cursor-left&quot;).isClicked()) { // Move the selected pack to the first list.</b>
+<b class="nc">&nbsp;			if (selection == 1 &amp;&amp; loadedPacks.get(menus[1].getSelection()) != defaultPack) {</b>
+<b class="nc">&nbsp;				resourcePacks.add(loadedPacks.remove(menus[1].getSelection()));</b>
+<b class="nc">&nbsp;				changed = true;</b>
+<b class="nc">&nbsp;				refreshEntries();</b>
+<b class="nc">&nbsp;				Sound.play(&quot;select&quot;);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			return;
+<b class="nc">&nbsp;		} else if (input.getMappedKey(&quot;shift+cursor-up&quot;).isClicked()) { // Move up the selected pack in the second list.</b>
+<b class="nc">&nbsp;			if (selection == 1 &amp;&amp; menus[1].getSelection() &gt; 0) {</b>
+<b class="nc">&nbsp;				if (loadedPacks.get(menus[1].getSelection()) == defaultPack) return; // Default pack remains bottom.</b>
+<b class="nc">&nbsp;				loadedPacks.add(menus[1].getSelection() - 1, loadedPacks.remove(menus[1].getSelection()));</b>
+<b class="nc">&nbsp;				changed = true;</b>
+<b class="nc">&nbsp;				refreshEntries();</b>
+<b class="nc">&nbsp;				Sound.play(&quot;select&quot;);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			return;
+<b class="nc">&nbsp;		} else if (input.getMappedKey(&quot;shift+cursor-down&quot;).isClicked()) { // Move down the selected pack in the second list.</b>
+<b class="nc">&nbsp;			if (selection == 1 &amp;&amp; menus[1].getSelection() &lt; loadedPacks.size() - 1) {</b>
+<b class="nc">&nbsp;				if (loadedPacks.get(menus[1].getSelection() + 1) == defaultPack) return; // Default pack remains bottom.</b>
+<b class="nc">&nbsp;				loadedPacks.add(menus[1].getSelection() + 1, loadedPacks.remove(menus[1].getSelection()));</b>
+<b class="nc">&nbsp;				changed = true;</b>
+<b class="nc">&nbsp;				refreshEntries();</b>
+<b class="nc">&nbsp;				Sound.play(&quot;select&quot;);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			return;
+<b class="nc">&nbsp;		} else if (input.getMappedKey(&quot;cursor-right&quot;).isClicked()) { // Move cursor to the second list.</b>
+<b class="nc">&nbsp;			if (selection == 0) {</b>
+<b class="nc">&nbsp;				Sound.play(&quot;select&quot;);</b>
+<b class="nc">&nbsp;				onSelectionChange(0, 1);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			return;
+<b class="nc">&nbsp;		} else if (input.getMappedKey(&quot;cursor-left&quot;).isClicked()) { // Move cursor to the first list.</b>
+<b class="nc">&nbsp;			if (selection == 1) {</b>
+<b class="nc">&nbsp;				Sound.play(&quot;select&quot;);</b>
+<b class="nc">&nbsp;				onSelectionChange(1, 0);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			return;
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		super.tick(input);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen) {
+<b class="nc">&nbsp;		super.render(screen);</b>
+&nbsp;
+&nbsp;		// Title
+<b class="nc">&nbsp;		Font.drawCentered(Localization.getLocalized(&quot;minicraft.displays.resource_packs.display.title&quot;), screen, 6, Color.WHITE);</b>
+&nbsp;
+&nbsp;		// Info text at the bottom.
+<b class="nc">&nbsp;		if (Game.input.anyControllerConnected())</b>
+<b class="nc">&nbsp;			Font.drawCentered(Localization.getLocalized(&quot;minicraft.displays.resource_packs.display.help.keyboard_needed&quot;), screen, Screen.h - 33, Color.DARK_GRAY);</b>
+<b class="nc">&nbsp;		Font.drawCentered(Localization.getLocalized(&quot;minicraft.displays.resource_packs.display.help.move&quot;, Game.input.getMapping(&quot;cursor-down&quot;), Game.input.getMapping(&quot;cursor-up&quot;)), screen, Screen.h - 25, Color.DARK_GRAY);</b>
+<b class="nc">&nbsp;		Font.drawCentered(Localization.getLocalized(&quot;minicraft.displays.resource_packs.display.help.select&quot;, Game.input.getMapping(&quot;SELECT&quot;)), screen, Screen.h - 17, Color.DARK_GRAY);</b>
+<b class="nc">&nbsp;		Font.drawCentered(Localization.getLocalized(&quot;minicraft.displays.resource_packs.display.help.position&quot;), screen, Screen.h - 9, Color.DARK_GRAY);</b>
+&nbsp;
+<b class="nc">&nbsp;		ArrayList&lt;ResourcePack&gt; packs = selection == 0 ? resourcePacks : loadedPacks;</b>
+<b class="nc">&nbsp;		if (packs.size() &gt; 0) { // If there is any pack that can be selected.</b>
+&nbsp;			@SuppressWarnings(&quot;resource&quot;)
+<b class="nc">&nbsp;			MinicraftImage logo = packs.get(menus[selection].getSelection()).logo;</b>
+<b class="nc">&nbsp;			int h = logo.height / 8;</b>
+<b class="nc">&nbsp;			int w = logo.width / 8;</b>
+<b class="nc">&nbsp;			int xo = (Screen.w - logo.width) / 2;</b>
+<b class="nc">&nbsp;			int yo = 36 - logo.height / 2;</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int y = 0; y &lt; h; y++) {</b>
+<b class="nc">&nbsp;				for (int x = 0; x &lt; w; x++) {</b>
+&nbsp;					// Resource pack logo
+<b class="nc">&nbsp;					screen.render(xo + x * 8, yo + y * 8, x, y, 0, logo);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * The object representation of resource pack.
+&nbsp;	 */
+<b class="nc">&nbsp;	private static class ResourcePack implements Closeable {</b>
+&nbsp;		private URL packRoot;
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * 0 - before 2.2.0; 1 - 2.2.0-latest
+&nbsp;		 */
+&nbsp;		@SuppressWarnings(&quot;unused&quot;)
+&nbsp;		private final int packFormat; // The pack format of the pack.
+&nbsp;		private final String name; // The name of the pack.
+&nbsp;		private final String description; // The description of the pack.
+&nbsp;		private MinicraftImage logo; // The logo of the pack.
+&nbsp;
+<b class="nc">&nbsp;		private boolean opened = false; // If the zip file stream is opened.</b>
+<b class="nc">&nbsp;		private ZipFile zipFile = null; // The zip file stream.</b>
+&nbsp;
+<b class="nc">&nbsp;		private ResourcePack(URL packRoot, int packFormat, String name, String desc) {</b>
+<b class="nc">&nbsp;			this.packRoot = packRoot;</b>
+<b class="nc">&nbsp;			this.packFormat = packFormat;</b>
+<b class="nc">&nbsp;			this.name = name;</b>
+<b class="nc">&nbsp;			this.description = desc;</b>
+<b class="nc">&nbsp;			refreshPack();</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * This does not include metadata refresh.
+&nbsp;		 */
+&nbsp;		public void refreshPack() {
+&nbsp;			// Refresh pack logo.png.
+&nbsp;			try {
+<b class="nc">&nbsp;				openStream();</b>
+<b class="nc">&nbsp;				InputStream in = getResourceAsStream(&quot;pack.png&quot;);</b>
+<b class="nc">&nbsp;				if (in != null) {</b>
+<b class="nc">&nbsp;					logo = MinicraftImage.createDefaultCompatible(ImageIO.read(in));</b>
+&nbsp;
+&nbsp;					// Logo size verification.
+<b class="nc">&nbsp;					int h = logo.height;</b>
+<b class="nc">&nbsp;					int w = logo.width;</b>
+<b class="nc">&nbsp;					if (h == 0 || w == 0 || h % 8 != 0 || w % 8 != 0 ||</b>
+&nbsp;						h &gt; 32 || w &gt; Screen.w) {
+<b class="nc">&nbsp;						throw new IOException(String.format(&quot;Unacceptable logo size: %s;%s&quot;, w, h));</b>
+&nbsp;					}
+<b class="nc">&nbsp;				} else {</b>
+<b class="nc">&nbsp;					Logging.RESOURCEHANDLER_RESOURCEPACK.trace(&quot;Pack logo not found in pack: {}, loading default logo instead.&quot;, name);</b>
+<b class="nc">&nbsp;					logo = defaultLogo;</b>
+&nbsp;				}
+<b class="nc">&nbsp;				close();</b>
+&nbsp;
+<b class="nc">&nbsp;			} catch (IOException | NullPointerException | MinicraftImage.MinicraftImageDimensionIncompatibleException e) {</b>
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_RESOURCEPACK.warn(e, &quot;Unable to load logo in pack: {}, loading default logo instead.&quot;, name);</b>
+<b class="nc">&nbsp;				if (this == defaultPack) {</b>
+&nbsp;					try {
+<b class="nc">&nbsp;						logo = new MinicraftImage(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream(&quot;/resources/logo.png&quot;))));</b>
+<b class="nc">&nbsp;					} catch (IOException | NullPointerException e1) {</b>
+<b class="nc">&nbsp;						CrashHandler.crashHandle(e1);</b>
+<b class="nc">&nbsp;					}</b>
+<b class="nc">&nbsp;				} else logo = defaultLogo;</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Open the stream of the zip file.
+&nbsp;		 * @return {@code true} if the stream has successfully been opened.
+&nbsp;		 */
+&nbsp;		private boolean openStream() {
+&nbsp;			try {
+<b class="nc">&nbsp;				zipFile = new ZipFile(new File(packRoot.toURI()));</b>
+<b class="nc">&nbsp;				return opened = true;</b>
+<b class="nc">&nbsp;			} catch (IOException | URISyntaxException e) {</b>
+<b class="nc">&nbsp;				e.printStackTrace();</b>
+<b class="nc">&nbsp;				return opened = false;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Closing the stream of the zip file if opened.
+&nbsp;		 */
+&nbsp;		@Override
+&nbsp;		public void close() throws IOException {
+<b class="nc">&nbsp;			if (opened) {</b>
+<b class="nc">&nbsp;				zipFile.close();</b>
+<b class="nc">&nbsp;				zipFile = null;</b>
+<b class="nc">&nbsp;				opened = false;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Getting the stream by the path.
+&nbsp;		 * @param path The path of the entry.
+&nbsp;		 * @return The input stream of the specified entry.
+&nbsp;		 * @throws IOException if an I/O error has occurred.
+&nbsp;		 */
+&nbsp;		private InputStream getResourceAsStream(String path) throws IOException {
+&nbsp;			try {
+<b class="nc">&nbsp;				return zipFile.getInputStream(zipFile.getEntry(path));</b>
+<b class="nc">&nbsp;			} catch (NullPointerException e) {</b>
+<b class="nc">&nbsp;				throw new IOException(e);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		@FunctionalInterface
+&nbsp;		private static interface FilesFilter { // Literally functioned.
+&nbsp;			public abstract boolean check(Path path, boolean isDir);
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Getting the subfiles under the specified entry directrory.
+&nbsp;		 * @param path The directory to be listed.
+&nbsp;		 * @param filter The filter to be applied.
+&nbsp;		 * @return The filtered (if any) subfile and subfolder list. Empty if not or invalid path.
+&nbsp;		 */
+&nbsp;		@NotNull
+&nbsp;		private ArrayList&lt;String&gt; getFiles(String path, FilesFilter filter) {
+<b class="nc">&nbsp;			ArrayList&lt;String&gt; paths = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;			for (Enumeration&lt;? extends ZipEntry&gt; e = zipFile.entries(); e.hasMoreElements(); ) {</b>
+<b class="nc">&nbsp;				ZipEntry entry = e.nextElement();</b>
+&nbsp;				Path parent;
+<b class="nc">&nbsp;				if ((parent = Paths.get(entry.getName()).getParent()) != null &amp;&amp; parent.equals(Paths.get(path)) &amp;&amp;</b>
+<b class="nc">&nbsp;					(filter == null || filter.check(Paths.get(entry.getName()), entry.isDirectory()))) {</b>
+<b class="nc">&nbsp;					paths.add(entry.getName());</b>
+&nbsp;				}
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+<b class="nc">&nbsp;			return paths;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Reading the string from the input stream.
+&nbsp;	 * @param in The input stream to be read.
+&nbsp;	 * @return The returned string.
+&nbsp;	 */
+&nbsp;	public static String readStringFromInputStream(InputStream in) {
+<b class="nc">&nbsp;		BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));</b>
+<b class="nc">&nbsp;		return String.join(&quot;\n&quot;, reader.lines().toArray(String[]::new));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Loading pack metadata of the pack.
+&nbsp;	 * @param file The path of the pack.
+&nbsp;	 * @return The loaded pack with metadata.
+&nbsp;	 */
+&nbsp;	public static ResourcePack loadPackMetadata(URL file) {
+<b class="nc">&nbsp;		try (ZipFile zip = new ZipFile(new File(file.toURI()))) {</b>
+<b class="nc">&nbsp;			try (InputStream in = zip.getInputStream(zip.getEntry(&quot;pack.json&quot;))) {</b>
+<b class="nc">&nbsp;				JSONObject meta = new JSONObject(readStringFromInputStream(in));</b>
+<b class="nc">&nbsp;				return new ResourcePack(file.toURI().toURL(),</b>
+<b class="nc">&nbsp;					meta.getInt(&quot;pack_format&quot;), meta.optString(&quot;name&quot;, new File(file.toURI()).getName()), meta.optString(&quot;description&quot;, &quot;No description&quot;));</b>
+<b class="nc">&nbsp;			}</b>
+<b class="nc">&nbsp;		} catch (JSONException | IOException | URISyntaxException e) {</b>
+<b class="nc">&nbsp;			CrashHandler.errorHandle(e, new CrashHandler.ErrorInfo(&quot;Cannot Load Resource Pack&quot;,</b>
+<b class="nc">&nbsp;				CrashHandler.ErrorInfo.ErrorType.REPORT, String.format(&quot;Unable to load resource pack: %s.&quot;, file.getPath())));</b>
+<b class="nc">&nbsp;		} catch (NullPointerException e) { // pack.json is missing.</b>
+<b class="nc">&nbsp;			CrashHandler.errorHandle(e, new CrashHandler.ErrorInfo(&quot;Resource Pack not Supported&quot;,</b>
+<b class="nc">&nbsp;				CrashHandler.ErrorInfo.ErrorType.HANDLED, String.format(&quot;Missing pack.json in resource pack: %s.&quot;, file.getPath())));</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		return null;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Intializing the packs from directory and loaded.
+&nbsp;	 */
+&nbsp;	public static void initPacks() {
+&nbsp;		// Generate resource packs folder
+<b class="nc">&nbsp;		if (FOLDER_LOCATION.mkdirs()) {</b>
+<b class="nc">&nbsp;			Logging.RESOURCEHANDLER_RESOURCEPACK.info(&quot;Created resource packs folder at {}.&quot;, FOLDER_LOCATION);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		ArrayList&lt;URL&gt; urls = new ArrayList&lt;&gt;();</b>
+&nbsp;		// Read and add the .zip file to the resource pack list. Only accept files ending with .zip or directory.
+<b class="nc">&nbsp;		for (File file : Objects.requireNonNull(FOLDER_LOCATION.listFiles((dur, name) -&gt; name.endsWith(&quot;.zip&quot;)))) {</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				urls.add(file.toPath().toUri().toURL());</b>
+<b class="nc">&nbsp;			} catch (MalformedURLException e) {</b>
+<b class="nc">&nbsp;				CrashHandler.errorHandle(e);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Adding all unadded packs for refreshing.
+&nbsp;		URL theURL;
+<b class="nc">&nbsp;		for (ResourcePack pack : resourcePacks) {</b>
+<b class="nc">&nbsp;			if (!urls.contains(theURL = pack.packRoot)) {</b>
+<b class="nc">&nbsp;				urls.add(theURL);</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		for (ResourcePack pack : loadedPacks) {</b>
+<b class="nc">&nbsp;			if (pack == defaultPack &amp;&amp; !urls.contains(theURL = pack.packRoot)) {</b>
+<b class="nc">&nbsp;				urls.add(theURL);</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		refreshResourcePacks(urls);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Finding the pack by pack&#39;s file URL.
+&nbsp;	 * @param url The url for query.
+&nbsp;	 * @return The found resource pack. {@code null} if not found.
+&nbsp;	 */
+&nbsp;	private static ResourcePack findPackByURL(URL url) {
+<b class="nc">&nbsp;		for (ResourcePack pack : resourcePacks) {</b>
+<b class="nc">&nbsp;			if (pack.packRoot.equals(url)) {</b>
+<b class="nc">&nbsp;				return pack;</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		for (ResourcePack pack : loadedPacks) {</b>
+<b class="nc">&nbsp;			if (pack.packRoot.equals(url)) {</b>
+<b class="nc">&nbsp;				return pack;</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		return null;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Refreshing the pack list by the urls.
+&nbsp;	 * @param urls The packs&#39; url to be refreshed.
+&nbsp;	 */
+&nbsp;	private static void refreshResourcePacks(List&lt;URL&gt; urls) {
+<b class="nc">&nbsp;		for (URL url : urls) {</b>
+<b class="nc">&nbsp;			ResourcePack pack = findPackByURL(url);</b>
+<b class="nc">&nbsp;			if (pack != null) { // Refresh the current.</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					if (new File(url.toURI()).exists())</b>
+<b class="nc">&nbsp;						pack.refreshPack();</b>
+&nbsp;					else { // Remove if not exist.
+<b class="nc">&nbsp;						resourcePacks.remove(pack);</b>
+<b class="nc">&nbsp;						loadedPacks.remove(pack);</b>
+&nbsp;					}
+<b class="nc">&nbsp;				} catch (URISyntaxException e) {</b>
+<b class="nc">&nbsp;					Logging.RESOURCEHANDLER_RESOURCEPACK.debug(e, &quot;Resource pack URL not found.&quot;);</b>
+<b class="nc">&nbsp;					resourcePacks.remove(pack);</b>
+<b class="nc">&nbsp;					loadedPacks.remove(pack);</b>
+<b class="nc">&nbsp;				}</b>
+&nbsp;			} else { // Add new pack as it should be exist.
+<b class="nc">&nbsp;				pack = loadPackMetadata(url);</b>
+<b class="nc">&nbsp;				if (pack != null) {</b>
+<b class="nc">&nbsp;					resourcePacks.add(pack);</b>
+&nbsp;				}
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		resourcePacks.sort((p1, p2) -&gt; p1.name.compareTo(p2.name));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Releasing the unloaded packs.
+&nbsp;	 */
+&nbsp;	public static void releaseUnloadedPacks() {
+<b class="nc">&nbsp;		resourcePacks.clear(); // Releases unloaded packs.</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Loading the resource packs when loading preferences. This should only be called by {@link minicraft.saveload.Load}.
+&nbsp;	 * @param names The names of the packs.
+&nbsp;	 */
+&nbsp;	public static void loadResourcePacks(String[] names) {
+<b class="nc">&nbsp;		for (String name : names) {</b>
+<b class="nc">&nbsp;			for (ResourcePack pack : new ArrayList&lt;&gt;(resourcePacks)) {</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					if (Paths.get(pack.packRoot.toURI()).equals(FOLDER_LOCATION.toPath().resolve(name))) {</b>
+<b class="nc">&nbsp;						resourcePacks.remove(pack);</b>
+<b class="nc">&nbsp;						loadedPacks.add(loadedPacks.indexOf(defaultPack), pack);</b>
+&nbsp;					}
+<b class="nc">&nbsp;				} catch (URISyntaxException e) {</b>
+<b class="nc">&nbsp;					e.printStackTrace();</b>
+<b class="nc">&nbsp;					Logging.RESOURCEHANDLER_RESOURCEPACK.debug(&quot;URL invalid.&quot;);</b>
+<b class="nc">&nbsp;				}</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Getting the names of the loaded packs. This should only be called by {@link minicraft.saveload.Save}.
+&nbsp;	 * @return The names of currently loaded packs.
+&nbsp;	 */
+&nbsp;	public static ArrayList&lt;String&gt; getLoadedPacks() {
+<b class="nc">&nbsp;		ArrayList&lt;String&gt; packs = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;		for (ResourcePack pack : loadedPacks) {</b>
+<b class="nc">&nbsp;			if (pack != defaultPack) {</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					packs.add(new File(pack.packRoot.toURI()).getName());</b>
+<b class="nc">&nbsp;				} catch (URISyntaxException e) {</b>
+<b class="nc">&nbsp;					CrashHandler.errorHandle(e);</b>
+<b class="nc">&nbsp;				}</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		return packs;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Reloading all the resources with the currently packs to be loaded.
+&nbsp;	 */
+&nbsp;	@SuppressWarnings(&quot;unchecked&quot;)
+&nbsp;	public static void reloadResources() {
+<b class="nc">&nbsp;		loadQuery.clear();</b>
+<b class="nc">&nbsp;		loadQuery.addAll(loadedPacks);</b>
+<b class="nc">&nbsp;		Collections.reverse(loadQuery);</b>
+&nbsp;
+&nbsp;		// Clear all previously loaded resources.
+<b class="nc">&nbsp;		Renderer.spriteLinker.resetSprites();</b>
+<b class="nc">&nbsp;		Localization.resetLocalizations();</b>
+<b class="nc">&nbsp;		BookData.resetBooks();</b>
+<b class="nc">&nbsp;		Sound.resetSounds();</b>
+<b class="nc">&nbsp;		SpriteAnimation.resetMetadata();</b>
+<b class="nc">&nbsp;		for (ResourcePack pack : loadQuery) {</b>
+<b class="nc">&nbsp;			if (pack.openStream()) {</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					loadTextures(pack);</b>
+<b class="nc">&nbsp;					loadLocalization(pack);</b>
+<b class="nc">&nbsp;					loadBooks(pack);</b>
+<b class="nc">&nbsp;					loadSounds(pack);</b>
+<b class="nc">&nbsp;					pack.close();</b>
+<b class="nc">&nbsp;				} catch (IOException e) {</b>
+<b class="nc">&nbsp;					CrashHandler.errorHandle(e);</b>
+<b class="nc">&nbsp;				}</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		SpriteAnimation.refreshAnimations();</b>
+<b class="nc">&nbsp;		Renderer.spriteLinker.updateLinkedSheets();</b>
+<b class="nc">&nbsp;		Localization.loadLanguage();</b>
+&nbsp;
+&nbsp;		// Refreshing skins
+<b class="nc">&nbsp;		SkinDisplay.refreshSkins();</b>
+<b class="nc">&nbsp;		SkinDisplay.releaseSkins();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Loading the textures of the pack.
+&nbsp;	 * @param pack The pack to be loaded.
+&nbsp;	 * @throws IOException if I/O exception occurs.
+&nbsp;	 */
+&nbsp;	private static void loadTextures(ResourcePack pack) throws IOException {
+<b class="nc">&nbsp;		for (String t : pack.getFiles(&quot;assets/textures/&quot;, null)) {</b>
+<b class="nc">&nbsp;			switch (t) {</b>
+&nbsp;				case &quot;assets/textures/entity/&quot;:
+<b class="nc">&nbsp;					loadTextures(pack, SpriteType.Entity);</b>
+<b class="nc">&nbsp;					break;</b>
+&nbsp;				case &quot;assets/textures/gui/&quot;:
+<b class="nc">&nbsp;					loadTextures(pack, SpriteType.Gui);</b>
+<b class="nc">&nbsp;					break;</b>
+&nbsp;				case &quot;assets/textures/item/&quot;:
+<b class="nc">&nbsp;					loadTextures(pack, SpriteType.Item);</b>
+<b class="nc">&nbsp;					break;</b>
+&nbsp;				case &quot;assets/textures/tile/&quot;:
+<b class="nc">&nbsp;					loadTextures(pack, SpriteType.Tile);</b>
+&nbsp;					break;
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Loading the categories of textures from the pack.
+&nbsp;	 * @param pack The pack to be loaded.
+&nbsp;	 * @param type The category of textures.
+&nbsp;	 * @throws IOException if I/O exception occurs.
+&nbsp;	 */
+&nbsp;	private static void loadTextures(ResourcePack pack, SpriteType type) throws IOException {
+<b class="nc">&nbsp;		String path = &quot;assets/textures/&quot;;</b>
+<b class="nc">&nbsp;		switch (type) {</b>
+&nbsp;			case Entity:
+<b class="nc">&nbsp;				path += &quot;entity/&quot;;</b>
+<b class="nc">&nbsp;				break;</b>
+&nbsp;			case Gui:
+<b class="nc">&nbsp;				path += &quot;gui/&quot;;</b>
+<b class="nc">&nbsp;				break;</b>
+&nbsp;			case Item:
+<b class="nc">&nbsp;				path += &quot;item/&quot;;</b>
+<b class="nc">&nbsp;				break;</b>
+&nbsp;			case Tile:
+<b class="nc">&nbsp;				path += &quot;tile/&quot;;</b>
+&nbsp;				break;
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		ArrayList&lt;String&gt; pngs = pack.getFiles(path, (p, isDir) -&gt; p.toString().endsWith(&quot;.png&quot;) &amp;&amp; !isDir);</b>
+<b class="nc">&nbsp;		if (type == SpriteType.Tile) {</b>
+&nbsp;			// Loading sprite sheet metadata.
+<b class="nc">&nbsp;			for (String m : pack.getFiles(path, (p, isDir) -&gt; p.toString().endsWith(&quot;.png.json&quot;) &amp;&amp; !isDir)) {</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					JSONObject obj = new JSONObject(readStringFromInputStream(pack.getResourceAsStream(m)));</b>
+<b class="nc">&nbsp;					SpriteLinker.SpriteMeta meta = new SpriteLinker.SpriteMeta();</b>
+<b class="nc">&nbsp;					String imgName = m.substring(0, m.length() - 5);</b>
+<b class="nc">&nbsp;					pngs.remove(imgName);</b>
+<b class="nc">&nbsp;					BufferedImage image = ImageIO.read(pack.getResourceAsStream(imgName));</b>
+&nbsp;
+&nbsp;					// Applying animations.
+&nbsp;					MinicraftImage sheet;
+<b class="nc">&nbsp;					JSONObject animation = obj.optJSONObject(&quot;animation&quot;);</b>
+<b class="nc">&nbsp;					if (animation != null) {</b>
+<b class="nc">&nbsp;						meta.frametime = animation.getInt(&quot;frametime&quot;);</b>
+<b class="nc">&nbsp;						meta.frames = image.getHeight() / 16;</b>
+<b class="nc">&nbsp;						if (meta.frames == 0) throw new IOException(new IllegalArgumentException(String.format(</b>
+<b class="nc">&nbsp;							&quot;Invalid frames 0 detected with {} in pack: {}&quot;, m, pack.name)));</b>
+<b class="nc">&nbsp;						validateImageAsset(pack, imgName, image, 16, 16 * meta.frames);</b>
+<b class="nc">&nbsp;						sheet = new MinicraftImage(image, 16, 16 * meta.frames);</b>
+&nbsp;					} else {
+<b class="nc">&nbsp;						validateImageAsset(pack, imgName, image, 16, 16);</b>
+<b class="nc">&nbsp;						sheet = new MinicraftImage(image, 16, 16);</b>
+&nbsp;					}
+<b class="nc">&nbsp;					Renderer.spriteLinker.setSprite(type, m.substring(path.length(), m.length() - 9), sheet);</b>
+&nbsp;
+<b class="nc">&nbsp;					JSONObject borderObj = obj.optJSONObject(&quot;border&quot;);</b>
+<b class="nc">&nbsp;					if (borderObj != null) {</b>
+<b class="nc">&nbsp;						meta.border = borderObj.optString(&quot;key&quot;);</b>
+<b class="nc">&nbsp;						if (meta.border.isEmpty()) meta.border = null;</b>
+<b class="nc">&nbsp;						if (meta.border != null) {</b>
+<b class="nc">&nbsp;							String borderK = path + meta.border + &quot;.png&quot;;</b>
+<b class="nc">&nbsp;							pngs.remove(borderK);</b>
+&nbsp;							try {
+<b class="nc">&nbsp;								BufferedImage img = ImageIO.read(pack.getResourceAsStream(borderK));</b>
+<b class="nc">&nbsp;								validateImageAsset(pack, borderK, img, 24, 24);</b>
+<b class="nc">&nbsp;								Renderer.spriteLinker.setSprite(type, meta.border, new MinicraftImage(img, 24, 24));</b>
+<b class="nc">&nbsp;							} catch (IOException e) {</b>
+<b class="nc">&nbsp;								Logging.RESOURCEHANDLER_RESOURCEPACK.warn(e, &quot;Unable to read {} with {} in pack: {}&quot;, borderK, m, pack.name);</b>
+<b class="nc">&nbsp;								meta.border = null;</b>
+<b class="nc">&nbsp;							}</b>
+&nbsp;						}
+&nbsp;
+<b class="nc">&nbsp;						meta.corner = borderObj.optString(&quot;corner&quot;);</b>
+<b class="nc">&nbsp;						if (meta.corner.isEmpty()) meta.corner = null;</b>
+<b class="nc">&nbsp;						if (meta.corner != null) {</b>
+<b class="nc">&nbsp;							String cornerK = path + meta.corner + &quot;.png&quot;;</b>
+<b class="nc">&nbsp;							pngs.remove(cornerK);</b>
+&nbsp;							try {
+<b class="nc">&nbsp;								BufferedImage img = ImageIO.read(pack.getResourceAsStream(cornerK));</b>
+<b class="nc">&nbsp;								validateImageAsset(pack, cornerK, img, 16, 16);</b>
+<b class="nc">&nbsp;								Renderer.spriteLinker.setSprite(type, meta.corner, new MinicraftImage(img, 16, 16));</b>
+<b class="nc">&nbsp;							} catch (IOException e) {</b>
+<b class="nc">&nbsp;								Logging.RESOURCEHANDLER_RESOURCEPACK.warn(e, &quot;Unable to read {} with {} in pack: {}&quot;, cornerK, m, pack.name);</b>
+<b class="nc">&nbsp;								meta.corner = null;</b>
+<b class="nc">&nbsp;							}</b>
+&nbsp;						}
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					SpriteAnimation.setMetadata(m.substring(path.length(), m.length() - 9), meta);</b>
+<b class="nc">&nbsp;				} catch (JSONException | IOException e) {</b>
+<b class="nc">&nbsp;					Logging.RESOURCEHANDLER_RESOURCEPACK.warn(e, &quot;Unable to read {} in pack: {}&quot;, m, pack.name);</b>
+<b class="nc">&nbsp;				}</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;		}
+&nbsp;
+&nbsp;		// Loading the left pngs.
+<b class="nc">&nbsp;		for (String p : pngs) {</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				BufferedImage image = ImageIO.read(pack.getResourceAsStream(p));</b>
+&nbsp;				MinicraftImage sheet;
+<b class="nc">&nbsp;				if (type == SpriteType.Item) {</b>
+<b class="nc">&nbsp;					validateImageAsset(pack, p, image, 8, 8);</b>
+<b class="nc">&nbsp;					sheet = new MinicraftImage(image, 8, 8); // Set the minimum tile sprite size.</b>
+<b class="nc">&nbsp;				} else if (type == SpriteType.Tile) {</b>
+<b class="nc">&nbsp;					validateImageAsset(pack, p, image, 16, 16);</b>
+<b class="nc">&nbsp;					sheet = new MinicraftImage(image, 16, 16); // Set the minimum item sprite size.</b>
+&nbsp;				} else {
+<b class="nc">&nbsp;					validateImageAsset(pack, p, image);</b>
+<b class="nc">&nbsp;					sheet = new MinicraftImage(image);</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				Renderer.spriteLinker.setSprite(type, p.substring(path.length(), p.length() - 4), sheet);</b>
+<b class="nc">&nbsp;			} catch (IOException e) {</b>
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_RESOURCEPACK.warn(&quot;Unable to load {} in pack : {}&quot;, p, pack.name);</b>
+<b class="nc">&nbsp;			}</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static void validateImageAsset(ResourcePack pack, String key, BufferedImage image) {
+&nbsp;		try {
+<b class="nc">&nbsp;			MinicraftImage.validateImageDimension(image);</b>
+<b class="nc">&nbsp;		} catch (MinicraftImage.MinicraftImageDimensionIncompatibleException e) {</b>
+<b class="nc">&nbsp;			Logging.RESOURCEHANDLER_RESOURCEPACK.warn(&quot;Potentially incompatible image detected: {} in pack: {}: &quot;+</b>
+<b class="nc">&nbsp;				&quot;image size ({}x{}) is not in multiple of 8.&quot;, key, pack.name, e.getWidth(), e.getHeight());</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static void validateImageAsset(ResourcePack pack, String key, BufferedImage image, int width, int height) {
+<b class="nc">&nbsp;		validateImageAsset(pack, key, image);</b>
+&nbsp;		try {
+<b class="nc">&nbsp;			MinicraftImage.validateImageDimension(image, width, height);</b>
+<b class="nc">&nbsp;		} catch (MinicraftImage.MinicraftImageRequestOutOfBoundsException e) {</b>
+<b class="nc">&nbsp;			Logging.RESOURCEHANDLER_RESOURCEPACK.warn(&quot;Potentially incompatible image detected: {} in pack: {}: &quot;+</b>
+<b class="nc">&nbsp;				&quot;image size ({}x{}) is smaller than the required ({}x{}).&quot;, key, pack.name,</b>
+<b class="nc">&nbsp;				e.getSourceWidth(), e.getSourceWidth(), e.getRequestedWidth(), e.getRequestedHeight());</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Loading localization from the pack.
+&nbsp;	 * @param pack The pack to be loaded.
+&nbsp;	 */
+&nbsp;	private static void loadLocalization(ResourcePack pack) {
+<b class="nc">&nbsp;		JSONObject langJSON = null;</b>
+&nbsp;		try {
+<b class="nc">&nbsp;			langJSON = new JSONObject(readStringFromInputStream(pack.getResourceAsStream(&quot;pack.json&quot;))).optJSONObject(&quot;language&quot;);</b>
+<b class="nc">&nbsp;		} catch (JSONException | IOException e1) {</b>
+<b class="nc">&nbsp;			Logging.RESOURCEHANDLER_RESOURCEPACK.debug(e1, &quot;Unable to load pack.json in pack: {}&quot;, pack.name);</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		if (langJSON != null) {</b>
+<b class="nc">&nbsp;			for (String loc : langJSON.keySet()) {</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					Locale locale = Locale.forLanguageTag(loc);</b>
+<b class="nc">&nbsp;					JSONObject info = langJSON.getJSONObject(loc);</b>
+<b class="nc">&nbsp;					Localization.addLocale(locale, new Localization.LocaleInformation(locale, info.getString(&quot;name&quot;), info.getString(&quot;region&quot;)));</b>
+<b class="nc">&nbsp;				} catch (JSONException e) {</b>
+<b class="nc">&nbsp;					Logging.RESOURCEHANDLER_RESOURCEPACK.debug(e, &quot;Invalid localization configuration in pack: {}&quot;, pack.name);</b>
+<b class="nc">&nbsp;				}</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		for (String f : pack.getFiles(&quot;assets/localization/&quot;, (path, isDir) -&gt; path.toString().endsWith(&quot;.json&quot;) &amp;&amp; !isDir)) {</b>
+<b class="nc">&nbsp;			String str = Paths.get(f).getFileName().toString();</b>
+&nbsp;			try { // JSON verification.
+<b class="nc">&nbsp;				String json = readStringFromInputStream(pack.getResourceAsStream(f));</b>
+<b class="nc">&nbsp;				JSONObject obj = new JSONObject(json);</b>
+<b class="nc">&nbsp;				for (String k : obj.keySet()) {</b>
+<b class="nc">&nbsp;					obj.getString(k);</b>
+<b class="nc">&nbsp;				}</b>
+&nbsp;
+&nbsp;				// Add verified localization.
+<b class="nc">&nbsp;				Localization.addLocalization(Locale.forLanguageTag(str.substring(0, str.length() - 5)), json);</b>
+<b class="nc">&nbsp;			} catch (IOException e) {</b>
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_LOCALIZATION.debug(e, &quot;Unable to load localization: {} in pack : {}&quot;, f, pack.name);</b>
+<b class="nc">&nbsp;			} catch (JSONException e) {</b>
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_LOCALIZATION.debug(e, &quot;Invalid JSON format detected in localization: {} in pack : {}&quot;, f, pack.name);</b>
+<b class="nc">&nbsp;			}</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Loading the books from the pack.
+&nbsp;	 * @param pack The pack to be loaded.
+&nbsp;	 */
+&nbsp;	private static void loadBooks(ResourcePack pack) {
+<b class="nc">&nbsp;		for (String path : pack.getFiles(&quot;assets/books&quot;, (path, isDir) -&gt; path.toString().endsWith(&quot;.txt&quot;) &amp;&amp; !isDir)) {</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				String book = BookData.loadBook(readStringFromInputStream(pack.getResourceAsStream(path)));</b>
+<b class="nc">&nbsp;				switch (path) {</b>
+&nbsp;					case &quot;assets/books/about.txt&quot;:
+<b class="nc">&nbsp;						BookData.about = () -&gt; book;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;assets/books/credits.txt&quot;:
+<b class="nc">&nbsp;						BookData.credits = () -&gt; book;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;assets/books/instructions.txt&quot;:
+<b class="nc">&nbsp;						BookData.instructions = () -&gt; book;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;assets/books/antidous.txt&quot;:
+<b class="nc">&nbsp;						BookData.antVenomBook = () -&gt; book;</b>
+<b class="nc">&nbsp;						break;</b>
+&nbsp;					case &quot;assets/books/game_guide.txt&quot;:
+<b class="nc">&nbsp;						BookData.storylineGuide = () -&gt; book;</b>
+&nbsp;						break;
+&nbsp;				}
+<b class="nc">&nbsp;			} catch (IOException e) {</b>
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_LOCALIZATION.debug(e, &quot;Unable to load book: {} in pack : {}&quot;, path, pack.name);</b>
+<b class="nc">&nbsp;			}</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Loading sounds from the pack.
+&nbsp;	 * @param pack The pack to be loaded.
+&nbsp;	 */
+&nbsp;	private static void loadSounds(ResourcePack pack) {
+<b class="nc">&nbsp;		for (String f : pack.getFiles(&quot;assets/sound/&quot;, (path, isDir) -&gt; path.toString().endsWith(&quot;.wav&quot;) &amp;&amp; !isDir)) {</b>
+<b class="nc">&nbsp;			String name = Paths.get(f).getFileName().toString();</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				Sound.loadSound(name.substring(0, name.length() - 4), new BufferedInputStream(pack.getResourceAsStream(f)), pack.name);</b>
+<b class="nc">&nbsp;			} catch (IOException e) {</b>
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_LOCALIZATION.debug(e, &quot;Unable to load audio: {} in pack : {}&quot;, f, pack.name);</b>
+<b class="nc">&nbsp;			}</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

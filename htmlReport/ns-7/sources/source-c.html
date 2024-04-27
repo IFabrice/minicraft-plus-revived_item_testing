@@ -1,0 +1,450 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SpriteAnimation</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.gfx</a>
+</div>
+
+<h1>Coverage Summary for Class: SpriteAnimation (minicraft.gfx)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SpriteAnimation</td>
+<td class="coverageStat">
+  <span class="percent">
+    30%
+  </span>
+  <span class="absValue">
+    (6/20)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    21.7%
+  </span>
+  <span class="absValue">
+    (31/143)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">SpriteAnimation$TileConnectionChecker</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    30%
+  </span>
+  <span class="absValue">
+    (6/20)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    21.7%
+  </span>
+  <span class="absValue">
+    (31/143)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.gfx;
+&nbsp;
+&nbsp;import minicraft.core.Renderer;
+&nbsp;import minicraft.core.Updater;
+&nbsp;import minicraft.core.World;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteMeta;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import minicraft.util.Logging;
+&nbsp;
+&nbsp;import javax.security.auth.DestroyFailedException;
+&nbsp;import javax.security.auth.Destroyable;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.HashMap;
+&nbsp;
+&nbsp;/**
+&nbsp; * This is not applicable for mob sprite animations. Only for generic sprite animations.
+&nbsp; */
+&nbsp;public class SpriteAnimation implements Destroyable {
+<b class="fc">&nbsp;	private static final ArrayList&lt;SpriteAnimation&gt; spriteAnimations = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;	private static final HashMap&lt;String, SpriteMeta&gt; metas = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;	public static void setMetadata(String key, SpriteMeta meta) {
+<b class="nc">&nbsp;		metas.put(key, meta);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void resetMetadata() {
+<b class="nc">&nbsp;		metas.clear();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static SpriteMeta getMetadata(String key) {
+<b class="nc">&nbsp;		return metas.get(key);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Refreshing all currently registered animations.
+&nbsp;	 */
+&nbsp;	public static void refreshAnimations() {
+<b class="nc">&nbsp;		spriteAnimations.forEach(a -&gt; a.refreshAnimation(metas.get(a.key)));</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private LinkedSprite[] animations;
+&nbsp;	private SpriteMeta metadata; // The metadata of the sprite sheet.
+<b class="fc">&nbsp;	private int frame = 0; // The current frame of the animation.</b>
+<b class="fc">&nbsp;	private int frametick = 0; // The current tick of the current frame. It would be always 0 if no animation.</b>
+<b class="fc">&nbsp;	private int lastTick = Updater.gameTime; // The last tick gained from the updater.</b>
+<b class="fc">&nbsp;	private long lastMillis = System.currentTimeMillis(); // The last timestamp rendered.</b>
+<b class="fc">&nbsp;	private boolean destoryed = false; // Whether this instance is still registered.</b>
+&nbsp;
+&nbsp;	// Border settings.
+<b class="fc">&nbsp;	private LinkedSprite border = null;</b>
+<b class="fc">&nbsp;	private LinkedSprite corner = null;</b>
+&nbsp;	private TileConnectionChecker connectionChecker;
+<b class="fc">&nbsp;	private boolean singletonWithConnective = false;</b>
+&nbsp;
+&nbsp;	// Refreshing only data.
+&nbsp;	private SpriteType type;
+&nbsp;	private String key;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Constructing animations with the provided key. The meta is given by default.
+&nbsp;	 * @param type The sprite category.
+&nbsp;	 * @param key The sprite resource key.
+&nbsp;	 */
+&nbsp;	public SpriteAnimation(SpriteType type, String key) {
+<b class="fc">&nbsp;		this(metas.get(key), type, key);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Constructing animations with the provided metadata and key. It should already be validated.
+&nbsp;	 * @param meta The metadata of the sprite sheet.
+&nbsp;	 * @param type The sprite category.
+&nbsp;	 * @param key The sprite resource key.
+&nbsp;	 */
+<b class="fc">&nbsp;	public SpriteAnimation(SpriteMeta meta, SpriteType type, String key) {</b>
+<b class="fc">&nbsp;		this.type = type;</b>
+<b class="fc">&nbsp;		this.key = key;</b>
+<b class="fc">&nbsp;		refreshAnimation(meta);</b>
+&nbsp;
+<b class="fc">&nbsp;		spriteAnimations.add(this);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@FunctionalInterface
+&nbsp;	public interface TileConnectionChecker {
+&nbsp;		boolean check(Level level, int x, int y, Tile tile, boolean side);
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Setting the tile class of this animation used for tile connector rendering.
+&nbsp;	 * @param connectionChecker The tile connection checker.
+&nbsp;	 * @return The instance itself.
+&nbsp;	 */
+&nbsp;	public SpriteAnimation setConnectionChecker(TileConnectionChecker connectionChecker) {
+<b class="fc">&nbsp;		this.connectionChecker = connectionChecker;</b>
+<b class="fc">&nbsp;		return this;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Setting if the singleton sprite is used for other tile connective rendering.
+&nbsp;	 * @param connective If used for connective rendering.
+&nbsp;	 * @return The instance itself.
+&nbsp;	 */
+&nbsp;	public SpriteAnimation setSingletonWithConnective(boolean connective) {
+<b class="fc">&nbsp;		this.singletonWithConnective = connective;</b>
+<b class="fc">&nbsp;		return this;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Setting the color of all animation frames.
+&nbsp;	 * @param color The color of sprite.
+&nbsp;	 * @return The instance itself.
+&nbsp;	 */
+&nbsp;	public SpriteAnimation setColor(int color) {
+<b class="nc">&nbsp;		for (LinkedSprite sprite : animations) {</b>
+<b class="nc">&nbsp;			sprite.setColor(color);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return this;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Setting the color of the specific animation frame.
+&nbsp;	 * @param frame The specific frame.
+&nbsp;	 * @param color The color of sprite.
+&nbsp;	 * @return The instance itself.
+&nbsp;	 */
+&nbsp;	public SpriteAnimation setColor(int frame, int color) {
+<b class="nc">&nbsp;		if (frame &lt; 0) frame = 0;</b>
+<b class="nc">&nbsp;		if (frame &gt;= animations.length) frame = animations.length - 1;</b>
+<b class="nc">&nbsp;		animations[frame].setColor(color);</b>
+&nbsp;
+<b class="nc">&nbsp;		return this;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Setting the mirror of all animation frames.
+&nbsp;	 * @param mirror The mirror of sprite/
+&nbsp;	 * @return The instance itself.
+&nbsp;	 */
+&nbsp;	public SpriteAnimation setMirror(int mirror) {
+<b class="nc">&nbsp;		for (LinkedSprite sprite : animations) {</b>
+<b class="nc">&nbsp;			sprite.setMirror(mirror);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return this;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Setting the mirror of the specific animation frame.
+&nbsp;	 * @param frame The specific frame.
+&nbsp;	 * @param mirror The mirror of sprite.
+&nbsp;	 * @return The instance itself.
+&nbsp;	 */
+&nbsp;	public SpriteAnimation setMirror(int frame, int mirror) {
+<b class="nc">&nbsp;		if (frame &lt; 0) frame = 0;</b>
+<b class="nc">&nbsp;		if (frame &gt;= animations.length) frame = animations.length - 1;</b>
+<b class="nc">&nbsp;		animations[frame].setMirror(mirror);</b>
+&nbsp;
+<b class="nc">&nbsp;		return this;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Setting the sprite sheet mirror of all frames.
+&nbsp;	 * @param mirror The mirror of sprite sheet.
+&nbsp;	 * @return The instance itself.
+&nbsp;	 */
+&nbsp;	public SpriteAnimation setSpriteMirror(int mirror) {
+<b class="nc">&nbsp;		for (LinkedSprite sprite : animations) sprite.setFlip(mirror);</b>
+<b class="nc">&nbsp;		return this;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Getting the current frame of animation.
+&nbsp;	 * @return The current frame sprite.
+&nbsp;	 */
+&nbsp;	public LinkedSprite getCurrentFrame() {
+<b class="nc">&nbsp;		return animations[frame];</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Getting the specific frame of animation.
+&nbsp;	 * @param frame The specific frame.
+&nbsp;	 * @return The frame sprite.
+&nbsp;	 */
+&nbsp;	public LinkedSprite getFrame(int frame) {
+<b class="nc">&nbsp;		return animations[frame];</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Rendering the animation on the screen.
+&nbsp;	 * @param screen The screen instance.
+&nbsp;	 * @param level The level for rendering.
+&nbsp;	 * @param x The x coordinate level tile.
+&nbsp;	 * @param y The y coordinate level tile.
+&nbsp;	 */
+&nbsp;	public void render(Screen screen, Level level, int x, int y) {
+&nbsp;		// If border and the tile class is set.
+<b class="nc">&nbsp;		if (connectionChecker != null &amp;&amp; (border != null || corner != null)) {</b>
+<b class="nc">&nbsp;			boolean u = connectionChecker.check(level, x, y - 1, level.getTile(x, y - 1), true);</b>
+<b class="nc">&nbsp;			boolean d = connectionChecker.check(level, x, y + 1, level.getTile(x, y + 1), true);</b>
+<b class="nc">&nbsp;			boolean l = connectionChecker.check(level, x - 1, y, level.getTile(x - 1, y), true);</b>
+<b class="nc">&nbsp;			boolean r = connectionChecker.check(level, x + 1, y, level.getTile(x + 1, y), true);</b>
+&nbsp;
+<b class="nc">&nbsp;			boolean ul = connectionChecker.check(level, x - 1, y - 1, level.getTile(x - 1, y - 1), false);</b>
+<b class="nc">&nbsp;			boolean dl = connectionChecker.check(level, x - 1, y + 1, level.getTile(x - 1, y + 1), false);</b>
+<b class="nc">&nbsp;			boolean ur = connectionChecker.check(level, x + 1, y - 1, level.getTile(x + 1, y - 1), false);</b>
+<b class="nc">&nbsp;			boolean dr = connectionChecker.check(level, x + 1, y + 1, level.getTile(x + 1, y + 1), false);</b>
+&nbsp;
+<b class="nc">&nbsp;			x = x &lt;&lt; 4;</b>
+<b class="nc">&nbsp;			y = y &lt;&lt; 4;</b>
+&nbsp;
+<b class="nc">&nbsp;			Sprite full = animations[frame].getSprite(); // Singleton; Must be 2*2.</b>
+<b class="nc">&nbsp;			Sprite sparse = border != null ? border.getSprite() : null; // Border; Must be 3*3.</b>
+<b class="nc">&nbsp;			Sprite sides = corner != null ? corner.getSprite() : null; // Corner; Must be 2*2.</b>
+&nbsp;
+<b class="nc">&nbsp;			if (u &amp;&amp; l) {</b>
+<b class="nc">&nbsp;				int connectiveColor = singletonWithConnective ? full.color : sparse.color;</b>
+<b class="nc">&nbsp;				Sprite.Px connective = singletonWithConnective ? full.spritePixels[1][1] : sparse.spritePixels[1][1];</b>
+<b class="nc">&nbsp;				if (ul) screen.render(x, y, connective, connectiveColor);</b>
+<b class="nc">&nbsp;				else if (sides == null) screen.render(x, y, full.spritePixels[1][1], full.color);</b>
+<b class="nc">&nbsp;				else screen.render(x, y, sides.spritePixels[0][0], 3, sides.color);</b>
+<b class="nc">&nbsp;			} else</b>
+<b class="nc">&nbsp;				screen.render(x, y, sparse.spritePixels[u ? 1 : 0][l ? 1 : 0], sparse.color);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (u &amp;&amp; r) {</b>
+<b class="nc">&nbsp;				int connectiveColor = singletonWithConnective ? full.color : sparse.color;</b>
+<b class="nc">&nbsp;				Sprite.Px connective = singletonWithConnective ? full.spritePixels[1][0] : sparse.spritePixels[1][1];</b>
+<b class="nc">&nbsp;				if (ur) screen.render(x + 8, y, connective, connectiveColor);</b>
+<b class="nc">&nbsp;				else if (sides == null) screen.render(x + 8, y, full.spritePixels[1][0], full.color);</b>
+<b class="nc">&nbsp;				else screen.render(x + 8, y, sides.spritePixels[0][1], 3, sides.color);</b>
+<b class="nc">&nbsp;			} else</b>
+<b class="nc">&nbsp;				screen.render(x + 8, y, sparse.spritePixels[u ? 1 : 0][r ? 1 : 2], sparse.color);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (d &amp;&amp; l) {</b>
+<b class="nc">&nbsp;				int connectiveColor = singletonWithConnective ? full.color : sparse.color;</b>
+<b class="nc">&nbsp;				Sprite.Px connective = singletonWithConnective ? full.spritePixels[0][1] : sparse.spritePixels[1][1];</b>
+<b class="nc">&nbsp;				if (dl) screen.render(x, y + 8, connective, connectiveColor);</b>
+<b class="nc">&nbsp;				else if (sides == null) screen.render(x, y + 8, full.spritePixels[0][1], full.color);</b>
+<b class="nc">&nbsp;				else screen.render(x, y + 8, sides.spritePixels[1][0], 3, sides.color);</b>
+<b class="nc">&nbsp;			} else</b>
+<b class="nc">&nbsp;				screen.render(x, y + 8, sparse.spritePixels[d ? 1 : 2][l ? 1 : 0], sparse.color);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (d &amp;&amp; r) {</b>
+<b class="nc">&nbsp;				int connectiveColor = singletonWithConnective ? full.color : sparse.color;</b>
+<b class="nc">&nbsp;				Sprite.Px connective = singletonWithConnective ? full.spritePixels[0][0] : sparse.spritePixels[1][1];</b>
+<b class="nc">&nbsp;				if (dr) screen.render(x + 8, y + 8, connective, connectiveColor);</b>
+<b class="nc">&nbsp;				else if (sides == null) screen.render(x + 8, y + 8, full.spritePixels[0][0], full.color);</b>
+<b class="nc">&nbsp;				else screen.render(x + 8, y + 8, sides.spritePixels[1][1], 3, sides.color);</b>
+<b class="nc">&nbsp;			} else</b>
+<b class="nc">&nbsp;				screen.render(x + 8, y + 8, sparse.spritePixels[d ? 1 : 2][r ? 1 : 2], sparse.color);</b>
+&nbsp;
+<b class="nc">&nbsp;		} else</b>
+<b class="nc">&nbsp;			screen.render(x &lt;&lt; 4, y &lt;&lt; 4, animations[frame]);</b>
+&nbsp;
+&nbsp;		// If there is animation.
+<b class="nc">&nbsp;		if (animations.length &gt; 1) {</b>
+<b class="nc">&nbsp;			if (lastMillis &lt; World.getLastWorldEnterTime()) { // Last time rendered is before this new world entered.</b>
+<b class="nc">&nbsp;				lastTick = Updater.gameTime; // Reset game time. Depends on world.</b>
+<b class="nc">&nbsp;				frame = 0;</b>
+<b class="nc">&nbsp;				frametick = 0;</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			frametick += Updater.gameTime - lastTick;</b>
+<b class="nc">&nbsp;			lastTick = Updater.gameTime;</b>
+<b class="nc">&nbsp;			lastMillis = System.currentTimeMillis();</b>
+&nbsp;
+&nbsp;			// Checking frame increment.
+<b class="nc">&nbsp;			if (frametick &gt;= metadata.frametime) {</b>
+<b class="nc">&nbsp;				frame += frametick / metadata.frametime;</b>
+<b class="nc">&nbsp;				frametick %= metadata.frametime;</b>
+<b class="nc">&nbsp;				if (frame &gt;= animations.length - 1)</b>
+<b class="nc">&nbsp;					frame %= animations.length;</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Refreshing the animation data for this instance.
+&nbsp;	 */
+&nbsp;	public void refreshAnimation(SpriteMeta metadata) {
+<b class="fc">&nbsp;		frame = 0;</b>
+<b class="fc">&nbsp;		frametick = 0;</b>
+<b class="fc">&nbsp;		this.metadata = metadata;</b>
+<b class="fc">&nbsp;		MinicraftImage sheet = Renderer.spriteLinker.getSheet(type, key);</b>
+<b class="fc">&nbsp;		if (sheet == null) {</b>
+<b class="fc">&nbsp;			animations = new LinkedSprite[] { SpriteLinker.missingTexture(type) };</b>
+<b class="fc">&nbsp;			border = null;</b>
+<b class="fc">&nbsp;			corner = null;</b>
+<b class="fc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		int width = sheet.width / 8;</b>
+&nbsp;
+&nbsp;		// Destroying all previous LinkedSprite.
+&nbsp;		try {
+<b class="nc">&nbsp;			if (animations != null) for (LinkedSprite sprite : animations) sprite.destroy();</b>
+<b class="nc">&nbsp;			if (border != null) border.destroy();</b>
+<b class="nc">&nbsp;			if (corner != null) corner.destroy();</b>
+<b class="nc">&nbsp;		} catch (DestroyFailedException e) {</b>
+<b class="nc">&nbsp;			Logging.SPRITE.trace(e);</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		if (metadata != null) {</b>
+<b class="nc">&nbsp;			if (metadata.frames &lt; 1) metadata.frames = 1;</b>
+<b class="nc">&nbsp;			animations = new LinkedSprite[metadata.frames];</b>
+<b class="nc">&nbsp;			for (int f = 0; f &lt; animations.length; f++) {</b>
+<b class="nc">&nbsp;				animations[f] = new LinkedSprite(type, key).setSpriteDim(0, f * width, width, width);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			// Tile sprite only.
+<b class="nc">&nbsp;			if (metadata.border != null) border = new LinkedSprite(type, metadata.border);</b>
+<b class="nc">&nbsp;			if (metadata.corner != null) corner = new LinkedSprite(type, metadata.corner);</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			animations = new LinkedSprite[] { new LinkedSprite(type, key).setSpriteSize(width, width) };</b>
+<b class="nc">&nbsp;			border = null;</b>
+<b class="nc">&nbsp;			corner = null;</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void destroy() throws DestroyFailedException {
+<b class="nc">&nbsp;		spriteAnimations.remove(this);</b>
+<b class="nc">&nbsp;		if (animations != null) for (LinkedSprite sprite : animations) sprite.destroy();</b>
+<b class="nc">&nbsp;		if (border != null) border.destroy();</b>
+<b class="nc">&nbsp;		if (corner != null) corner.destroy();</b>
+<b class="nc">&nbsp;		destoryed = true;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean isDestroyed() {
+<b class="nc">&nbsp;		return destoryed;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

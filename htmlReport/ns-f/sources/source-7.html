@@ -1,0 +1,211 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > EndGameDisplay</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen</a>
+</div>
+
+<h1>Coverage Summary for Class: EndGameDisplay (minicraft.screen)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">EndGameDisplay</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/45)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.Updater;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.core.io.Settings;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.item.Items;
+&nbsp;import minicraft.saveload.Save;
+&nbsp;import minicraft.screen.entry.ListEntry;
+&nbsp;import minicraft.screen.entry.SelectEntry;
+&nbsp;import minicraft.screen.entry.StringEntry;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.Random;
+&nbsp;
+&nbsp;public class EndGameDisplay extends Display {
+<b class="nc">&nbsp;	private static final Random random = new Random();</b>
+&nbsp;
+<b class="nc">&nbsp;	private static final String[] scoredItems = {</b>
+&nbsp;		&quot;Cloth&quot;, &quot;Slime&quot;, &quot;Bone&quot;, &quot;Arrow&quot;, &quot;Gunpowder&quot;, &quot;Antidious&quot;
+&nbsp;	};
+&nbsp;
+&nbsp;	private int inputDelay; // variable to delay the input of the player, so they won&#39;t skip the won menu by accident.
+&nbsp;	private int displayTimer;
+&nbsp;	private int finalScore;
+&nbsp;
+&nbsp;	static {
+<b class="nc">&nbsp;		int maxLength = 0;</b>
+<b class="nc">&nbsp;		for (String s : scoredItems)</b>
+<b class="nc">&nbsp;			maxLength = Math.max(maxLength, s.length());</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public EndGameDisplay() {
+<b class="nc">&nbsp;		super(false, false);</b>
+&nbsp;
+<b class="nc">&nbsp;		displayTimer = Updater.normSpeed; // wait 3 seconds before rendering the menu.</b>
+<b class="nc">&nbsp;		inputDelay = Updater.normSpeed / 2; // wait a half-second after rendering before allowing user input.</b>
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;		ArrayList&lt;ListEntry&gt; entries = new ArrayList&lt;&gt;();</b>
+&nbsp;
+&nbsp;		// calculate the score
+<b class="nc">&nbsp;		entries.add(new StringEntry(Localization.getLocalized(&quot;minicraft.displays.end_game.display.player_score&quot;, Game.player.getScore()), Color.WHITE));</b>
+<b class="nc">&nbsp;		entries.add(new StringEntry(&quot;minicraft.displays.end_game.display.bonuses&quot;, Color.YELLOW));</b>
+&nbsp;
+<b class="nc">&nbsp;		finalScore = Game.player.getScore();</b>
+<b class="nc">&nbsp;		for (String item : scoredItems)</b>
+<b class="nc">&nbsp;			addBonus(item);</b>
+&nbsp;
+<b class="nc">&nbsp;		entries.add(new StringEntry(Localization.getLocalized(&quot;minicraft.displays.end_game.display.final_score&quot;, finalScore)));</b>
+&nbsp;
+&nbsp;		// add any unlocks
+<b class="nc">&nbsp;		entries.addAll(Arrays.asList(getAndWriteUnlocks()));</b>
+&nbsp;
+<b class="nc">&nbsp;		entries.add(new SelectEntry(&quot;minicraft.displays.end_game.exit&quot;, () -&gt; Game.setDisplay(new TitleDisplay())));</b>
+&nbsp;
+<b class="nc">&nbsp;		menus = new Menu[] {</b>
+<b class="nc">&nbsp;			new Menu.Builder(true, 0, RelPos.LEFT, entries).createMenu()</b>
+&nbsp;		};
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void addBonus(String item) {
+<b class="nc">&nbsp;		int count = Game.player.getInventory().count(Items.get(item));</b>
+<b class="nc">&nbsp;		int score = count * (random.nextInt(2) + 1) * 10;</b>
+<b class="nc">&nbsp;		finalScore += score;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick(InputHandler input) {
+<b class="nc">&nbsp;		super.tick(input);</b>
+<b class="nc">&nbsp;		if (displayTimer &gt; 0) displayTimer--;</b>
+<b class="nc">&nbsp;		else if (inputDelay &gt; 0) inputDelay--;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen) {
+<b class="nc">&nbsp;		if (displayTimer &lt;= 0)</b>
+<b class="nc">&nbsp;			super.render(screen);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private StringEntry[] getAndWriteUnlocks() {
+<b class="nc">&nbsp;		int scoreTime = (int) Settings.get(&quot;scoretime&quot;);</b>
+<b class="nc">&nbsp;		ArrayList&lt;Integer&gt; unlocks = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;		if (scoreTime == 20 &amp;&amp; !Settings.getEntry(&quot;scoretime&quot;).valueIs(10) &amp;&amp; finalScore &gt; 1000) {</b>
+<b class="nc">&nbsp;			unlocks.add(10);</b>
+<b class="nc">&nbsp;			Settings.getEntry(&quot;scoretime&quot;).setValueVisibility(10, true);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (scoreTime == 60 &amp;&amp; !Settings.getEntry(&quot;scoretime&quot;).valueIs(120) &amp;&amp; finalScore &gt; 100000) {</b>
+<b class="nc">&nbsp;			unlocks.add(120);</b>
+<b class="nc">&nbsp;			Settings.getEntry(&quot;scoretime&quot;).setValueVisibility(120, true);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		StringEntry[] entries = new StringEntry[unlocks.size()];</b>
+<b class="nc">&nbsp;		for (int i = 0; i &lt; entries.length; i++)</b>
+<b class="nc">&nbsp;			entries[i] = new StringEntry(Localization.getLocalized(&quot;minicraft.displays.end_game.display.unlocked&quot;, unlocks.get(i)));</b>
+&nbsp;
+<b class="nc">&nbsp;		new Save(); // Write preferences and unlocks.</b>
+&nbsp;
+<b class="nc">&nbsp;		return entries;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

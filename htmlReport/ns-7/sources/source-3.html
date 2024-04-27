@@ -1,0 +1,439 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Ellipsis</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.gfx</a>
+</div>
+
+<h1>Coverage Summary for Class: Ellipsis (minicraft.gfx)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Ellipsis</td>
+<td class="coverageStat">
+  <span class="percent">
+    20%
+  </span>
+  <span class="absValue">
+    (1/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    44.4%
+  </span>
+  <span class="absValue">
+    (4/9)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Ellipsis$DotUpdater</td>
+<td class="coverageStat">
+  <span class="percent">
+    33.3%
+  </span>
+  <span class="absValue">
+    (3/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    34.5%
+  </span>
+  <span class="absValue">
+    (10/29)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Ellipsis$DotUpdater$CallUpdater</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Ellipsis$DotUpdater$TickUpdater</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (2/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    30.8%
+  </span>
+  <span class="absValue">
+    (4/13)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Ellipsis$DotUpdater$TimeUpdater</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/13)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Ellipsis$SequentialEllipsis</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/9)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Ellipsis$SmoothEllipsis</td>
+<td class="coverageStat">
+  <span class="percent">
+    25%
+  </span>
+  <span class="absValue">
+    (1/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    36.4%
+  </span>
+  <span class="absValue">
+    (4/11)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    22.6%
+  </span>
+  <span class="absValue">
+    (7/31)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25.3%
+  </span>
+  <span class="absValue">
+    (22/87)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.gfx;
+&nbsp;
+&nbsp;import minicraft.core.Updater;
+&nbsp;import minicraft.gfx.Ellipsis.DotUpdater.CallUpdater;
+&nbsp;import minicraft.gfx.Ellipsis.DotUpdater.TimeUpdater;
+&nbsp;
+&nbsp;public abstract class Ellipsis {
+&nbsp;
+&nbsp;	private final DotUpdater updateMethod;
+&nbsp;
+<b class="fc">&nbsp;	protected Ellipsis(DotUpdater updateMethod, int intervalCount) {</b>
+<b class="fc">&nbsp;		this.updateMethod = updateMethod;</b>
+<b class="fc">&nbsp;		updateMethod.setIntervalCount(intervalCount);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public String updateAndGet() {
+<b class="nc">&nbsp;		updateMethod.update();</b>
+<b class="nc">&nbsp;		return get();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	protected abstract String get();
+&nbsp;
+&nbsp;	protected void nextInterval(int interval) {
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	protected int getInterval() {
+<b class="nc">&nbsp;		return updateMethod.getInterval();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	protected int getIntervalCount() {
+<b class="nc">&nbsp;		return updateMethod.getIntervalCount();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static class SequentialEllipsis extends Ellipsis {
+&nbsp;		public SequentialEllipsis() {
+<b class="nc">&nbsp;			this(new CallUpdater(Updater.normSpeed * 2 / 3));</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public SequentialEllipsis(DotUpdater updater) {
+<b class="nc">&nbsp;			super(updater, 3);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public String get() {
+<b class="nc">&nbsp;			StringBuilder dots = new StringBuilder();</b>
+<b class="nc">&nbsp;			int ePos = getInterval();</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; getIntervalCount(); i++) {</b>
+<b class="nc">&nbsp;				if (ePos == i)</b>
+<b class="nc">&nbsp;					dots.append(&quot;.&quot;);</b>
+&nbsp;				else
+<b class="nc">&nbsp;					dots.append(&quot; &quot;);</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			return dots.toString();</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	public static class SmoothEllipsis extends Ellipsis {
+&nbsp;
+&nbsp;		private static final String dotString = &quot;   &quot;;
+&nbsp;
+<b class="fc">&nbsp;		private final char[] dots = dotString.toCharArray();</b>
+&nbsp;
+&nbsp;		public SmoothEllipsis() {
+<b class="nc">&nbsp;			this(new TimeUpdater());</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		public SmoothEllipsis(DotUpdater updater) {
+<b class="fc">&nbsp;			super(updater, dotString.length() * 2);</b>
+<b class="fc">&nbsp;			updater.setEllipsis(this);</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public String get() {
+<b class="nc">&nbsp;			return new String(dots);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		protected void nextInterval(int interval) {
+<b class="nc">&nbsp;			int epos = interval % dots.length;</b>
+<b class="nc">&nbsp;			char set = interval &lt; getIntervalCount() / 2 ? &#39;.&#39; : &#39; &#39;;</b>
+<b class="nc">&nbsp;			dots[epos] = set;</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;	public static abstract class DotUpdater {
+&nbsp;		private final int countPerCycle;
+&nbsp;		private int intervalCount;
+&nbsp;		private int curInterval;
+&nbsp;		private int countPerInterval;
+&nbsp;		private int counter;
+&nbsp;
+<b class="fc">&nbsp;		private Ellipsis ellipsis = null;</b>
+&nbsp;
+<b class="fc">&nbsp;		private boolean started = false;</b>
+&nbsp;
+<b class="fc">&nbsp;		protected DotUpdater(int countPerCycle) {</b>
+<b class="fc">&nbsp;			this.countPerCycle = countPerCycle;</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		void setEllipsis(Ellipsis ellipsis) {
+<b class="fc">&nbsp;			this.ellipsis = ellipsis;</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		// Called by Ellipsis classes, passing their value.
+&nbsp;		void setIntervalCount(int numIntervals) {
+<b class="fc">&nbsp;			intervalCount = numIntervals;</b>
+<b class="fc">&nbsp;			countPerInterval = Math.max(1, Math.round(countPerCycle / (float) intervalCount));</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		public int getInterval() {
+<b class="nc">&nbsp;			return curInterval;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public int getIntervalCount() {
+<b class="nc">&nbsp;			return intervalCount;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		private void incInterval(int amt) {
+<b class="nc">&nbsp;			if (ellipsis != null)</b>
+<b class="nc">&nbsp;				for (int i = curInterval + 1; i &lt;= curInterval + amt; i++)</b>
+<b class="nc">&nbsp;					ellipsis.nextInterval(i % intervalCount);</b>
+&nbsp;
+<b class="nc">&nbsp;			curInterval += amt;</b>
+<b class="nc">&nbsp;			curInterval %= intervalCount;</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		protected void incCounter(int amt) {
+<b class="nc">&nbsp;			counter += amt;</b>
+<b class="nc">&nbsp;			int intervals = counter / countPerInterval;</b>
+<b class="nc">&nbsp;			if (intervals &gt; 0) {</b>
+<b class="nc">&nbsp;				incInterval(intervals);</b>
+<b class="nc">&nbsp;				counter -= intervals * countPerInterval;</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		void start() {
+<b class="nc">&nbsp;			started = true;</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		void update() {
+<b class="nc">&nbsp;			if (!started)</b>
+<b class="nc">&nbsp;				start();</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		public static class TickUpdater extends DotUpdater {
+&nbsp;			private int lastTick;
+&nbsp;
+&nbsp;			public TickUpdater() {
+<b class="fc">&nbsp;				this(Updater.normSpeed);</b>
+<b class="fc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			public TickUpdater(int ticksPerCycle) {
+<b class="fc">&nbsp;				super(ticksPerCycle);</b>
+<b class="fc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			@Override
+&nbsp;			void start() {
+<b class="nc">&nbsp;				super.start();</b>
+<b class="nc">&nbsp;				lastTick = Updater.tickCount;</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			@Override
+&nbsp;			void update() {
+<b class="nc">&nbsp;				super.update();</b>
+<b class="nc">&nbsp;				int newTick = Updater.tickCount;</b>
+<b class="nc">&nbsp;				int ticksPassed = newTick - lastTick;</b>
+<b class="nc">&nbsp;				lastTick = newTick;</b>
+<b class="nc">&nbsp;				incCounter(ticksPassed);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public static class TimeUpdater extends DotUpdater {
+&nbsp;			private long lastTime;
+&nbsp;
+&nbsp;			public TimeUpdater() {
+<b class="nc">&nbsp;				this(750);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			public TimeUpdater(int millisPerCycle) {
+<b class="nc">&nbsp;				super(millisPerCycle);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			@Override
+&nbsp;			void start() {
+<b class="nc">&nbsp;				super.start();</b>
+<b class="nc">&nbsp;				lastTime = System.nanoTime();</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+&nbsp;			@Override
+&nbsp;			void update() {
+<b class="nc">&nbsp;				super.update();</b>
+<b class="nc">&nbsp;				long now = System.nanoTime();</b>
+<b class="nc">&nbsp;				int diffMillis = (int) ((now - lastTime) / 1E6);</b>
+<b class="nc">&nbsp;				lastTime = now;</b>
+<b class="nc">&nbsp;				incCounter(diffMillis);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		public static class CallUpdater extends DotUpdater {
+&nbsp;
+&nbsp;			public CallUpdater(int callsPerCycle) {
+<b class="nc">&nbsp;				super(callsPerCycle);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			@Override
+&nbsp;			void update() {
+<b class="nc">&nbsp;				super.update();</b>
+<b class="nc">&nbsp;				incCounter(1);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

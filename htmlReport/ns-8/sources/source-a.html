@@ -1,0 +1,399 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Inventory</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.item</a>
+</div>
+
+<h1>Coverage Summary for Class: Inventory (minicraft.item)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Inventory</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (18/18)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    96%
+  </span>
+  <span class="absValue">
+    (119/124)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
+&nbsp;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Random;
+&nbsp;
+<b class="fc">&nbsp;public class Inventory {</b>
+<b class="fc">&nbsp;	private final List&lt;Item&gt; items = new ArrayList&lt;&gt;(); // The list of items that is in the inventory.</b>
+&nbsp;
+<b class="fc">&nbsp;	protected int maxItem = 27;</b>
+<b class="fc">&nbsp;	protected boolean unlimited = false;</b>
+&nbsp;
+&nbsp;	public int getMaxSlots() {
+<b class="fc">&nbsp;		return maxItem;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns all the items which are in this inventory.
+&nbsp;	 * @return ArrayList containing all the items in the inventory.
+&nbsp;	 */
+&nbsp;	public List&lt;Item&gt; getItems() {
+<b class="fc">&nbsp;		return new ArrayList&lt;&gt;(items);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void clearInv() {
+<b class="fc">&nbsp;		items.clear();</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public int invSize() {
+<b class="fc">&nbsp;		return items.size();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Get one item in this inventory.
+&nbsp;	 * @param idx The index of the item in the inventory&#39;s item array.
+&nbsp;	 * @return The specified item.
+&nbsp;	 */
+&nbsp;	public Item get(int idx) {
+<b class="fc">&nbsp;		return items.get(idx);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Remove an item in this inventory.
+&nbsp;	 * @param idx The index of the item in the inventory&#39;s item array.
+&nbsp;	 * @return The removed item.
+&nbsp;	 */
+&nbsp;	public Item remove(int idx) {
+<b class="fc">&nbsp;		return items.remove(idx);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Adds an item to the inventory
+&nbsp;	 */
+&nbsp;	public int add(@Nullable Item item) {
+<b class="fc">&nbsp;		if (item != null)</b>
+<b class="fc">&nbsp;			return add(items.size(), item);  // Adds the item to the end of the inventory list</b>
+<b class="fc">&nbsp;		return 0;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Adds several copies of the same item to the end of the inventory.
+&nbsp;	 * @param item Item to be added.
+&nbsp;	 * @param num Amount of items to add.
+&nbsp;	 */
+&nbsp;	public int add(Item item, int num) {
+<b class="fc">&nbsp;		int total = 0;</b>
+<b class="fc">&nbsp;		for (int i = 0; i &lt; num; i++)</b>
+<b class="fc">&nbsp;			total += add(item.copy());</b>
+<b class="fc">&nbsp;		return total;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Adds an item to a specific spot in the inventory.
+&nbsp;	 * @param slot Index to place item at.
+&nbsp;	 * @param item Item to be added.
+&nbsp;	 * @return The number of items added.
+&nbsp;	 */
+&nbsp;	public int add(int slot, Item item) {
+&nbsp;
+&nbsp;		// Do not add to inventory if it is a PowerGlove
+<b class="fc">&nbsp;		if (item instanceof PowerGloveItem) {</b>
+<b class="fc">&nbsp;			Logging.INVENTORY.warn(&quot;Tried to add power glove to inventory. stack trace:&quot;, new Exception());</b>
+<b class="fc">&nbsp;			return 0;</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		if (item instanceof StackableItem) { // If the item is a item...</b>
+<b class="fc">&nbsp;			StackableItem toTake = (StackableItem) item; // ...convert it into a StackableItem object.</b>
+<b class="fc">&nbsp;			int total = toTake.count;</b>
+&nbsp;
+<b class="fc">&nbsp;			for (Item value : items) {</b>
+<b class="fc">&nbsp;				if (toTake.stacksWith(value)) {</b>
+<b class="fc">&nbsp;					StackableItem stack = (StackableItem) value;</b>
+&nbsp;
+<b class="fc">&nbsp;					if (!unlimited) {</b>
+<b class="fc">&nbsp;						if (stack.count &lt; stack.maxCount) {</b>
+<b class="fc">&nbsp;							int r = stack.maxCount - stack.count;</b>
+<b class="fc">&nbsp;							if (r &gt;= toTake.count) {</b>
+&nbsp;								// Matching implies that the other item is stackable, too.
+<b class="fc">&nbsp;								stack.count += toTake.count;</b>
+<b class="fc">&nbsp;								return total;</b>
+&nbsp;							} else {
+<b class="fc">&nbsp;								toTake.count -= r;</b>
+<b class="fc">&nbsp;								stack.count += r;</b>
+&nbsp;							}
+<b class="fc">&nbsp;						}</b>
+&nbsp;					} else {
+&nbsp;						// Unreachable in tests as no way to get access to private variable or mock it
+<b class="nc">&nbsp;						stack.count += toTake.count;</b>
+<b class="nc">&nbsp;						return total;</b>
+&nbsp;					}
+&nbsp;				}
+<b class="fc">&nbsp;			}</b>
+&nbsp;
+<b class="fc">&nbsp;			if (!unlimited) {</b>
+<b class="fc">&nbsp;				if (items.size() &lt; maxItem) {</b>
+<b class="fc">&nbsp;					int c = (int) Math.ceil(toTake.count / 100.0);</b>
+<b class="fc">&nbsp;					for (int i = 0; i &lt; c; i++) {</b>
+<b class="fc">&nbsp;						StackableItem adding = toTake.copy();</b>
+<b class="fc">&nbsp;						adding.count = i + 1 == c &amp;&amp; toTake.count % 100 &gt; 0 ? toTake.count % 100 : 100;</b>
+<b class="fc">&nbsp;						if (adding.count == 0) break; //Will never enter this case</b>
+<b class="fc">&nbsp;						if (items.size() == maxItem) return total - toTake.count;</b>
+<b class="fc">&nbsp;						items.add(adding); // Add the item to the items list</b>
+<b class="fc">&nbsp;						toTake.count -= adding.count;</b>
+&nbsp;					}
+<b class="fc">&nbsp;					return total;</b>
+&nbsp;				} else {
+<b class="fc">&nbsp;					return total - toTake.count;</b>
+&nbsp;				}
+&nbsp;			} else {
+&nbsp;				// Unreachable in tests as no way to get access to private variable or mock it
+<b class="fc">&nbsp;				items.add(slot, toTake);</b>
+<b class="fc">&nbsp;				return total;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		if (!unlimited) {</b>
+<b class="fc">&nbsp;			if (items.size() &lt; maxItem) {</b>
+<b class="fc">&nbsp;				items.add(slot, item); // Add the item to the items list</b>
+<b class="fc">&nbsp;				return 1;</b>
+&nbsp;			} else {
+<b class="fc">&nbsp;				return 0;</b>
+&nbsp;			}
+&nbsp;		} else {
+&nbsp;			// Unreachable in tests as no way to get access to private variable or mock it
+<b class="fc">&nbsp;			items.add(slot, item);</b>
+<b class="fc">&nbsp;			return 1;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Removes items from your inventory; looks for stacks, and removes from each until reached count. returns amount removed.
+&nbsp;	 */
+&nbsp;	private int removeFromStack(StackableItem given, int count) {
+<b class="fc">&nbsp;		int removed = 0; // To keep track of amount removed.</b>
+<b class="fc">&nbsp;		for (int i = 0; i &lt; items.size(); i++) {</b>
+<b class="fc">&nbsp;			if (!(items.get(i) instanceof StackableItem)) continue;</b>
+<b class="fc">&nbsp;			StackableItem curItem = (StackableItem) items.get(i);</b>
+<b class="fc">&nbsp;			if (!curItem.stacksWith(given)) continue; // Can&#39;t do equals, becuase that includes the stack size.</b>
+&nbsp;			// equals; and current item is stackable.
+<b class="fc">&nbsp;			int amountRemoving = Math.min(count - removed, curItem.count); // This is the number of items that are being removed from the stack this run-through.</b>
+<b class="fc">&nbsp;			curItem.count -= amountRemoving;</b>
+<b class="fc">&nbsp;			if (curItem.count == 0) { // Remove the item from the inventory if its stack is empty.</b>
+<b class="fc">&nbsp;				remove(i);</b>
+<b class="fc">&nbsp;				i--;</b>
+&nbsp;			}
+<b class="fc">&nbsp;			removed += amountRemoving;</b>
+<b class="fc">&nbsp;			if (removed == count) break;</b>
+<b class="fc">&nbsp;			if (removed &gt; count) { // Just in case...</b>
+&nbsp;				// Unreachable if conditions prevent reaching this branch
+<b class="nc">&nbsp;				Logging.INVENTORY.info(&quot;SCREW UP while removing items from stack: &quot; + (removed - count) + &quot; too many.&quot;);</b>
+<b class="nc">&nbsp;				break;</b>
+&nbsp;			}
+&nbsp;			// If not all have been removed, look for another stack.
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		if (removed &lt; count)</b>
+<b class="nc">&nbsp;			Logging.INVENTORY.info(&quot;Inventory: could not remove all items; &quot; + (count - removed) + &quot; left.&quot;);</b>
+<b class="fc">&nbsp;		return removed;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Removes the item from the inventory entirely, whether it&#39;s a stack, or a lone item.
+&nbsp;	 */
+&nbsp;	public void removeItem(Item i) {
+&nbsp;		//if (Game.debug) System.out.println(&quot;original item: &quot; + i);
+<b class="fc">&nbsp;		if (i instanceof StackableItem)</b>
+<b class="fc">&nbsp;			removeItems(i.copy(), ((StackableItem) i).count);</b>
+&nbsp;		else
+<b class="fc">&nbsp;			removeItems(i.copy(), 1);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Removes items from this inventory. Note, if passed a stackable item, this will only remove a max of count from the stack.
+&nbsp;	 * @param given Item to remove.
+&nbsp;	 * @param count Max amount of the item to remove.
+&nbsp;	 */
+&nbsp;	public void removeItems(Item given, int count) {
+<b class="fc">&nbsp;		if (given instanceof StackableItem)</b>
+<b class="fc">&nbsp;			count -= removeFromStack((StackableItem) given, count);</b>
+&nbsp;		else {
+&nbsp;			// A better approach would be to store original length and use that to terminate loop
+&nbsp;			// int oldSize = items.size()
+&nbsp;			// for (int i = 0; i &lt; oldSize; i++) {
+&nbsp;			// loop logic
+&nbsp;			//}
+<b class="fc">&nbsp;			for (int i = 0; i &lt; items.size(); i++) { // Fault for terminating loop</b>
+<b class="fc">&nbsp;				Item curItem = items.get(i);</b>
+<b class="fc">&nbsp;				if (curItem.equals(given)) {</b>
+<b class="fc">&nbsp;					remove(i); // remove decrements items.size()</b>
+<b class="fc">&nbsp;					count--;</b>
+<b class="fc">&nbsp;					if (count == 0) break;</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		if (count &gt; 0)</b>
+<b class="fc">&nbsp;			Logging.INVENTORY.warn(&quot;Could not remove &quot; + count + &quot; &quot; + given + (count &gt; 1 ? &quot;s&quot; : &quot;&quot;) + &quot; from inventory&quot;);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns the how many of an item you have in the inventory.
+&nbsp;	 */
+&nbsp;	public int count(Item given) {
+<b class="fc">&nbsp;		if (given == null) return 0; // null requests get no items. :)</b>
+&nbsp;
+<b class="fc">&nbsp;		int found = 0; // Initialize counting var</b>
+&nbsp;		// Assign current item
+<b class="fc">&nbsp;		for (Item curItem : items) { // Loop though items in inv</b>
+&nbsp;			// If the item can be a stack...
+<b class="fc">&nbsp;			if (curItem instanceof StackableItem &amp;&amp; ((StackableItem) curItem).stacksWith(given))</b>
+<b class="fc">&nbsp;				found += ((StackableItem) curItem).count; // Add however many items are in the stack.</b>
+<b class="fc">&nbsp;			else if (curItem.equals(given))</b>
+<b class="fc">&nbsp;				found++; // Otherwise, just add 1 to the found count.</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+<b class="fc">&nbsp;		return found;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Generates a string representation of all the items in the inventory which can be sent
+&nbsp;	 * over the network.
+&nbsp;	 * @return String representation of all the items in the inventory.
+&nbsp;	 */
+&nbsp;	public String getItemData() {
+<b class="fc">&nbsp;		StringBuilder itemdata = new StringBuilder();</b>
+<b class="fc">&nbsp;		for (Item i : items)</b>
+<b class="fc">&nbsp;			itemdata.append(i.getData()).append(&quot;:&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;		if (itemdata.length() &gt; 0)</b>
+<b class="fc">&nbsp;			itemdata = new StringBuilder(itemdata.substring(0, itemdata.length() - 1)); // Remove extra &quot;,&quot;.</b>
+&nbsp;
+<b class="fc">&nbsp;		return itemdata.toString();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Replaces all the items in the inventory with the items in the string.
+&nbsp;	 * @param items String representation of an inventory.
+&nbsp;	 */
+&nbsp;	public void updateInv(String items) {
+<b class="fc">&nbsp;		clearInv();</b>
+&nbsp;
+<b class="fc">&nbsp;		if (items.length() == 0) return; // There are no items to add.</b>
+&nbsp;
+<b class="fc">&nbsp;		for (String item : items.split(&quot;:&quot;)) // This still generates a 1-item array when &quot;items&quot; is blank... [&quot;&quot;].</b>
+<b class="fc">&nbsp;			add(Items.get(item));</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Tries to add an item to the inventory.
+&nbsp;	 * @param random The {@code Random} number generator.
+&nbsp;	 * @param chance Chance for the item to be added.
+&nbsp;	 * @param item Item to be added.
+&nbsp;	 * @param num How many of the item.
+&nbsp;	 * @param allOrNothing if true, either all items will be added or none, if false its possible to add
+&nbsp;	 * 	between 0-num items.
+&nbsp;	 */
+&nbsp;	public void tryAdd(Random random, int chance, Item item, int num, boolean allOrNothing) {
+<b class="fc">&nbsp;		if (!allOrNothing || random.nextInt(chance) == 0)</b>
+<b class="fc">&nbsp;			for (int i = 0; i &lt; num; i++)</b>
+<b class="fc">&nbsp;				if (allOrNothing || random.nextInt(chance) == 0)</b>
+<b class="fc">&nbsp;					add(item.copy());</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void tryAdd(Random random, int chance, @Nullable Item item, int num) {
+<b class="fc">&nbsp;		if (item == null) return;</b>
+<b class="fc">&nbsp;		if (item instanceof StackableItem) {</b>
+<b class="fc">&nbsp;			((StackableItem) item).count *= num;</b>
+<b class="fc">&nbsp;			tryAdd(random, chance, item, 1, true);</b>
+&nbsp;		} else
+<b class="fc">&nbsp;			tryAdd(random, chance, item, num, false);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

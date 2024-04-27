@@ -1,0 +1,1025 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > InputHandler</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.core.io</a>
+</div>
+
+<h1>Coverage Summary for Class: InputHandler (minicraft.core.io)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">InputHandler</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/43)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/294)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">InputHandler$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">InputHandler$CompoundedKey</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">InputHandler$Key</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">InputHandler$LastInputActivityListener</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">InputHandler$ORKey</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">InputHandler$PhysicalKey</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/22)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/64)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/336)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.core.io;
+&nbsp;
+&nbsp;import com.badlogic.gdx.utils.SharedLibraryLoadRuntimeException;
+&nbsp;import com.studiohartman.jamepad.ControllerAxis;
+&nbsp;import com.studiohartman.jamepad.ControllerButton;
+&nbsp;import com.studiohartman.jamepad.ControllerIndex;
+&nbsp;import com.studiohartman.jamepad.ControllerManager;
+&nbsp;import com.studiohartman.jamepad.ControllerUnpluggedException;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;import org.tinylog.Logger;
+&nbsp;
+&nbsp;import java.awt.Component;
+&nbsp;import java.awt.event.KeyEvent;
+&nbsp;import java.awt.event.KeyListener;
+&nbsp;import java.lang.reflect.Field;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Collection;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.LinkedHashMap;
+&nbsp;import java.util.Map.Entry;
+&nbsp;import java.util.Stack;
+&nbsp;import java.util.function.Predicate;
+&nbsp;
+&nbsp;public class InputHandler implements KeyListener {
+&nbsp;	/**
+&nbsp;	 * This class handles key presses; this also implements MouseListener... but I have no idea why.
+&nbsp;	 * It&#39;s not used in any way. Ever. As far as I know. Anyway, here are a few tips about this class:
+&nbsp;	 * &lt;p&gt;
+&nbsp;	 * -This class must instantiated to be used; and it&#39;s pretty much always called &quot;input&quot; in the code.
+&nbsp;	 * &lt;p&gt;
+&nbsp;	 * -The keys are stored in two arrays, one for physical keyboard keys(called &quot;keyboard&quot;), and one for &quot;keys&quot; you make-up (called &quot;keymap&quot;) to represent different actions (&quot;virtual keys&quot;, you could say).
+&nbsp;	 * &lt;p&gt;
+&nbsp;	 * -All the Keys in the keyboard array are generated automatically as you ask for them in the code (if they don&#39;t already exist), so there&#39;s no need to define anything in the keyboard array here.
+&nbsp;	 * --Note: this shouldn&#39;t matter, but keys that are not asked for or defined as values here in keymap will be ignored when it comes to key presses.
+&nbsp;	 * &lt;p&gt;
+&nbsp;	 * -All the &quot;virtual keys&quot; in keymap &quot;map&quot; to a Key object in the keyboard array; that is to say,
+&nbsp;	 * keymap contains a HashMap of string keys, to string values. The keys are the names of the actions,
+&nbsp;	 * and the values are the names of the keyboard keys you physically press to do them.
+&nbsp;	 * &lt;p&gt;
+&nbsp;	 * -To get whether a key is pressed or not, use input.getKey(&quot;key&quot;), where &quot;key&quot; is the name of the key, either physical or virtual. If virtual, all it does is then fetch the corrosponding key from keyboard anyway; but it allows one to change the controls while still making the same key requests in the code.
+&nbsp;	 * &lt;p&gt;
+&nbsp;	 * -If you want to have multiple possibilities at once when it comes to which key to press to do something, you can! just put a &quot;|&quot; between the mappings. For example, say you wanted both &quot;wasd&quot; and arrow key controls to work, at the same time. How you do this is in the construstor below, where it says &quot;keymap.put(&quot; UP, DOWN, LEFT, and RIGHT.
+&nbsp;	 * &lt;p&gt;
+&nbsp;	 * -This class supports modifier keys as inputs. To specify a &quot;compound&quot; key (one using modifiders), write &quot;MOD1-MOD2-KEY&quot;, that is, &quot;SHIFT-ALT-D&quot; or &quot;ALT-F&quot;, with a &quot;-&quot; between the keys. ALWAYS put the actual trigger key last, after all modifiers (the modifiers are: shift, ctrl, and alt).
+&nbsp;	 * &lt;p&gt;
+&nbsp;	 * --All the magic happens in the getKey() method: If the String keyname input has hyphens(&quot;-&quot;), then it&#39;s a compound key, and it splits it up between the hyphens. Then, it compares which modifiers are currently being pressed, and which are being requested. Then, a Key object is created, which if the modifiers match, reflects the non-modifier key&#39;s &quot;down&quot; and &quot;clicked&quot; values; otherwise they&#39;re both false.
+&nbsp;	 * --If a key with no hyph is requested, it skips most of that and just gives you the Key, generating it if needed.
+&nbsp;	 */
+<b class="nc">&nbsp;	public String keyToChange = null; // This is used when listening to change key bindings.</b>
+<b class="nc">&nbsp;	private String keyChanged = null; // This is used when listening to change key bindings.</b>
+<b class="nc">&nbsp;	private boolean overwrite = false;</b>
+&nbsp;
+&nbsp;	private final boolean controllersSupported;
+&nbsp;	private ControllerManager controllerManager;
+&nbsp;	private ControllerIndex controllerIndex; // Please prevent getting button states directly from this object.
+<b class="nc">&nbsp;	private HashMap&lt;ControllerButton, Boolean&gt; controllerButtonBooleanMapJust = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;	private HashMap&lt;ControllerButton, Boolean&gt; controllerButtonBooleanMap = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;	public String getChangedKey() {
+<b class="nc">&nbsp;		String key = keyChanged + &quot;;&quot; + keymap.get(keyChanged);</b>
+<b class="nc">&nbsp;		keyChanged = null;</b>
+<b class="nc">&nbsp;		return key;</b>
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	private static HashMap&lt;Integer, String&gt; keyNames = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;	static {
+<b class="nc">&nbsp;		Field[] keyEventFields = KeyEvent.class.getFields();</b>
+<b class="nc">&nbsp;		ArrayList&lt;Field&gt; keyConstants = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;		for (Field field : keyEventFields) {</b>
+<b class="nc">&nbsp;			if (field.getName().contains(&quot;VK_&quot;) &amp;&amp; (field.getType().getName().equals(int.class.getName())))</b>
+<b class="nc">&nbsp;				keyConstants.add(field);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		for (Field keyConst : keyConstants) {</b>
+<b class="nc">&nbsp;			String name = keyConst.getName();</b>
+<b class="nc">&nbsp;			name = name.substring(3); // Removes the &quot;VK_&quot;</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				keyNames.put(((Integer) keyConst.get(0)), name);</b>
+<b class="nc">&nbsp;			} catch (IllegalAccessException ignored) {</b>
+<b class="nc">&nbsp;			}</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		// For compatibility becuase I&#39;m lazy. :P
+<b class="nc">&nbsp;		keyNames.put(KeyEvent.VK_BACK_SPACE, &quot;BACKSPACE&quot;);</b>
+<b class="nc">&nbsp;		keyNames.put(KeyEvent.VK_CONTROL, &quot;CTRL&quot;);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private HashMap&lt;String, String&gt; keymap; // The symbolic map of actions to physical key names.
+&nbsp;	private HashMap&lt;String, PhysicalKey&gt; keyboard; // The actual map of key names to Key objects.
+<b class="nc">&nbsp;	private String lastKeyTyped = &quot;&quot;; // Used for things like typing world names.</b>
+<b class="nc">&nbsp;	private String keyTypedBuffer = &quot;&quot;; // Used to store the last key typed before putting it into the main var during tick().</b>
+&nbsp;
+<b class="nc">&nbsp;	private final LastInputActivityListener lastInputActivityListener = new LastInputActivityListener();</b>
+&nbsp;
+<b class="nc">&nbsp;	public InputHandler() {</b>
+<b class="nc">&nbsp;		keymap = new LinkedHashMap&lt;&gt;(); // Stores custom key name with physical key name in keyboard.</b>
+<b class="nc">&nbsp;		keyboard = new HashMap&lt;&gt;(); // Stores physical keyboard keys; auto-generated :D</b>
+&nbsp;
+<b class="nc">&nbsp;		initKeyMap(); // This is seperate so I can make a &quot;restore defaults&quot; option.</b>
+<b class="nc">&nbsp;		initButtonMap();</b>
+<b class="nc">&nbsp;		for (ControllerButton btn : ControllerButton.values()) {</b>
+<b class="nc">&nbsp;			controllerButtonBooleanMap.put(btn, false);</b>
+<b class="nc">&nbsp;			controllerButtonBooleanMapJust.put(btn, false);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// I&#39;m not entirely sure if this is necessary... but it doesn&#39;t hurt.
+<b class="nc">&nbsp;		keyboard.put(&quot;SHIFT&quot;, new PhysicalKey(true));</b>
+<b class="nc">&nbsp;		keyboard.put(&quot;CTRL&quot;, new PhysicalKey(true));</b>
+<b class="nc">&nbsp;		keyboard.put(&quot;ALT&quot;, new PhysicalKey(true));</b>
+&nbsp;
+<b class="nc">&nbsp;		boolean controllerInit = false;</b>
+&nbsp;		try {
+<b class="nc">&nbsp;			controllerManager = new ControllerManager();</b>
+<b class="nc">&nbsp;			controllerManager.initSDLGamepad();</b>
+<b class="nc">&nbsp;			controllerIndex = controllerManager.getControllerIndex(0);</b>
+<b class="nc">&nbsp;			controllerManager.update();</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				Logging.CONTROLLER.debug(&quot;Controller Detected: &quot; + controllerManager.getControllerIndex(0).getName());</b>
+<b class="nc">&nbsp;			} catch (ControllerUnpluggedException e) {</b>
+<b class="nc">&nbsp;				Logging.CONTROLLER.debug(&quot;No Controllers Detected, moving on.&quot;);</b>
+<b class="nc">&nbsp;			}</b>
+<b class="nc">&nbsp;			controllerInit = true;</b>
+<b class="nc">&nbsp;		} catch (IllegalStateException | SharedLibraryLoadRuntimeException | UnsatisfiedLinkError e) {</b>
+<b class="nc">&nbsp;			Logging.CONTROLLER.error(e, &quot;Controllers are not support, being disabled.&quot;);</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;		controllersSupported = controllerInit;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public InputHandler(Component inputSource) {
+<b class="nc">&nbsp;		this();</b>
+<b class="nc">&nbsp;		inputSource.addKeyListener(this); // Add key listener to game</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void initKeyMap() {
+<b class="nc">&nbsp;		keymap.put(&quot;MOVE-UP&quot;, &quot;UP|W&quot;);</b>
+<b class="nc">&nbsp;		keymap.put(&quot;MOVE-DOWN&quot;, &quot;DOWN|S&quot;);</b>
+<b class="nc">&nbsp;		keymap.put(&quot;MOVE-LEFT&quot;, &quot;LEFT|A&quot;);</b>
+<b class="nc">&nbsp;		keymap.put(&quot;MOVE-RIGHT&quot;, &quot;RIGHT|D&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		keymap.put(&quot;CURSOR-UP&quot;, &quot;UP&quot;);</b>
+<b class="nc">&nbsp;		keymap.put(&quot;CURSOR-DOWN&quot;, &quot;DOWN&quot;);</b>
+<b class="nc">&nbsp;		keymap.put(&quot;CURSOR-LEFT&quot;, &quot;LEFT&quot;);</b>
+<b class="nc">&nbsp;		keymap.put(&quot;CURSOR-RIGHT&quot;, &quot;RIGHT&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		keymap.put(&quot;SELECT&quot;, &quot;ENTER&quot;);</b>
+<b class="nc">&nbsp;		keymap.put(&quot;EXIT&quot;, &quot;ESCAPE&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		keymap.put(&quot;QUICKSAVE&quot;, &quot;R&quot;); // Saves the game while still playing</b>
+&nbsp;
+<b class="nc">&nbsp;		keymap.put(&quot;ATTACK&quot;, &quot;C|SPACE|ENTER&quot;); // Attack action references &quot;C&quot; key</b>
+<b class="nc">&nbsp;		keymap.put(&quot;MENU&quot;, &quot;X|E&quot;); // And so on... menu does various things.</b>
+<b class="nc">&nbsp;		keymap.put(&quot;CRAFT&quot;, &quot;Z|SHIFT-E&quot;); // Open/close personal crafting window.</b>
+<b class="nc">&nbsp;		keymap.put(&quot;PICKUP&quot;, &quot;V|P&quot;); // Pickup torches / furniture; this replaces the power glove.</b>
+<b class="nc">&nbsp;		keymap.put(&quot;DROP-ONE&quot;, &quot;Q&quot;); // Drops the item in your hand, or selected in your inventory, by ones; it won&#39;t drop an entire stack</b>
+<b class="nc">&nbsp;		keymap.put(&quot;DROP-STACK&quot;, &quot;SHIFT-Q&quot;); // Drops the item in your hand, or selected in your inventory, entirely; even if it&#39;s a stack.</b>
+&nbsp;
+&nbsp;		// Toggle inventory searcher bar
+<b class="nc">&nbsp;		keymap.put(&quot;SEARCHER-BAR&quot;, &quot;SHIFT-F&quot;);</b>
+&nbsp;
+&nbsp;		// Seek for next/previous match in inventory searcher bar
+<b class="nc">&nbsp;		keymap.put(&quot;PAGE-UP&quot;, &quot;PAGE_UP&quot;);</b>
+<b class="nc">&nbsp;		keymap.put(&quot;PAGE-DOWN&quot;, &quot;PAGE_DOWN&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		keymap.put(&quot;PAUSE&quot;, &quot;ESCAPE&quot;); // Pause the Game.</b>
+&nbsp;
+<b class="nc">&nbsp;		keymap.put(&quot;POTIONEFFECTS&quot;, &quot;P&quot;); // Toggle potion effect display</b>
+<b class="nc">&nbsp;		keymap.put(&quot;SIMPPOTIONEFFECTS&quot;, &quot;O&quot;); // Whether to simplify the potion effect display</b>
+<b class="nc">&nbsp;		keymap.put(&quot;EXPANDQUESTDISPLAY&quot;, &quot;L&quot;); // Expands the quest display</b>
+<b class="nc">&nbsp;		keymap.put(&quot;TOGGLEHUD&quot;, &quot;F1&quot;); // Toggle HUD</b>
+<b class="nc">&nbsp;		keymap.put(&quot;SCREENSHOT&quot;, &quot;F2&quot;); // To make screenshot</b>
+<b class="nc">&nbsp;		keymap.put(&quot;INFO&quot;, &quot;SHIFT-I&quot;); // Toggle player stats display</b>
+&nbsp;
+<b class="nc">&nbsp;		keymap.put(&quot;FULLSCREEN&quot;, &quot;F11&quot;);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	// The button mapping should not be modifiable.
+<b class="nc">&nbsp;	private final HashMap&lt;String, ControllerButton&gt; buttonMap = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;	private void initButtonMap() {
+<b class="nc">&nbsp;		buttonMap.put(&quot;MOVE-UP&quot;, ControllerButton.DPAD_UP);</b>
+<b class="nc">&nbsp;		buttonMap.put(&quot;MOVE-DOWN&quot;, ControllerButton.DPAD_DOWN);</b>
+<b class="nc">&nbsp;		buttonMap.put(&quot;MOVE-LEFT&quot;, ControllerButton.DPAD_LEFT);</b>
+<b class="nc">&nbsp;		buttonMap.put(&quot;MOVE-RIGHT&quot;, ControllerButton.DPAD_RIGHT);</b>
+&nbsp;
+<b class="nc">&nbsp;		buttonMap.put(&quot;CURSOR-UP&quot;, ControllerButton.DPAD_UP);</b>
+<b class="nc">&nbsp;		buttonMap.put(&quot;CURSOR-DOWN&quot;, ControllerButton.DPAD_DOWN);</b>
+<b class="nc">&nbsp;		buttonMap.put(&quot;CURSOR-LEFT&quot;, ControllerButton.DPAD_LEFT);</b>
+<b class="nc">&nbsp;		buttonMap.put(&quot;CURSOR-RIGHT&quot;, ControllerButton.DPAD_RIGHT);</b>
+&nbsp;
+<b class="nc">&nbsp;		buttonMap.put(&quot;SELECT&quot;, ControllerButton.A);</b>
+<b class="nc">&nbsp;		buttonMap.put(&quot;EXIT&quot;, ControllerButton.B);</b>
+&nbsp;
+<b class="nc">&nbsp;		buttonMap.put(&quot;ATTACK&quot;, ControllerButton.A);</b>
+<b class="nc">&nbsp;		buttonMap.put(&quot;MENU&quot;, ControllerButton.X);</b>
+<b class="nc">&nbsp;		buttonMap.put(&quot;CRAFT&quot;, ControllerButton.Y);</b>
+<b class="nc">&nbsp;		buttonMap.put(&quot;PICKUP&quot;, ControllerButton.LEFTBUMPER);</b>
+&nbsp;
+<b class="nc">&nbsp;		buttonMap.put(&quot;SEARCHER-BAR&quot;, ControllerButton.START);</b>
+&nbsp;
+<b class="nc">&nbsp;		buttonMap.put(&quot;PAUSE&quot;, ControllerButton.START);</b>
+&nbsp;
+<b class="nc">&nbsp;		buttonMap.put(&quot;DROP-ONE&quot;, ControllerButton.RIGHTBUMPER);</b>
+<b class="nc">&nbsp;		buttonMap.put(&quot;DROP-STACK&quot;, ControllerButton.RIGHTSTICK);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void resetKeyBindings() {
+<b class="nc">&nbsp;		keymap.clear();</b>
+<b class="nc">&nbsp;		initKeyMap();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Processes each key one by one, in keyboard.
+&nbsp;	 */
+&nbsp;	public void tick() {
+<b class="nc">&nbsp;		lastKeyTyped = keyTypedBuffer;</b>
+<b class="nc">&nbsp;		keyTypedBuffer = &quot;&quot;;</b>
+<b class="nc">&nbsp;		inputMask = null;</b>
+<b class="nc">&nbsp;		synchronized (&quot;lock&quot;) {</b>
+<b class="nc">&nbsp;			for (PhysicalKey key : keyboard.values())</b>
+<b class="nc">&nbsp;				key.tick(); // Call tick() for each key.</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		lastInputActivityListener.tick();</b>
+&nbsp;
+&nbsp;		// Also update the controller button state.
+<b class="nc">&nbsp;		if (controllersSupported) {</b>
+<b class="nc">&nbsp;			for (ControllerButton btn : ControllerButton.values()) {</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					controllerButtonBooleanMapJust.put(btn, controllerIndex.isButtonJustPressed(btn));</b>
+<b class="nc">&nbsp;				} catch (ControllerUnpluggedException e) {</b>
+<b class="nc">&nbsp;					controllerButtonBooleanMapJust.put(btn, false);</b>
+<b class="nc">&nbsp;				}</b>
+&nbsp;				try {
+<b class="nc">&nbsp;					controllerButtonBooleanMap.put(btn, controllerIndex.isButtonPressed(btn));</b>
+<b class="nc">&nbsp;				} catch (ControllerUnpluggedException e) {</b>
+<b class="nc">&nbsp;					controllerButtonBooleanMap.put(btn, false);</b>
+<b class="nc">&nbsp;				}</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (leftTriggerCooldown &gt; 0) leftTriggerCooldown--;</b>
+<b class="nc">&nbsp;		if (rightTriggerCooldown &gt; 0) rightTriggerCooldown--;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	// The Key class.
+<b class="nc">&nbsp;	public static abstract class Key {</b>
+&nbsp;		public abstract boolean isDown();
+&nbsp;
+&nbsp;		public abstract boolean isClicked();
+&nbsp;
+&nbsp;		public String toString() { // For debugging
+<b class="nc">&nbsp;			return &quot;down:&quot; + isDown() + &quot;; clicked:&quot; + isClicked();</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	private static class PhysicalKey extends Key {
+&nbsp;		// presses = how many times the Key has been pressed.
+&nbsp;		// absorbs = how many key presses have been processed.
+&nbsp;		private int presses, absorbs;
+&nbsp;		// down = if the key is currently physically being held down.
+&nbsp;		// clicked = if the key is still being processed at the current tick.
+&nbsp;		protected boolean down, clicked;
+&nbsp;		// sticky = true if presses reaches 3, and the key continues to be held down.
+&nbsp;		private boolean sticky;
+&nbsp;
+&nbsp;		protected boolean stayDown;
+&nbsp;
+&nbsp;		public PhysicalKey() {
+<b class="nc">&nbsp;			this(false);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		public PhysicalKey(boolean stayDown) {</b>
+<b class="nc">&nbsp;			this.stayDown = stayDown;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public boolean isDown() {
+<b class="nc">&nbsp;			return down;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public boolean isClicked() {
+<b class="nc">&nbsp;			return clicked;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * toggles the key down or not down.
+&nbsp;		 */
+&nbsp;		public void toggle(boolean pressed) {
+<b class="nc">&nbsp;			down = pressed; // Set down to the passed in value; the if statement is probably unnecessary...</b>
+<b class="nc">&nbsp;			if (pressed &amp;&amp; !sticky) presses++; // Add to the number of total presses.</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		/**
+&nbsp;		 * Processes the key presses.
+&nbsp;		 */
+&nbsp;		public void tick() {
+<b class="nc">&nbsp;			if (absorbs &lt; presses) { // If there are more key presses to process...</b>
+<b class="nc">&nbsp;				absorbs++; // Process them!</b>
+<b class="nc">&nbsp;				if (presses - absorbs &gt; 3) absorbs = presses - 3;</b>
+<b class="nc">&nbsp;				clicked = true; // Make clicked true, since key presses are still being processed.</b>
+&nbsp;			} else { // All key presses so far for this key have been processed.
+<b class="nc">&nbsp;				if (!sticky) sticky = presses &gt; 3;</b>
+<b class="nc">&nbsp;				else sticky = down;</b>
+<b class="nc">&nbsp;				clicked = sticky; // Set clicked to false, since we&#39;re done processing; UNLESS the key has been held down for a bit, and hasn&#39;t yet been released.</b>
+&nbsp;
+&nbsp;				// Reset the presses and absorbs, to ensure they don&#39;t get too high, or something:
+<b class="nc">&nbsp;				presses = 0;</b>
+<b class="nc">&nbsp;				absorbs = 0;</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		public void release() {
+<b class="nc">&nbsp;			down = false;</b>
+<b class="nc">&nbsp;			clicked = false;</b>
+<b class="nc">&nbsp;			presses = 0;</b>
+<b class="nc">&nbsp;			absorbs = 0;</b>
+<b class="nc">&nbsp;			sticky = false;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Custom toString() method, I used it for debugging.
+&nbsp;		public String toString() {
+<b class="nc">&nbsp;			return &quot;down:&quot; + down + &quot;; clicked:&quot; + clicked + &quot;; presses=&quot; + presses + &quot;; absorbs=&quot; + absorbs;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	private static class CompoundedKey extends Key {
+&nbsp;		private final HashSet&lt;Key&gt; keys;
+&nbsp;
+<b class="nc">&nbsp;		public CompoundedKey(Collection&lt;Key&gt; keys) {</b>
+<b class="nc">&nbsp;			this.keys = new HashSet&lt;&gt;(keys);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public boolean isDown() { // All keys down.
+<b class="nc">&nbsp;			return keys.stream().allMatch(Key::isDown);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public boolean isClicked() { // If the whole key binding is clicked, then the all keys must be down and at least one of these is/are just clicked.
+<b class="nc">&nbsp;			return isDown() &amp;&amp; keys.stream().anyMatch(Key::isClicked);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	private static class ORKey extends Key {
+&nbsp;		private final HashSet&lt;Key&gt; keys;
+&nbsp;
+<b class="nc">&nbsp;		public ORKey(Collection&lt;Key&gt; keys) {</b>
+<b class="nc">&nbsp;			this.keys = new HashSet&lt;&gt;(keys);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public boolean isDown() {
+<b class="nc">&nbsp;			return keys.stream().anyMatch(Key::isDown);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public boolean isClicked() {
+<b class="nc">&nbsp;			return keys.stream().anyMatch(Key::isClicked);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	private static final Predicate&lt;String&gt; maskAll = k -&gt; true;</b>
+<b class="nc">&nbsp;	private static final Key keyMask = new Key() {</b>
+&nbsp;		@Override
+&nbsp;		public boolean isDown() {
+<b class="nc">&nbsp;			return false;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public boolean isClicked() {
+<b class="nc">&nbsp;			return false;</b>
+&nbsp;		}
+&nbsp;	};
+<b class="nc">&nbsp;	private @Nullable Predicate&lt;String&gt; inputMask = null;</b>
+&nbsp;
+&nbsp;	public void maskInput(@Nullable Predicate&lt;String&gt; filter) {
+<b class="nc">&nbsp;		if (filter == null) filter = maskAll;</b>
+<b class="nc">&nbsp;		inputMask = inputMask == null ? filter : inputMask.and(filter);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This is used to stop all of the actions when the game is out of focus.
+&nbsp;	 */
+&nbsp;	public void releaseAll() {
+<b class="nc">&nbsp;		for (PhysicalKey key : keyboard.values()) {</b>
+<b class="nc">&nbsp;			key.release();</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/// This is meant for changing the default keys. Call it from the options menu, or something.
+&nbsp;	public void setKey(String keymapKey, String keyboardKey) {
+<b class="nc">&nbsp;		if (keymapKey != null &amp;&amp; keymap.containsKey(keymapKey)) // The keyboardKey can be null, I suppose, if you want to disable a key...</b>
+<b class="nc">&nbsp;			keymap.put(keymapKey, keyboardKey);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Simply returns the mapped value of key in keymap.
+&nbsp;	 */
+&nbsp;	public String getMapping(String actionKey) {
+<b class="nc">&nbsp;		actionKey = actionKey.toUpperCase();</b>
+<b class="nc">&nbsp;		if (lastInputActivityListener.lastButtonActivityTimestamp &gt; lastInputActivityListener.lastKeyActivityTimestamp) {</b>
+<b class="nc">&nbsp;			if (buttonMap.containsKey(actionKey))</b>
+<b class="nc">&nbsp;				return buttonMap.get(actionKey).toString().replace(&quot;_&quot;, &quot;-&quot;);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (keymap.containsKey(actionKey))</b>
+<b class="nc">&nbsp;			return keymap.get(actionKey).replace(&quot;|&quot;, &quot;/&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		return &quot;NO_KEY&quot;;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returning the corresponding mapping depends on the device last acted.
+&nbsp;	 * @param keyMap The keyboard mapping.
+&nbsp;	 * @param buttonMap The controller mapping
+&nbsp;	 * @return The selected mapping.
+&nbsp;	 */
+&nbsp;	public String selectMapping(String keyMap, String buttonMap) {
+<b class="nc">&nbsp;		if (lastInputActivityListener.lastButtonActivityTimestamp &gt; lastInputActivityListener.lastKeyActivityTimestamp)</b>
+<b class="nc">&nbsp;			return buttonMap;</b>
+&nbsp;		else
+<b class="nc">&nbsp;			return keyMap;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Getting the last input device type.
+&nbsp;	 * @return The input device type: 0 for keyboard, 1 for controller.
+&nbsp;	 */
+&nbsp;	public int getLastInputType() {
+<b class="nc">&nbsp;		if (lastInputActivityListener.lastButtonActivityTimestamp &gt; lastInputActivityListener.lastKeyActivityTimestamp)</b>
+<b class="nc">&nbsp;			return 1;</b>
+&nbsp;		else
+<b class="nc">&nbsp;			return 0;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/// THIS is pretty much the only way you want to be interfacing with this class; it has all the auto-create and protection functions and such built-in.
+&nbsp;	// For mapped keys
+&nbsp;	public Key getMappedKey(String keyText) {
+<b class="nc">&nbsp;		keyText = keyText.toUpperCase(java.util.Locale.ENGLISH); // Prevent errors due to improper &quot;casing&quot;</b>
+<b class="nc">&nbsp;		synchronized (&quot;lock&quot;) {</b>
+&nbsp;			// If the passed-in key equals one in keymap, then replace it with its match, a key in keyboard.
+<b class="nc">&nbsp;			if (keymap.containsKey(keyText)) // If false, we assume that keytext is a physical key.</b>
+<b class="nc">&nbsp;				keyText = keymap.get(keyText); // Converts action name to physical key name</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		if (keyText.contains(&quot;|&quot;)) {</b>
+&nbsp;			/// Multiple key possibilities exist for this action; so, combine the results of each one!
+<b class="nc">&nbsp;			ArrayList&lt;Key&gt; keys = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;			for (String keyposs : keyText.split(&quot;\\|&quot;)) { // String.split() uses regex, and &quot;|&quot; is a special character, so it must be escaped; but the backslash must be passed in, so it needs escaping.</b>
+&nbsp;				// It really does combine using &quot;or&quot;:
+<b class="nc">&nbsp;				keys.add(getMappedKey(keyposs));</b>
+&nbsp;			}
+<b class="nc">&nbsp;			return new ORKey(keys);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Complex compound key binding support.
+<b class="nc">&nbsp;		HashSet&lt;Key&gt; keys = new HashSet&lt;&gt;();</b>
+<b class="nc">&nbsp;		synchronized (&quot;lock&quot;) {</b>
+<b class="nc">&nbsp;			String[] split = keyText.split(&quot;\\+&quot;);</b>
+<b class="nc">&nbsp;			for (String s : split) {</b>
+<b class="nc">&nbsp;				keys.add(getKey(keymap.getOrDefault(s, s)));</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		//if(key.clicked &amp;&amp; Game.debug) System.out.println(&quot;Processed key: &quot; + keytext + &quot; is clicked; tickNum=&quot; + ticks);
+<b class="nc">&nbsp;		return new CompoundedKey(keys); // Return the Key object.</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// Physical keys only
+&nbsp;	private Key getKey(String keytext) {
+&nbsp;		// If the passed-in key is blank, or null, then return null.
+<b class="nc">&nbsp;		if (keytext == null || keytext.isEmpty()) return keyMask;</b>
+&nbsp;
+<b class="nc">&nbsp;		keytext = keytext.toUpperCase(java.util.Locale.ENGLISH); // Prevent errors due to improper &quot;casing&quot;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (keytext.contains(&quot;|&quot;)) {</b>
+&nbsp;			/// Multiple key possibilities exist for this action; so, combine the results of each one!
+<b class="nc">&nbsp;			ArrayList&lt;Key&gt; keys = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;			for (String keyposs : keytext.split(&quot;\\|&quot;)) { // String.split() uses regex, and &quot;|&quot; is a special character, so it must be escaped; but the backslash must be passed in, so it needs escaping.</b>
+&nbsp;				// It really does combine using &quot;or&quot;:
+<b class="nc">&nbsp;				keys.add(getKey(keyposs));</b>
+&nbsp;			}
+<b class="nc">&nbsp;			return new ORKey(keys);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// Complex compound key binding support.
+<b class="nc">&nbsp;		HashSet&lt;Key&gt; keys = new HashSet&lt;&gt;();</b>
+<b class="nc">&nbsp;		synchronized (&quot;lock&quot;) {</b>
+<b class="nc">&nbsp;			String[] split = keytext.split(&quot;-&quot;);</b>
+<b class="nc">&nbsp;			for (String s : split) {</b>
+<b class="nc">&nbsp;				if (keyboard.containsKey(s))</b>
+&nbsp;					// Gets the key object from keyboard, if it exists.
+<b class="nc">&nbsp;					keys.add(inputMask == null || !inputMask.test(s) ? keyboard.get(s) : keyMask);</b>
+&nbsp;				else {
+&nbsp;					// If the specified key does not yet exist in keyboard, then create a new Key, and put it there.
+<b class="nc">&nbsp;					PhysicalKey key = new PhysicalKey(); // Make new key</b>
+<b class="nc">&nbsp;					keyboard.put(s, key); // Add it to keyboard</b>
+<b class="nc">&nbsp;					keys.add(key);</b>
+&nbsp;
+&nbsp;					//if(Game.debug) System.out.println(&quot;Added new key: \&#39;&quot; + keytext + &quot;\&#39;&quot;); //log to console that a new key was added to the keyboard
+&nbsp;				}
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		// Returns the key itself if there is only one key.
+<b class="nc">&nbsp;		if (keys.size() == 1) return keys.iterator().next();</b>
+&nbsp;
+&nbsp;		//if(key.clicked &amp;&amp; Game.debug) System.out.println(&quot;Processed key: &quot; + keytext + &quot; is clicked; tickNum=&quot; + ticks);
+<b class="nc">&nbsp;		return new CompoundedKey(keys); // Return the Key object.</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/// This method provides a way to press physical keys without actually generating a key event.
+&nbsp;	/*public void pressKey(String keyname, boolean pressed) {
+&nbsp;		Key key = getPhysKey(keyname);
+&nbsp;		key.toggle(pressed);
+&nbsp;		//System.out.println(&quot;Key &quot; + keyname + &quot; is clicked: &quot; + getPhysKey(keyname).clicked);
+&nbsp;	}*/
+&nbsp;
+&nbsp;	public ArrayList&lt;String&gt; getAllPressedKeys() {
+<b class="nc">&nbsp;		ArrayList&lt;String&gt; keyList = new ArrayList&lt;&gt;(keyboard.size());</b>
+&nbsp;
+<b class="nc">&nbsp;		synchronized (&quot;lock&quot;) {</b>
+<b class="nc">&nbsp;			for (Entry&lt;String, PhysicalKey&gt; entry : keyboard.entrySet()) {</b>
+<b class="nc">&nbsp;				if (entry.getValue().down) {</b>
+<b class="nc">&nbsp;					keyList.add(entry.getKey());</b>
+&nbsp;				}
+<b class="nc">&nbsp;			}</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		return keyList;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/// This gets a key from key text, w/o adding to the key list.
+&nbsp;	private PhysicalKey getPhysKey(String keytext) {
+<b class="nc">&nbsp;		keytext = keytext.toUpperCase();</b>
+&nbsp;
+<b class="nc">&nbsp;		if (keyboard.containsKey(keytext))</b>
+<b class="nc">&nbsp;			return keyboard.get(keytext);</b>
+&nbsp;		else {
+&nbsp;			//System.out.println(&quot;UNKNOWN KEYBOARD KEY: &quot; + keytext); // it&#39;s okay really; was just checking
+<b class="nc">&nbsp;			return new PhysicalKey(); // Won&#39;t matter where I&#39;m calling it.</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	// Called by KeyListener Event methods, below. Only accesses keyboard Keys.
+&nbsp;	private void toggle(int keycode, boolean pressed) {
+&nbsp;		String keytext;
+&nbsp;
+<b class="nc">&nbsp;		if (keyNames.containsKey(keycode))</b>
+<b class="nc">&nbsp;			keytext = keyNames.get(keycode);</b>
+&nbsp;		else {
+<b class="nc">&nbsp;			Logger.tag(&quot;INPUT&quot;).error(&quot;Could not find keyname for keycode \&quot;&quot; + keycode + &quot;\&quot;&quot;);</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		keytext = keytext.toUpperCase();</b>
+&nbsp;
+&nbsp;		//System.out.println(&quot;Interpreted key press: &quot; + keytext);
+&nbsp;
+&nbsp;		//System.out.println(&quot;Toggling &quot; + keytext + &quot; key (keycode &quot; + keycode + &quot;) to &quot;+pressed+&quot;.&quot;);
+<b class="nc">&nbsp;		if (pressed &amp;&amp; keyToChange != null &amp;&amp; !isMod(keytext)) {</b>
+<b class="nc">&nbsp;			keymap.put(keyToChange, (overwrite ? &quot;&quot; : keymap.get(keyToChange) + &quot;|&quot;) + getCurModifiers() + keytext);</b>
+<b class="nc">&nbsp;			keyChanged = keyToChange;</b>
+<b class="nc">&nbsp;			keyToChange = null;</b>
+<b class="nc">&nbsp;			return;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		getPhysKey(keytext).toggle(pressed);</b>
+&nbsp;		// System.out.println(keytext+&quot;;&quot;+getPhysKey(keytext).hashCode()+&quot;;&quot;+pressed);
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	// This provides a way to inspect values during running with an external display.
+&nbsp;	/*static JFrame frame = new JFrame();
+&nbsp;	static JTextArea textField = new JTextArea();
+&nbsp;	static Thread liveTracking;
+&nbsp;	static {
+&nbsp;		frame.add(textField);
+&nbsp;		textField.setText(&quot;INVALID&quot;);
+&nbsp;		frame.setUndecorated(true);
+&nbsp;		frame.pack();
+&nbsp;		frame.setVisible(true);
+&nbsp;		liveTracking = new Thread(new Runnable() {
+&nbsp;			long lastTick = 0;
+&nbsp;			@Override
+&nbsp;			public void run() {
+&nbsp;				while (true) {
+&nbsp;					long tick = System.currentTimeMillis();
+&nbsp;					if (tick - lastTick &gt; 50) {
+&nbsp;						synchronized (&quot;lock&quot;) {
+&nbsp;							if (Game.input == null) continue;
+&nbsp;							textField.setText(&quot;F3: &quot; + Game.input.getPhysKey(&quot;F3&quot;)
+&nbsp;								+ &quot;\nE: &quot; + Game.input.getPhysKey(&quot;E&quot;));
+&nbsp;						}
+&nbsp;						frame.pack();
+&nbsp;						lastTick = tick;
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;		}, &quot;Live Debugging Value Tracker&quot;);
+&nbsp;		liveTracking.start();
+&nbsp;	}*/
+&nbsp;
+&nbsp;	private static boolean isMod(String keyname) {
+<b class="nc">&nbsp;		keyname = keyname.toUpperCase();</b>
+<b class="nc">&nbsp;		return keyname.equals(&quot;SHIFT&quot;) || keyname.equals(&quot;CTRL&quot;) || keyname.equals(&quot;ALT&quot;);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private String getCurModifiers() {
+<b class="nc">&nbsp;		return (getKey(&quot;ctrl&quot;).isDown() ? &quot;CTRL-&quot; : &quot;&quot;) +</b>
+<b class="nc">&nbsp;			(getKey(&quot;alt&quot;).isDown() ? &quot;ALT-&quot; : &quot;&quot;) +</b>
+<b class="nc">&nbsp;			(getKey(&quot;shift&quot;).isDown() ? &quot;SHIFT-&quot; : &quot;&quot;);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Used by Save.java, to save user key preferences.
+&nbsp;	 */
+&nbsp;	public String[] getKeyPrefs() {
+<b class="nc">&nbsp;		ArrayList&lt;String&gt; keystore = new ArrayList&lt;&gt;(); // Make a list for keys</b>
+&nbsp;
+<b class="nc">&nbsp;		for (String keyname : keymap.keySet()) // Go though each mapping</b>
+<b class="nc">&nbsp;			keystore.add(keyname + &quot;;&quot; + keymap.get(keyname)); // Add the mapping values as one string, seperated by a semicolon.</b>
+&nbsp;
+<b class="nc">&nbsp;		return keystore.toArray(new String[0]); // Return the array of encoded key preferences.</b>
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;	public void changeKeyBinding(String actionKey) {
+<b class="nc">&nbsp;		keyToChange = actionKey.toUpperCase();</b>
+<b class="nc">&nbsp;		overwrite = true;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void addKeyBinding(String actionKey) {
+<b class="nc">&nbsp;		keyToChange = actionKey.toUpperCase();</b>
+<b class="nc">&nbsp;		overwrite = false;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/// Event methods, many to satisfy interface requirements...
+&nbsp;	public void keyPressed(KeyEvent ke) {
+<b class="nc">&nbsp;		toggle(ke.getExtendedKeyCode(), true);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void keyReleased(KeyEvent ke) {
+<b class="nc">&nbsp;		toggle(ke.getExtendedKeyCode(), false);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void keyTyped(KeyEvent ke) {
+&nbsp;		// Stores the last character typed
+<b class="nc">&nbsp;		keyTypedBuffer = String.valueOf(ke.getKeyChar());</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private static final String control = &quot;[\\p{Print}\n]+&quot;; // Should match only printable characters.
+&nbsp;	public String addKeyTyped(String typing, @Nullable String pattern) {
+<b class="nc">&nbsp;		return handleBackspaceChars(getKeysTyped(typing, pattern));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/** This returns a raw format of the keys typed, i.e. {@code \b} are not handled here. */
+<b class="nc">&nbsp;	public String getKeysTyped(@Nullable String pattern) { return getKeysTyped(null, pattern, true); }</b>
+<b class="nc">&nbsp;	public String getKeysTyped(@Nullable String typing, @Nullable String pattern) { return getKeysTyped(typing, pattern, false); }</b>
+&nbsp;	public String getKeysTyped(@Nullable String typing, @Nullable String pattern, boolean multiline) {
+<b class="nc">&nbsp;		StringBuilder typed = typing == null ? new StringBuilder() : new StringBuilder(typing);</b>
+<b class="nc">&nbsp;		if (lastKeyTyped.length() &gt; 0) {</b>
+<b class="nc">&nbsp;			for (char letter : lastKeyTyped.toCharArray()) {</b>
+<b class="nc">&nbsp;				String letterString = String.valueOf(letter);</b>
+<b class="nc">&nbsp;				if (letter == &#39;\b&#39; || letterString.matches(control) &amp;&amp; (letter != &#39;\n&#39; || multiline) &amp;&amp; (pattern == null || letterString.matches(pattern)))</b>
+<b class="nc">&nbsp;					typed.append(letter);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			lastKeyTyped = &quot;&quot;;</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return typed.toString();</b>
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	public static String handleBackspaceChars(String typing) { return handleBackspaceChars(typing, false); }</b>
+&nbsp;	/**
+&nbsp;	 * This handles and erases backspace control characters {@code \b} from the given string.
+&nbsp;	 * Evaluation to backspace characters stops if no more characters are in front of them.
+&nbsp;	 * @param keepUnevaluated {@code true} if intending to keep the unhandled backspace characters in the returned string;
+&nbsp;	 *                        otherwise, those characters are removed even that they are not evaluated.
+&nbsp;	 */
+&nbsp;	public static String handleBackspaceChars(String typing, boolean keepUnevaluated) {
+&nbsp;		// Erasing characters by \b. Reference: https://stackoverflow.com/a/30174028
+<b class="nc">&nbsp;		Stack&lt;Character&gt; stack = new Stack&lt;&gt;();</b>
+&nbsp;
+&nbsp;		// for-each character in the string
+<b class="nc">&nbsp;		for (int i = 0; i &lt; typing.length(); i++) {</b>
+<b class="nc">&nbsp;			char c = typing.charAt(i);</b>
+<b class="nc">&nbsp;			if (c == &#39;\b&#39; &amp;&amp; !stack.empty() &amp;&amp; stack.peek() != &#39;\b&#39;) { // pop if the last char exists and is not \b</b>
+<b class="nc">&nbsp;				stack.pop();</b>
+<b class="nc">&nbsp;			} else if (c != &#39;\b&#39; || keepUnevaluated) {</b>
+<b class="nc">&nbsp;				stack.push(c);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+&nbsp;		// convert stack to string
+<b class="nc">&nbsp;		StringBuilder builder = new StringBuilder(stack.size());</b>
+<b class="nc">&nbsp;		for (Character c : stack) {</b>
+<b class="nc">&nbsp;			builder.append(c);</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		return builder.toString();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean anyControllerConnected() {
+<b class="nc">&nbsp;		return controllersSupported &amp;&amp; controllerManager.getNumControllers() &gt; 0;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean buttonPressed(ControllerButton button) {
+<b class="nc">&nbsp;		return controllerButtonBooleanMapJust.get(button);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean buttonDown(ControllerButton button) {
+<b class="nc">&nbsp;		return controllerButtonBooleanMap.get(button);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public ArrayList&lt;ControllerButton&gt; getAllPressedButtons() {
+<b class="nc">&nbsp;		ArrayList&lt;ControllerButton&gt; btnList = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;		for (ControllerButton btn : ControllerButton.values()) {</b>
+<b class="nc">&nbsp;			if (controllerButtonBooleanMap.get(btn))</b>
+<b class="nc">&nbsp;				btnList.add(btn);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return btnList;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean inputPressed(String mapping) {
+<b class="nc">&nbsp;		mapping = mapping.toUpperCase(java.util.Locale.ENGLISH);</b>
+<b class="nc">&nbsp;		return getMappedKey(mapping).isClicked() || (buttonMap.containsKey(mapping) &amp;&amp; buttonPressed(buttonMap.get(mapping)));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean inputDown(String mapping) {
+<b class="nc">&nbsp;		mapping = mapping.toUpperCase(java.util.Locale.ENGLISH);</b>
+<b class="nc">&nbsp;		return getMappedKey(mapping).isDown() || (buttonMap.containsKey(mapping) &amp;&amp; buttonDown(buttonMap.get(mapping)));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Vibrate the controller using the new rumble API
+&nbsp;	 * This will return false if the controller doesn&#39;t support vibration or if SDL was unable to start
+&nbsp;	 * vibration (maybe the controller doesn&#39;t support left/right vibration, maybe it was unplugged in the
+&nbsp;	 * middle of trying, etc...)
+&nbsp;	 * @param leftMagnitude The speed for the left motor to vibrate (this should be between 0 and 1)
+&nbsp;	 * @param rightMagnitude The speed for the right motor to vibrate (this should be between 0 and 1)
+&nbsp;	 * @return Whether or not the controller was able to be vibrated (i.e. if haptics are supported) or controller not connected.
+&nbsp;	 */
+&nbsp;	public boolean controllerVibration(float leftMagnitude, float rightMagnitude, int duration_ms) {
+<b class="nc">&nbsp;		if (controllersSupported) {</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				return controllerIndex.doVibration(leftMagnitude, rightMagnitude, duration_ms);</b>
+<b class="nc">&nbsp;			} catch (ControllerUnpluggedException ignored) {</b>
+<b class="nc">&nbsp;				return false;</b>
+&nbsp;			}
+<b class="nc">&nbsp;		} else return false;</b>
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	private int leftTriggerCooldown = 0;</b>
+<b class="nc">&nbsp;	private int rightTriggerCooldown = 0;</b>
+&nbsp;
+&nbsp;	public boolean leftTriggerPressed() {
+<b class="nc">&nbsp;		if (controllersSupported) {</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				if (leftTriggerCooldown == 0 &amp;&amp; controllerIndex.getAxisState(ControllerAxis.TRIGGERLEFT) &gt; 0.5) {</b>
+<b class="nc">&nbsp;					leftTriggerCooldown = 8;</b>
+<b class="nc">&nbsp;					return true;</b>
+&nbsp;				} else
+<b class="nc">&nbsp;					return false;</b>
+<b class="nc">&nbsp;			} catch (ControllerUnpluggedException e) {</b>
+<b class="nc">&nbsp;				return false;</b>
+&nbsp;			}
+<b class="nc">&nbsp;		} else return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean rightTriggerPressed() {
+<b class="nc">&nbsp;		if (controllersSupported) {</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				if (rightTriggerCooldown == 0 &amp;&amp; controllerIndex.getAxisState(ControllerAxis.TRIGGERRIGHT) &gt; 0.5) {</b>
+<b class="nc">&nbsp;					rightTriggerCooldown = 8;</b>
+<b class="nc">&nbsp;					return true;</b>
+&nbsp;				} else
+<b class="nc">&nbsp;					return false;</b>
+<b class="nc">&nbsp;			} catch (ControllerUnpluggedException e) {</b>
+<b class="nc">&nbsp;				return false;</b>
+&nbsp;			}
+<b class="nc">&nbsp;		} else return false;</b>
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	private class LastInputActivityListener {</b>
+<b class="nc">&nbsp;		public long lastKeyActivityTimestamp = 0;</b>
+<b class="nc">&nbsp;		public long lastButtonActivityTimestamp = 0;</b>
+&nbsp;
+&nbsp;		public void tick() {
+<b class="nc">&nbsp;			if (getAllPressedKeys().size() &gt; 0)</b>
+<b class="nc">&nbsp;				lastKeyActivityTimestamp = System.currentTimeMillis();</b>
+<b class="nc">&nbsp;			if (getAllPressedButtons().size() &gt; 0)</b>
+<b class="nc">&nbsp;				lastButtonActivityTimestamp = System.currentTimeMillis();</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

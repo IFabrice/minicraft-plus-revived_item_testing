@@ -1,0 +1,281 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Creeper</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.entity.mob</a>
+</div>
+
+<h1>Coverage Summary for Class: Creeper (minicraft.entity.mob)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Creeper</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25%
+  </span>
+  <span class="absValue">
+    (2/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    11.8%
+  </span>
+  <span class="absValue">
+    (10/85)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.entity.mob;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.Settings;
+&nbsp;import minicraft.core.io.Sound;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.entity.furniture.Spawner;
+&nbsp;import minicraft.gfx.Point;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.item.Items;
+&nbsp;import minicraft.level.tile.Tiles;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;public class Creeper extends EnemyMob {
+<b class="fc">&nbsp;	private static LinkedSprite[][][] sprites = new LinkedSprite[][][] {</b>
+<b class="fc">&nbsp;		new LinkedSprite[][] { Mob.compileSpriteList(0, 0, 2, 2, 0, 2, &quot;creeper&quot;) },</b>
+<b class="fc">&nbsp;		new LinkedSprite[][] { Mob.compileSpriteList(0, 2, 2, 2, 0, 2, &quot;creeper&quot;) },</b>
+<b class="fc">&nbsp;		new LinkedSprite[][] { Mob.compileSpriteList(0, 4, 2, 2, 0, 2, &quot;creeper&quot;) },</b>
+<b class="fc">&nbsp;		new LinkedSprite[][] { Mob.compileSpriteList(0, 6, 2, 2, 0, 2, &quot;creeper&quot;) }</b>
+&nbsp;	};
+&nbsp;
+&nbsp;	private static final int MAX_FUSE_TIME = 60;
+&nbsp;	private static final int TRIGGER_RADIUS = 64;
+&nbsp;	private static final int BLAST_DAMAGE = 50;
+&nbsp;
+<b class="fc">&nbsp;	private int fuseTime = 0;</b>
+<b class="fc">&nbsp;	private boolean fuseLit = false;</b>
+&nbsp;
+<b class="fc">&nbsp;	private final String[] explosionBlacklist = new String[] { &quot;hard rock&quot;, &quot;obsidian wall&quot;, &quot;raw obsidian&quot; };</b>
+&nbsp;
+&nbsp;	public Creeper(int lvl) {
+<b class="fc">&nbsp;		super(lvl, sprites, 10, 50);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean move(int xd, int yd) {
+<b class="nc">&nbsp;		boolean result = super.move(xd, yd);</b>
+<b class="nc">&nbsp;		dir = Direction.DOWN;</b>
+<b class="nc">&nbsp;		if (xd == 0 &amp;&amp; yd == 0) walkDist = 0;</b>
+<b class="nc">&nbsp;		return result;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick() {
+<b class="nc">&nbsp;		super.tick();</b>
+&nbsp;
+<b class="nc">&nbsp;		if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;))</b>
+<b class="nc">&nbsp;			return; // Creeper should not explode if player is in creative mode</b>
+&nbsp;
+<b class="nc">&nbsp;		if (fuseTime &gt; 0) {</b>
+<b class="nc">&nbsp;			fuseTime--; // Fuse getting shorter...</b>
+<b class="nc">&nbsp;			xmov = ymov = 0;</b>
+<b class="nc">&nbsp;		} else if (fuseLit) { // fuseLit is set to true when fuseTime is set to max, so this happens after fuseTime hits zero, while fuse is lit.</b>
+<b class="nc">&nbsp;			xmov = ymov = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;			boolean playerInRange = false; // Tells if any players are within the blast</b>
+&nbsp;
+&nbsp;			// Find if the player is in range and store it in playerInRange.
+<b class="nc">&nbsp;			for (Entity e : level.getEntitiesOfClass(Mob.class)) {</b>
+<b class="nc">&nbsp;				Mob mob = (Mob) e;</b>
+<b class="nc">&nbsp;				int pdx = Math.abs(mob.x - x);</b>
+<b class="nc">&nbsp;				int pdy = Math.abs(mob.y - y);</b>
+<b class="nc">&nbsp;				if (pdx &lt; TRIGGER_RADIUS &amp;&amp; pdy &lt; TRIGGER_RADIUS) {</b>
+<b class="nc">&nbsp;					if (mob instanceof Player) {</b>
+<b class="nc">&nbsp;						playerInRange = true;</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+&nbsp;			// Handles what happens when it blows up.
+&nbsp;			// It will only blow up if there are any players nearby.
+<b class="nc">&nbsp;			if (playerInRange) {</b>
+&nbsp;				// Play explosion sound
+<b class="nc">&nbsp;				Sound.play(&quot;explode&quot;);</b>
+&nbsp;
+&nbsp;				// Figure out which tile the mob died on
+<b class="nc">&nbsp;				int xt = x &gt;&gt; 4;</b>
+<b class="nc">&nbsp;				int yt = (y - 2) &gt;&gt; 4;</b>
+&nbsp;
+&nbsp;				// Used for calculations
+<b class="nc">&nbsp;				int radius = lvl;</b>
+&nbsp;
+&nbsp;				// The total amount of damage we want to apply.
+<b class="nc">&nbsp;				int lvlDamage = BLAST_DAMAGE * lvl;</b>
+&nbsp;
+&nbsp;				// Hurt all the entities
+<b class="nc">&nbsp;				List&lt;Entity&gt; entitiesInRange = level.getEntitiesInTiles(xt, yt, radius);</b>
+<b class="nc">&nbsp;				List&lt;Entity&gt; spawners = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;				Point[] tilePositions = level.getAreaTilePositions(xt, yt, radius);</b>
+&nbsp;
+<b class="nc">&nbsp;				for (Entity entity : entitiesInRange) { // Hurts entities in range</b>
+<b class="nc">&nbsp;					if (entity instanceof Mob) {</b>
+<b class="nc">&nbsp;						Mob mob = (Mob) entity;</b>
+<b class="nc">&nbsp;						int distx = Math.abs(mob.x - x);</b>
+<b class="nc">&nbsp;						int disty = Math.abs(mob.y - y);</b>
+<b class="nc">&nbsp;						float distDiag = (float) Math.sqrt(distx * distx + disty * disty);</b>
+<b class="nc">&nbsp;						mob.hurt(this, (int) (lvlDamage * (1 / (distDiag + 1)) + Settings.getIdx(&quot;diff&quot;)));</b>
+<b class="nc">&nbsp;					} else if (entity instanceof Spawner) {</b>
+<b class="nc">&nbsp;						spawners.add(entity);</b>
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					if (entity == this) continue;</b>
+<b class="nc">&nbsp;					Point ePos = new Point(entity.x &gt;&gt; 4, entity.y &gt;&gt; 4);</b>
+<b class="nc">&nbsp;					for (Point p : tilePositions) {</b>
+<b class="nc">&nbsp;						if (!p.equals(ePos)) continue;</b>
+<b class="nc">&nbsp;						if (!level.getTile(p.x, p.y).mayPass(level, p.x, p.y, entity))</b>
+<b class="nc">&nbsp;							entity.die();</b>
+&nbsp;					}
+<b class="nc">&nbsp;				}</b>
+<b class="nc">&nbsp;				for (Point tilePosition : tilePositions) { // Destroys tiles in range</b>
+<b class="nc">&nbsp;					boolean hasSpawner = false;</b>
+<b class="nc">&nbsp;					for (Entity spawner : spawners) {</b>
+<b class="nc">&nbsp;						if (spawner.x &gt;&gt; 4 == tilePosition.x &amp;&amp; spawner.y &gt;&gt; 4 == tilePosition.y) { // Check if current tile has a spawner on it</b>
+<b class="nc">&nbsp;							hasSpawner = true;</b>
+<b class="nc">&nbsp;							break;</b>
+&nbsp;						}
+<b class="nc">&nbsp;					}</b>
+<b class="nc">&nbsp;					if (!hasSpawner) {</b>
+<b class="nc">&nbsp;						if (level.depth != 1) {</b>
+<b class="nc">&nbsp;							level.setAreaTiles(tilePosition.x, tilePosition.y, 0, Tiles.get(&quot;hole&quot;), 0, explosionBlacklist);</b>
+&nbsp;						} else {
+<b class="nc">&nbsp;							level.setAreaTiles(tilePosition.x, tilePosition.y, 0, Tiles.get(&quot;Infinite Fall&quot;), 0, explosionBlacklist);</b>
+&nbsp;						}
+&nbsp;
+&nbsp;					}
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				die(); // Dying now kind of kills everything. the super class will take care of it.</b>
+<b class="nc">&nbsp;			} else {</b>
+&nbsp;				// If there aren&#39;t any players it will defuse itself and won&#39;t blow up.
+<b class="nc">&nbsp;				fuseTime = 0;</b>
+<b class="nc">&nbsp;				fuseLit = false;</b>
+&nbsp;			}
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen) {
+&nbsp;		/*if (fuseLit &amp;&amp; fuseTime % 6 == 0) {
+&nbsp;			super.lvlcols[lvl-1] = Color.get(-1, 252);
+&nbsp;		}
+&nbsp;		else
+&nbsp;			super.lvlcols[lvl-1] = Creeper.lvlcols[lvl-1];
+&nbsp;
+&nbsp;		sprites[0] = walkDist == 0 ? standing : walking;*/
+&nbsp;
+<b class="nc">&nbsp;		super.render(screen);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	protected void touchedBy(Entity entity) {
+<b class="nc">&nbsp;		if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;)) return;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (entity instanceof Player) {</b>
+<b class="nc">&nbsp;			if (fuseTime == 0 &amp;&amp; !fuseLit) {</b>
+<b class="nc">&nbsp;				Sound.play(&quot;fuse&quot;);</b>
+<b class="nc">&nbsp;				fuseTime = MAX_FUSE_TIME;</b>
+<b class="nc">&nbsp;				fuseLit = true;</b>
+&nbsp;			}
+<b class="nc">&nbsp;			((Player) entity).hurt(this, 1);</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean canWool() {
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void die() {
+&nbsp;		// Only drop items if the creeper has not exploded
+<b class="nc">&nbsp;		if (!fuseLit) dropItem(1, 4 - Settings.getIdx(&quot;diff&quot;), Items.get(&quot;Gunpowder&quot;));</b>
+<b class="nc">&nbsp;		super.die();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

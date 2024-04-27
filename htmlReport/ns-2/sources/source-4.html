@@ -1,0 +1,319 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Localization</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.core.io</a>
+</div>
+
+<h1>Coverage Summary for Class: Localization (minicraft.core.io)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Localization</td>
+<td class="coverageStat">
+  <span class="percent">
+    16.7%
+  </span>
+  <span class="absValue">
+    (2/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    33.8%
+  </span>
+  <span class="absValue">
+    (22/65)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Localization$LocaleInformation</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/12)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    13.3%
+  </span>
+  <span class="absValue">
+    (2/15)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    28.6%
+  </span>
+  <span class="absValue">
+    (22/77)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.core.io;
+&nbsp;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;import org.json.JSONObject;
+&nbsp;import org.tinylog.Logger;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.Locale;
+&nbsp;
+<b class="nc">&nbsp;public class Localization {</b>
+&nbsp;
+<b class="fc">&nbsp;	public static final Locale DEFAULT_LOCALE = Locale.US;</b>
+<b class="fc">&nbsp;	public static final Locale DEBUG_LOCALE = Locale.ROOT; // This locale is used for debugging;</b>
+&nbsp;
+<b class="fc">&nbsp;	public static boolean isDebugLocaleEnabled = false;</b>
+<b class="fc">&nbsp;	public static boolean unlocalizedStringTracing = false;</b>
+&nbsp;
+<b class="fc">&nbsp;	private static final HashMap&lt;Locale, HashSet&lt;String&gt;&gt; knownUnlocalizedStrings = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;	private static final HashMap&lt;String, String&gt; localization = new HashMap&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;	private static Locale selectedLocale = DEFAULT_LOCALE;</b>
+<b class="fc">&nbsp;	private static final HashMap&lt;Locale, ArrayList&lt;String&gt;&gt; unloadedLocalization = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;	private static final HashMap&lt;Locale, LocaleInformation&gt; localeInfo = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Get the provided key&#39;s localization for the currently selected language.
+&nbsp;	 * @param key The key to localize.
+&nbsp;	 * @param arguments The additional arguments to format the localized string.
+&nbsp;	 * @return A localized string.
+&nbsp;	 */
+&nbsp;	@NotNull
+&nbsp;	public static String getLocalized(String key, Object... arguments) {
+<b class="fc">&nbsp;		if (key.matches(&quot;^ *$&quot;)) return key; // Blank, or just whitespace</b>
+<b class="fc">&nbsp;		if (selectedLocale == DEBUG_LOCALE) return key;</b>
+&nbsp;
+&nbsp;		try {
+<b class="fc">&nbsp;			Double.parseDouble(key);</b>
+<b class="nc">&nbsp;			return key; // This is a number; don&#39;t try to localize it</b>
+<b class="fc">&nbsp;		} catch (NumberFormatException ignored) {</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		String localString = localization.get(key);</b>
+&nbsp;
+<b class="fc">&nbsp;		if (localString == null) {</b>
+<b class="fc">&nbsp;			if (!knownUnlocalizedStrings.containsKey(selectedLocale))</b>
+<b class="fc">&nbsp;				knownUnlocalizedStrings.put(selectedLocale, new HashSet&lt;&gt;());</b>
+<b class="fc">&nbsp;			if (!knownUnlocalizedStrings.get(selectedLocale).contains(key)) {</b>
+<b class="fc">&nbsp;				Logger.tag(&quot;LOC&quot;).trace(unlocalizedStringTracing ? new Throwable(&quot;Tracing&quot;) : null, &quot;{}: &#39;{}&#39; is unlocalized.&quot;, selectedLocale.toLanguageTag(), key);</b>
+<b class="fc">&nbsp;				knownUnlocalizedStrings.get(selectedLocale).add(key);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		if (localString != null) {</b>
+<b class="nc">&nbsp;			localString = String.format(getSelectedLocale(), localString, arguments);</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		return (localString == null ? key : localString);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Gets the currently selected locale.
+&nbsp;	 * @return A locale object.
+&nbsp;	 */
+&nbsp;	public static Locale getSelectedLocale() {
+<b class="nc">&nbsp;		return selectedLocale;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Get the currently selected locale, but as a full name without the country code.
+&nbsp;	 * @return A string with the name of the language.
+&nbsp;	 */
+&nbsp;	@NotNull
+&nbsp;	public static LocaleInformation getSelectedLanguage() {
+<b class="nc">&nbsp;		return localeInfo.get(selectedLocale);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Gets a  list of all the known locales.
+&nbsp;	 * @return A list of locales.
+&nbsp;	 */
+&nbsp;	@NotNull
+&nbsp;	public static LocaleInformation[] getLocales() {
+<b class="nc">&nbsp;		return localeInfo.values().toArray(new LocaleInformation[0]);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Changes the selected language and loads it.
+&nbsp;	 * If the provided language doesn&#39;t exist, it loads the default locale.
+&nbsp;	 * @param newLanguage The language-country code of the language to load.
+&nbsp;	 */
+&nbsp;	public static void changeLanguage(@NotNull String newLanguage) {
+<b class="nc">&nbsp;		changeLanguage(Locale.forLanguageTag(newLanguage));</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * @see #changeLanguage(String)
+&nbsp;	 */
+&nbsp;	public static void changeLanguage(@NotNull Locale newLanguage) {
+<b class="nc">&nbsp;		selectedLocale = newLanguage;</b>
+<b class="nc">&nbsp;		loadLanguage();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This method gets the currently selected locale and loads it if it exists. If not, it loads the default locale.
+&nbsp;	 * The loaded file is then parsed, and all the entries are added to a hashmap.
+&nbsp;	 */
+&nbsp;	public static void loadLanguage() {
+<b class="nc">&nbsp;		Logging.RESOURCEHANDLER_LOCALIZATION.trace(&quot;Loading language...&quot;);</b>
+<b class="nc">&nbsp;		localization.clear();</b>
+&nbsp;
+<b class="nc">&nbsp;		if (selectedLocale == DEBUG_LOCALE) return; // DO NOT load any localization for debugging.</b>
+&nbsp;
+&nbsp;		// Check if selected localization exists.
+<b class="nc">&nbsp;		if (!unloadedLocalization.containsKey(selectedLocale))</b>
+<b class="nc">&nbsp;			selectedLocale = DEFAULT_LOCALE;</b>
+&nbsp;
+&nbsp;		// Attempt to load the string as a json object.
+&nbsp;		JSONObject json;
+<b class="nc">&nbsp;		for (String text : unloadedLocalization.get(selectedLocale)) {</b>
+<b class="nc">&nbsp;			json = new JSONObject(text);</b>
+<b class="nc">&nbsp;			for (String key : json.keySet()) {</b>
+<b class="nc">&nbsp;				localization.put(key, json.getString(key));</b>
+<b class="nc">&nbsp;			}</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+&nbsp;		// Language fallback
+<b class="nc">&nbsp;		if (!selectedLocale.equals(DEFAULT_LOCALE)) {</b>
+<b class="nc">&nbsp;			for (String text : unloadedLocalization.get(DEFAULT_LOCALE)) { // Getting default localization.</b>
+<b class="nc">&nbsp;				json = new JSONObject(text);</b>
+<b class="nc">&nbsp;				for (String key : json.keySet()) {</b>
+<b class="nc">&nbsp;					if (!localization.containsKey(key)) { // The default localization is added only when the key is not existed.</b>
+<b class="nc">&nbsp;						localization.put(key, json.getString(key));</b>
+&nbsp;					}
+<b class="nc">&nbsp;				}</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void resetLocalizations() {
+&nbsp;		// Clear array with localization files.
+<b class="nc">&nbsp;		unloadedLocalization.clear();</b>
+<b class="nc">&nbsp;		localeInfo.clear();</b>
+<b class="nc">&nbsp;		if (isDebugLocaleEnabled) { // Adding the debug locale as an option.</b>
+<b class="nc">&nbsp;			localeInfo.put(DEBUG_LOCALE, new LocaleInformation(DEBUG_LOCALE, &quot;Debug&quot;, null));</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static class LocaleInformation {
+&nbsp;		public final Locale locale;
+&nbsp;		public final String name;
+&nbsp;		public final String region;
+&nbsp;
+<b class="nc">&nbsp;		public LocaleInformation(Locale locale, String name, String region) {</b>
+<b class="nc">&nbsp;			this.locale = locale;</b>
+<b class="nc">&nbsp;			this.name = name;</b>
+<b class="nc">&nbsp;			this.region = region;</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public String toString() {
+<b class="nc">&nbsp;			if (region == null) return name;</b>
+<b class="nc">&nbsp;			return String.format(&quot;%s (%s)&quot;, name, region);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		@Override
+&nbsp;		public boolean equals(Object obj) {
+<b class="nc">&nbsp;			if (obj == null) return false;</b>
+<b class="nc">&nbsp;			if (obj instanceof LocaleInformation)</b>
+<b class="nc">&nbsp;				return locale.equals(((LocaleInformation) obj).locale) &amp;&amp;</b>
+<b class="nc">&nbsp;					name.equals(((LocaleInformation) obj).name) &amp;&amp;</b>
+<b class="nc">&nbsp;					region.equals(((LocaleInformation) obj).region);</b>
+<b class="nc">&nbsp;			return false;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	public static void addLocale(Locale loc, LocaleInformation info) {
+<b class="nc">&nbsp;		if (!localeInfo.containsKey(loc)) localeInfo.put(loc, info);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void addLocalization(Locale loc, String json) {
+<b class="nc">&nbsp;		if (!localeInfo.containsKey(loc)) return; // Only add when Locale Information is exist.</b>
+<b class="nc">&nbsp;		if (!unloadedLocalization.containsKey(loc))</b>
+<b class="nc">&nbsp;			unloadedLocalization.put(loc, new ArrayList&lt;&gt;());</b>
+<b class="nc">&nbsp;		unloadedLocalization.get(loc).add(json);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

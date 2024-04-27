@@ -1,0 +1,381 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Sound</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.core.io</a>
+</div>
+
+<h1>Coverage Summary for Class: Sound (minicraft.core.io)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Sound</td>
+<td class="coverageStat">
+  <span class="percent">
+    18.2%
+  </span>
+  <span class="absValue">
+    (2/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    10.1%
+  </span>
+  <span class="absValue">
+    (11/109)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Sound$1</td>
+  </tr>
+  <tr>
+    <td class="name">Sound$AudioPointer</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    15.4%
+  </span>
+  <span class="absValue">
+    (2/13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    9.7%
+  </span>
+  <span class="absValue">
+    (11/113)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.core.io;
+&nbsp;
+&nbsp;import minicraft.core.CrashHandler;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;
+&nbsp;import javax.sound.sampled.AudioFormat;
+&nbsp;import javax.sound.sampled.AudioInputStream;
+&nbsp;import javax.sound.sampled.AudioSystem;
+&nbsp;import javax.sound.sampled.Clip;
+&nbsp;import javax.sound.sampled.DataLine;
+&nbsp;import javax.sound.sampled.Line;
+&nbsp;import javax.sound.sampled.LineUnavailableException;
+&nbsp;import javax.sound.sampled.SourceDataLine;
+&nbsp;import javax.sound.sampled.UnsupportedAudioFileException;
+&nbsp;
+&nbsp;import java.io.ByteArrayOutputStream;
+&nbsp;import java.io.IOException;
+&nbsp;import java.io.InputStream;
+&nbsp;import java.nio.ByteBuffer;
+&nbsp;import java.nio.ByteOrder;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.Iterator;
+&nbsp;import java.util.LinkedList;
+&nbsp;import java.util.Optional;
+&nbsp;
+<b class="nc">&nbsp;public class Sound {</b>
+&nbsp;	// Creates sounds from their respective files
+<b class="fc">&nbsp;	private static final HashMap&lt;String, Sound&gt; sounds = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;	private static final LinkedList&lt;AudioPointer&gt; pointers = new LinkedList&lt;&gt;();</b>
+<b class="fc">&nbsp;	private static final AudioFormat STANDARD_FORMAT =</b>
+&nbsp;		new AudioFormat(44100, 16, 2, true, true);
+&nbsp;	private static final int MAX_BUFFER_SIZE = 4096;
+&nbsp;	private static final SourceDataLine dataLine;
+&nbsp;	private static final int internalBufferSize;
+&nbsp;
+&nbsp;	/*
+&nbsp;	 * Only 2/16/44100 and 1/16/44100 PCM_SIGNED are supported.
+&nbsp;	 */
+&nbsp;
+&nbsp;	static {
+&nbsp;		try {
+<b class="fc">&nbsp;			dataLine = AudioSystem.getSourceDataLine(STANDARD_FORMAT);</b>
+<b class="fc">&nbsp;			dataLine.open();</b>
+&nbsp;			// Assume DirectAudioDevice is used
+<b class="fc">&nbsp;			internalBufferSize = ((int) (STANDARD_FORMAT.getFrameRate() / 2)) * STANDARD_FORMAT.getFrameSize();</b>
+<b class="nc">&nbsp;		} catch (LineUnavailableException e) {</b>
+<b class="nc">&nbsp;			throw new RuntimeException(e);</b>
+<b class="fc">&nbsp;		}</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private final short[] raw;
+&nbsp;
+<b class="nc">&nbsp;	private class AudioPointer {</b>
+<b class="nc">&nbsp;		private int offset = 0;</b>
+&nbsp;
+&nbsp;		public Optional&lt;Short&gt; getData() {
+<b class="nc">&nbsp;			if (offset == raw.length) return Optional.empty();</b>
+<b class="nc">&nbsp;			return Optional.of(raw[offset++]);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	private Sound(short[] raw) {</b>
+<b class="nc">&nbsp;		this.raw = raw;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void resetSounds() {
+<b class="nc">&nbsp;		sounds.clear();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void loadSound(String key, InputStream in, String pack) {
+&nbsp;		try {
+<b class="nc">&nbsp;			AudioInputStream ain = AudioSystem.getAudioInputStream(in);</b>
+<b class="nc">&nbsp;			AudioFormat format = ain.getFormat();</b>
+<b class="nc">&nbsp;			DataLine.Info info = new DataLine.Info(Clip.class, format);</b>
+&nbsp;
+<b class="nc">&nbsp;			if (format.getEncoding() != AudioFormat.Encoding.PCM_SIGNED ||</b>
+<b class="nc">&nbsp;				format.getChannels() &gt; 2 || format.getSampleRate() != 44100 ||</b>
+<b class="nc">&nbsp;				format.getSampleSizeInBits() != 16) {</b>
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_SOUND.error(&quot;Unsupported audio format of file \&quot;{}\&quot; in pack \&quot;{}\&quot;: {}&quot;,</b>
+&nbsp;					key, pack, format);
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (!AudioSystem.isLineSupported(info)) {</b>
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_SOUND.error(&quot;ERROR: Audio format of file \&quot;{}\&quot; in pack \&quot;{}\&quot; is not supported: {}&quot;, key, pack, AudioSystem.getAudioFileFormat(in));</b>
+&nbsp;
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_SOUND.error(&quot;Supported audio formats:&quot;);</b>
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_SOUND.error(&quot;-source:&quot;);</b>
+<b class="nc">&nbsp;				Line.Info[] sinfo = AudioSystem.getSourceLineInfo(info);</b>
+<b class="nc">&nbsp;				Line.Info[] tinfo = AudioSystem.getTargetLineInfo(info);</b>
+<b class="nc">&nbsp;				for (Line.Info value : sinfo) {</b>
+<b class="nc">&nbsp;					if (value instanceof DataLine.Info) {</b>
+<b class="nc">&nbsp;						DataLine.Info dataLineInfo = (DataLine.Info) value;</b>
+<b class="nc">&nbsp;						AudioFormat[] supportedFormats = dataLineInfo.getFormats();</b>
+<b class="nc">&nbsp;						for (AudioFormat af : supportedFormats)</b>
+<b class="nc">&nbsp;							Logging.RESOURCEHANDLER_SOUND.error(af);</b>
+&nbsp;					}
+&nbsp;				}
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_SOUND.error(&quot;-target:&quot;);</b>
+<b class="nc">&nbsp;				for (int i = 0; i &lt; tinfo.length; i++) {</b>
+<b class="nc">&nbsp;					if (tinfo[i] instanceof DataLine.Info) {</b>
+<b class="nc">&nbsp;						DataLine.Info dataLineInfo = (DataLine.Info) tinfo[i];</b>
+<b class="nc">&nbsp;						AudioFormat[] supportedFormats = dataLineInfo.getFormats();</b>
+<b class="nc">&nbsp;						for (AudioFormat af : supportedFormats)</b>
+<b class="nc">&nbsp;							Logging.RESOURCEHANDLER_SOUND.error(af);</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				return;</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			ByteArrayOutputStream out = new ByteArrayOutputStream();</b>
+<b class="nc">&nbsp;			byte[] buf = new byte[8192];</b>
+&nbsp;			int length;
+<b class="nc">&nbsp;			while ((length = ain.read(buf)) != -1) {</b>
+<b class="nc">&nbsp;				out.write(buf, 0, length);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			short[] raw0 = new short[out.size()/2];</b>
+<b class="nc">&nbsp;			ByteBuffer.wrap(out.toByteArray()).order(format.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN)</b>
+<b class="nc">&nbsp;				.asShortBuffer().get(raw0);</b>
+&nbsp;			short[] raw1;
+<b class="nc">&nbsp;			if (format.getChannels() == 1) {</b>
+<b class="nc">&nbsp;				raw1 = new short[raw0.length * 2];</b>
+<b class="nc">&nbsp;				for (int i = 0; i &lt; raw0.length; ++i) {</b>
+<b class="nc">&nbsp;					raw1[i * 2] = raw0[i];</b>
+<b class="nc">&nbsp;					raw1[i * 2 + 1] = raw0[i];</b>
+&nbsp;				}
+<b class="nc">&nbsp;			} else if (format.getChannels() != 2) { // This should not be executed.</b>
+<b class="nc">&nbsp;				Logging.RESOURCEHANDLER_SOUND.error(</b>
+&nbsp;					&quot;Audio source \&quot;{}\&quot; in pack \&quot;{}\&quot; is neither mono nor stereo, which is not supported.&quot;,
+&nbsp;					key, pack);
+<b class="nc">&nbsp;				return;</b>
+&nbsp;			} else {
+<b class="nc">&nbsp;				raw1 = raw0;</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			sounds.put(key, new Sound(raw1));</b>
+<b class="nc">&nbsp;		} catch (UnsupportedAudioFileException | IOException e) {</b>
+<b class="nc">&nbsp;			CrashHandler.errorHandle(e, new CrashHandler.ErrorInfo(&quot;Audio Could not Load&quot;, CrashHandler.ErrorInfo.ErrorType.REPORT,</b>
+<b class="nc">&nbsp;				String.format(&quot;Could not load audio: %s in pack: %s&quot;, key, pack)));</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Recommend {@link #play(String)} and {@link #loop(String, int)}.
+&nbsp;	 */
+&nbsp;	@Nullable
+&nbsp;	public static Sound getSound(String key) {
+<b class="nc">&nbsp;		return sounds.get(key);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This method does safe check for {@link #play()}.
+&nbsp;	 */
+&nbsp;	public static void play(String key) {
+<b class="fc">&nbsp;		Sound sound = sounds.get(key);</b>
+<b class="fc">&nbsp;		if (sound != null) sound.play();</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This method does safe check for {@link #loop(int)}.
+&nbsp;	 */
+&nbsp;	public static void loop(String key, int count) {
+<b class="nc">&nbsp;		Sound sound = sounds.get(key);</b>
+<b class="nc">&nbsp;		if (sound != null) sound.loop(count);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void tick() {
+<b class="nc">&nbsp;		dataLine.start();</b>
+&nbsp;		// internalBufferSize - dataLine.available() == used buffer
+&nbsp;		// Proceed data and then buffer into the data line.
+&nbsp;		// For 2/16/44100, 2940 bytes would be proceeded per tick.
+<b class="nc">&nbsp;		if (internalBufferSize - dataLine.available() &gt; MAX_BUFFER_SIZE) return;</b>
+<b class="nc">&nbsp;		int available = Math.min(dataLine.available(), MAX_BUFFER_SIZE) / 2; // in 16bit (short)</b>
+<b class="nc">&nbsp;		if (available &lt;= 0) return; // Skips tick if buffer is large causing latency</b>
+<b class="nc">&nbsp;		byte[] buf = new byte[available * 2];</b>
+<b class="nc">&nbsp;		short[] bufShort = new short[available];</b>
+<b class="nc">&nbsp;		while (available &gt; 0) {</b>
+&nbsp;			/* Audio Mixing Algorithm
+&nbsp;			 * Reference Article: https://stackoverflow.com/a/25102339
+&nbsp;			 * It is pointed out that, non-linear mixing algorithms are not the correct ways to perform mixing,
+&nbsp;			 * but it should be instead handled by (dynamic range) compression.
+&nbsp;			 * For now, C = sum{U_i} / n is not enough, but compression should be applied.
+&nbsp;			 *
+&nbsp;			 * It is noticed that for the quiet sounds, the sounds become quieter when mixed, even overall.
+&nbsp;			 * So, an upward compression is required. We now define a quiet sound to be a signal smaller than
+&nbsp;			 * a one-fourth of the maximum value.
+&nbsp;			 * For each quiet signal, we gain an upward compression factor and finally multiplied altogether to the
+&nbsp;			 * resultant value. And we can get the factor by a non-linear equation:
+&nbsp;			 *   F = log2((D-U)/D+1)+1, where F is the factor, D is the one-fourth value, U is the signal value.
+&nbsp;			 * Note that U ∈ [0, D), (D-U)/D ∈ (0, 1], F ∈ (1, 2].
+&nbsp;			 * But we cannot have this too big, so we make this into F^(1/3), where 2^(1/3) is approximately 1.26.
+&nbsp;			 * This can make sure that the factor would not go great.
+&nbsp;			 * Then, make sure that the factor cannot overflow the value,
+&nbsp;			 *   G = sqrt(product{F_i}),
+&nbsp;			 * as a final factor, would then be used.
+&nbsp;			 *
+&nbsp;			 * Finally, if the value really goes close to the maximum value even overflow, like 0.9 of the maximum value,
+&nbsp;			 * we can then apply an ultimate equation:
+&nbsp;			 *   H = (J) / (J + 1) * E,
+&nbsp;			 * where H is the value to add with the cut value (0.9 of the maximum), J is the exceeded value and
+&nbsp;			 * E is the certain amount smaller than 0.1 of the maximum, say 0.05 of it here.
+&nbsp;			 * We can get a compressed sound and also limited from the maximum, with 0.95x of the maximum.
+&nbsp;			 */
+&nbsp;
+<b class="nc">&nbsp;			int n = 0;</b>
+<b class="nc">&nbsp;			int sum = 0;</b>
+<b class="nc">&nbsp;			double factor = 1;</b>
+<b class="nc">&nbsp;			for (Iterator&lt;AudioPointer&gt; iterator = pointers.iterator(); iterator.hasNext(); ) {</b>
+<b class="nc">&nbsp;				AudioPointer pointer = iterator.next();</b>
+<b class="nc">&nbsp;				Optional&lt;Short&gt; d = pointer.getData();</b>
+<b class="nc">&nbsp;				if (!d.isPresent()) iterator.remove();</b>
+&nbsp;				else {
+<b class="nc">&nbsp;					int val = d.get(); // Signed</b>
+<b class="nc">&nbsp;					int net = Math.abs(val); // Bounds are halved for absolute of signed value</b>
+<b class="nc">&nbsp;					if (net &lt; 8192)</b>
+<b class="nc">&nbsp;						factor *= Math.pow(Math.log1p((8192 - net) / 8192D) / Math.log(2) + 1, 1D/3);</b>
+<b class="nc">&nbsp;					sum += val + 32768; // Turning to unsigned</b>
+<b class="nc">&nbsp;					n++;</b>
+&nbsp;				}
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+<b class="nc">&nbsp;			if (n == 0) break; // No more data to be written at the moment</b>
+<b class="nc">&nbsp;			double val = (double) sum / n - 32768; // To signed</b>
+<b class="nc">&nbsp;			val *= Math.sqrt(factor);</b>
+<b class="nc">&nbsp;			double net = Math.abs(val); // Bounds are halved for absolute of signed value</b>
+<b class="nc">&nbsp;			if (net &gt; 32768*.9D) {</b>
+<b class="nc">&nbsp;				val = (32768*.9D + ((net - 32768*.9D) / (net - 32768*.9D + 1) * 32768/10D)) * Math.signum(val);</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			// val should be between -32768 and 32767 exclusively
+<b class="nc">&nbsp;			bufShort[bufShort.length - available] = (short) val;</b>
+<b class="nc">&nbsp;			available--;</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		ByteBuffer.wrap(buf).asShortBuffer().put(bufShort);</b>
+<b class="nc">&nbsp;		dataLine.write(buf, 0, buf.length);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void play() {
+<b class="nc">&nbsp;		if (!(boolean) Settings.get(&quot;sound&quot;)) return;</b>
+<b class="nc">&nbsp;		pointers.add(new AudioPointer());</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/** @deprecated no longer supported, but reserved for future implementation. */
+&nbsp;	@Deprecated
+<b class="nc">&nbsp;	public void loop(int count) {}</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

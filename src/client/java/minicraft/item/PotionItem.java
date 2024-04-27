@@ -51,7 +51,8 @@ public class PotionItem extends StackableItem {
 	/// Only ever called to load from file
 	public static boolean applyPotion(Player player, PotionType type, int time) {
 		boolean result = applyPotion(player, type, time > 0);
-		if (result && time > 0) player.addPotionEffect(type, time); // Overrides time
+		if (result && time > 0)
+			player.addPotionEffect(type, time); // Overrides time
 		return result;
 	}
 

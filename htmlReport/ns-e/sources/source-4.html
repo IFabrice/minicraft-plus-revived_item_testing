@@ -1,0 +1,546 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Save</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.saveload</a>
+</div>
+
+<h1>Coverage Summary for Class: Save (minicraft.saveload)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Save</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    5%
+  </span>
+  <span class="absValue">
+    (1/20)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0.4%
+  </span>
+  <span class="absValue">
+    (1/245)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.saveload;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.Renderer;
+&nbsp;import minicraft.core.Updater;
+&nbsp;import minicraft.core.World;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.core.io.Settings;
+&nbsp;import minicraft.entity.Arrow;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.entity.FireSpark;
+&nbsp;import minicraft.entity.ItemEntity;
+&nbsp;import minicraft.entity.Spark;
+&nbsp;import minicraft.entity.furniture.Chest;
+&nbsp;import minicraft.entity.furniture.Crafter;
+&nbsp;import minicraft.entity.furniture.DeathChest;
+&nbsp;import minicraft.entity.furniture.DungeonChest;
+&nbsp;import minicraft.entity.furniture.KnightStatue;
+&nbsp;import minicraft.entity.furniture.Lantern;
+&nbsp;import minicraft.entity.furniture.Spawner;
+&nbsp;import minicraft.entity.mob.AirWizard;
+&nbsp;import minicraft.entity.mob.EnemyMob;
+&nbsp;import minicraft.entity.mob.Mob;
+&nbsp;import minicraft.entity.mob.ObsidianKnight;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.entity.mob.Sheep;
+&nbsp;import minicraft.entity.particle.Particle;
+&nbsp;import minicraft.entity.particle.TextParticle;
+&nbsp;import minicraft.gfx.Point;
+&nbsp;import minicraft.item.Inventory;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.item.PotionType;
+&nbsp;import minicraft.item.Recipe;
+&nbsp;import minicraft.screen.AchievementsDisplay;
+&nbsp;import minicraft.screen.CraftingDisplay;
+&nbsp;import minicraft.screen.LoadingDisplay;
+&nbsp;import minicraft.screen.MultiplayerDisplay;
+&nbsp;import minicraft.screen.QuestsDisplay;
+&nbsp;import minicraft.screen.ResourcePackDisplay;
+&nbsp;import minicraft.screen.SignDisplay;
+&nbsp;import minicraft.screen.SkinDisplay;
+&nbsp;import minicraft.screen.TutorialDisplayHandler;
+&nbsp;import minicraft.screen.WorldSelectDisplay;
+&nbsp;import minicraft.util.AdvancementElement;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import org.json.JSONArray;
+&nbsp;import org.json.JSONObject;
+&nbsp;
+&nbsp;import java.io.BufferedWriter;
+&nbsp;import java.io.File;
+&nbsp;import java.io.FileWriter;
+&nbsp;import java.io.IOException;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;public class Save {
+&nbsp;
+<b class="nc">&nbsp;	public String location = Game.gameDir;</b>
+&nbsp;	File folder;
+&nbsp;
+&nbsp;	// Used to indent the .json files
+&nbsp;	private static final int indent = 4;
+&nbsp;
+<b class="fc">&nbsp;	public static String extension = &quot;.miniplussave&quot;;</b>
+&nbsp;
+&nbsp;	List&lt;String&gt; data;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This is the main save method. Called by all Save() methods.
+&nbsp;	 * @param worldFolder The folder of where to save
+&nbsp;	 */
+<b class="nc">&nbsp;	private Save(File worldFolder) {</b>
+<b class="nc">&nbsp;		data = new ArrayList&lt;&gt;();</b>
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;		if (worldFolder.getParent().equals(&quot;saves&quot;)) {</b>
+<b class="nc">&nbsp;			String worldName = worldFolder.getName();</b>
+<b class="nc">&nbsp;			if (!worldName.toLowerCase().equals(worldName)) {</b>
+<b class="nc">&nbsp;				Logging.SAVELOAD.debug(&quot;Renaming world in &quot; + worldFolder + &quot; to lowercase&quot;);</b>
+<b class="nc">&nbsp;				String path = worldFolder.toString();</b>
+<b class="nc">&nbsp;				path = path.substring(0, path.lastIndexOf(worldName));</b>
+<b class="nc">&nbsp;				File newFolder = new File(path + worldName.toLowerCase());</b>
+<b class="nc">&nbsp;				if (worldFolder.renameTo(newFolder))</b>
+<b class="nc">&nbsp;					worldFolder = newFolder;</b>
+&nbsp;				else
+<b class="nc">&nbsp;					Logging.SAVELOAD.error(&quot;Failed to rename world folder &quot; + worldFolder + &quot; to &quot; + newFolder);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		folder = worldFolder;</b>
+<b class="nc">&nbsp;		location = worldFolder.getPath() + &quot;/&quot;;</b>
+&nbsp;
+<b class="nc">&nbsp;		folder.mkdirs();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This will save world options
+&nbsp;	 * @param worldname The name of the world.
+&nbsp;	 */
+&nbsp;	public Save(String worldname) {
+<b class="nc">&nbsp;		this(new File(Game.gameDir + &quot;/saves/&quot; + worldname + &quot;/&quot;));</b>
+&nbsp;
+<b class="nc">&nbsp;		writeGame(&quot;Game&quot;);</b>
+<b class="nc">&nbsp;		writeWorld(&quot;Level&quot;);</b>
+<b class="nc">&nbsp;		writePlayer(&quot;Player&quot;, Game.player);</b>
+<b class="nc">&nbsp;		writeInventory(&quot;Inventory&quot;, Game.player);</b>
+<b class="nc">&nbsp;		writeEntities(&quot;Entities&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		WorldSelectDisplay.updateWorlds();</b>
+&nbsp;
+<b class="nc">&nbsp;		Updater.notifyAll(&quot;minicraft.notification.world_saved&quot;);</b>
+<b class="nc">&nbsp;		Updater.asTick = 0;</b>
+<b class="nc">&nbsp;		Updater.saving = false;</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This will save the settings in the settings menu.
+&nbsp;	 */
+&nbsp;	public Save() {
+<b class="nc">&nbsp;		this(new File(Game.gameDir + &quot;/&quot;));</b>
+<b class="nc">&nbsp;		Logging.SAVELOAD.debug(&quot;Writing preferences and unlocks...&quot;);</b>
+<b class="nc">&nbsp;		writePrefs();</b>
+<b class="nc">&nbsp;		writeUnlocks();</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public Save(Player player, boolean writePlayer) {
+&nbsp;		// This is simply for access to writeToFile.
+<b class="nc">&nbsp;		this(new File(Game.gameDir + &quot;/saves/&quot; + WorldSelectDisplay.getWorldName() + &quot;/&quot;));</b>
+<b class="nc">&nbsp;		if (writePlayer) {</b>
+<b class="nc">&nbsp;			writePlayer(&quot;Player&quot;, player);</b>
+<b class="nc">&nbsp;			writeInventory(&quot;Inventory&quot;, player);</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void writeFile(String filename, String[] lines) throws IOException {
+<b class="nc">&nbsp;		try (BufferedWriter br = new BufferedWriter(new FileWriter(filename))) {</b>
+<b class="nc">&nbsp;			br.write(String.join(System.lineSeparator(), lines));</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public void writeToFile(String filename, List&lt;String&gt; savedata) {
+&nbsp;		try {
+<b class="nc">&nbsp;			writeToFile(filename, savedata.toArray(new String[0]), true);</b>
+<b class="nc">&nbsp;		} catch (IOException ex) {</b>
+<b class="nc">&nbsp;			ex.printStackTrace();</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		data.clear();</b>
+&nbsp;
+<b class="nc">&nbsp;		LoadingDisplay.progress(7);</b>
+<b class="nc">&nbsp;		if (LoadingDisplay.getPercentage() &gt; 100) {</b>
+<b class="nc">&nbsp;			LoadingDisplay.setPercentage(100);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Renderer.render(); // AH HA!!! HERE&#39;S AN IMPORTANT STATEMENT!!!!</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void writeToFile(String filename, String[] savedata, boolean isWorldSave) throws IOException {
+<b class="nc">&nbsp;		try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filename))) {</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; savedata.length; i++) {</b>
+<b class="nc">&nbsp;				bufferedWriter.write(savedata[i]);</b>
+<b class="nc">&nbsp;				if (isWorldSave) {</b>
+<b class="nc">&nbsp;					bufferedWriter.write(&quot;,&quot;);</b>
+<b class="nc">&nbsp;					if (filename.contains(&quot;Level5&quot;) &amp;&amp; i == savedata.length - 1) {</b>
+<b class="nc">&nbsp;						bufferedWriter.write(&quot;,&quot;);</b>
+&nbsp;					}
+&nbsp;				} else
+<b class="nc">&nbsp;					bufferedWriter.write(&quot;\n&quot;);</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void writeJSONToFile(String filename, String json) throws IOException {
+<b class="nc">&nbsp;		try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filename))) {</b>
+<b class="nc">&nbsp;			bufferedWriter.write(json);</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void writeGame(String filename) {
+<b class="nc">&nbsp;		data.add(String.valueOf(Game.VERSION));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(World.getWorldSeed()));</b>
+<b class="nc">&nbsp;		data.add(Settings.getIdx(&quot;mode&quot;) + (Game.isMode(&quot;minicraft.settings.mode.score&quot;) ? &quot;;&quot; + Updater.scoreTime + &quot;;&quot; + Settings.get(&quot;scoretime&quot;) : &quot;&quot;));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(Updater.tickCount));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(Updater.gameTime));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(Settings.getIdx(&quot;diff&quot;)));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(AirWizard.beaten));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(Settings.get(&quot;quests&quot;)));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(Settings.get(&quot;tutorials&quot;)));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(ObsidianKnight.beaten));</b>
+<b class="nc">&nbsp;		writeToFile(location + filename + extension, data);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void writePrefs() {
+<b class="nc">&nbsp;		JSONObject json = new JSONObject();</b>
+&nbsp;
+<b class="nc">&nbsp;		json.put(&quot;version&quot;, String.valueOf(Game.VERSION));</b>
+<b class="nc">&nbsp;		json.put(&quot;sound&quot;, String.valueOf(Settings.get(&quot;sound&quot;)));</b>
+<b class="nc">&nbsp;		json.put(&quot;autosave&quot;, String.valueOf(Settings.get(&quot;autosave&quot;)));</b>
+<b class="nc">&nbsp;		json.put(&quot;fps&quot;, String.valueOf(Settings.get(&quot;fps&quot;)));</b>
+<b class="nc">&nbsp;		json.put(&quot;lang&quot;, Localization.getSelectedLocale().toLanguageTag());</b>
+<b class="nc">&nbsp;		json.put(&quot;skin&quot;, String.valueOf(SkinDisplay.getSelectedSkin()));</b>
+<b class="nc">&nbsp;		json.put(&quot;savedIP&quot;, MultiplayerDisplay.savedIP);</b>
+<b class="nc">&nbsp;		json.put(&quot;savedUUID&quot;, MultiplayerDisplay.savedUUID);</b>
+<b class="nc">&nbsp;		json.put(&quot;savedUsername&quot;, MultiplayerDisplay.savedUsername);</b>
+<b class="nc">&nbsp;		json.put(&quot;keymap&quot;, new JSONArray(Game.input.getKeyPrefs()));</b>
+<b class="nc">&nbsp;		json.put(&quot;resourcePacks&quot;, new JSONArray(ResourcePackDisplay.getLoadedPacks()));</b>
+<b class="nc">&nbsp;		json.put(&quot;showquests&quot;, String.valueOf(Settings.get(&quot;showquests&quot;)));</b>
+&nbsp;
+&nbsp;		// Save json
+&nbsp;		try {
+<b class="nc">&nbsp;			writeJSONToFile(location + &quot;Preferences.json&quot;, json.toString(indent));</b>
+<b class="nc">&nbsp;		} catch (IOException e) {</b>
+<b class="nc">&nbsp;			e.printStackTrace();</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void writeUnlocks() {
+<b class="nc">&nbsp;		JSONObject json = new JSONObject();</b>
+&nbsp;
+<b class="nc">&nbsp;		JSONArray scoretimes = new JSONArray();</b>
+<b class="nc">&nbsp;		if (Settings.getEntry(&quot;scoretime&quot;).getValueVisibility(10))</b>
+<b class="nc">&nbsp;			scoretimes.put(10);</b>
+<b class="nc">&nbsp;		if (Settings.getEntry(&quot;scoretime&quot;).getValueVisibility(120))</b>
+<b class="nc">&nbsp;			scoretimes.put(120);</b>
+<b class="nc">&nbsp;		json.put(&quot;visibleScoreTimes&quot;, scoretimes);</b>
+&nbsp;
+<b class="nc">&nbsp;		json.put(&quot;unlockedAchievements&quot;, new JSONArray(AchievementsDisplay.getUnlockedAchievements()));</b>
+&nbsp;
+&nbsp;		try {
+<b class="nc">&nbsp;			writeJSONToFile(location + &quot;Unlocks.json&quot;, json.toString(indent));</b>
+<b class="nc">&nbsp;		} catch (IOException e) {</b>
+<b class="nc">&nbsp;			e.printStackTrace();</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void writeWorld(String filename) {
+<b class="nc">&nbsp;		LoadingDisplay.setMessage(&quot;minicraft.displays.loading.message.levels&quot;);</b>
+<b class="nc">&nbsp;		for (int l = 0; l &lt; World.levels.length; l++) {</b>
+<b class="nc">&nbsp;			String worldSize = String.valueOf(Settings.get(&quot;size&quot;));</b>
+<b class="nc">&nbsp;			data.add(worldSize);</b>
+<b class="nc">&nbsp;			data.add(worldSize);</b>
+<b class="nc">&nbsp;			data.add(Long.toString(World.levels[l].getSeed()));</b>
+<b class="nc">&nbsp;			data.add(String.valueOf(World.levels[l].depth));</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int x = 0; x &lt; World.levels[l].w; x++) {</b>
+<b class="nc">&nbsp;				for (int y = 0; y &lt; World.levels[l].h; y++) {</b>
+<b class="nc">&nbsp;					data.add(String.valueOf(World.levels[l].getTile(x, y).name));</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			writeToFile(location + filename + l + extension, data);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		for (int l = 0; l &lt; World.levels.length; l++) {</b>
+<b class="nc">&nbsp;			for (int x = 0; x &lt; World.levels[l].w; x++) {</b>
+<b class="nc">&nbsp;				for (int y = 0; y &lt; World.levels[l].h; y++) {</b>
+<b class="nc">&nbsp;					data.add(String.valueOf(World.levels[l].getData(x, y)));</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			writeToFile(location + filename + l + &quot;data&quot; + extension, data);</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		{ // Advancements
+<b class="nc">&nbsp;			JSONObject fileObj = new JSONObject();</b>
+<b class="nc">&nbsp;			fileObj.put(&quot;Version&quot;, Game.VERSION.toString());</b>
+<b class="nc">&nbsp;			TutorialDisplayHandler.save(fileObj);</b>
+<b class="nc">&nbsp;			AdvancementElement.saveRecipeUnlockingElements(fileObj);</b>
+<b class="nc">&nbsp;			QuestsDisplay.save(fileObj);</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				writeJSONToFile(location + &quot;advancements.json&quot;, fileObj.toString(4));</b>
+<b class="nc">&nbsp;			} catch (IOException e) {</b>
+<b class="nc">&nbsp;				e.printStackTrace();</b>
+<b class="nc">&nbsp;				Logging.SAVELOAD.error(&quot;Unable to write advancements.json.&quot;);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		{ // Sign Data
+<b class="nc">&nbsp;			JSONObject fileObj = new JSONObject();</b>
+<b class="nc">&nbsp;			fileObj.put(&quot;Version&quot;, Game.VERSION.toString());</b>
+<b class="nc">&nbsp;			JSONArray dataObj = new JSONArray();</b>
+<b class="nc">&nbsp;			SignDisplay.getSignTexts().forEach((key, value) -&gt; dataObj.put(new JSONObject()</b>
+<b class="nc">&nbsp;				.put(&quot;level&quot;, key.getKey())</b>
+<b class="nc">&nbsp;				.put(&quot;x&quot;, key.getValue().x)</b>
+<b class="nc">&nbsp;				.put(&quot;y&quot;, key.getValue().y)</b>
+<b class="nc">&nbsp;				.put(&quot;lines&quot;, value)));</b>
+<b class="nc">&nbsp;			fileObj.put(&quot;signs&quot;, dataObj);</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				writeJSONToFile(location + &quot;signs.json&quot;, fileObj.toString(4));</b>
+<b class="nc">&nbsp;			} catch (IOException e) {</b>
+<b class="nc">&nbsp;				e.printStackTrace();</b>
+<b class="nc">&nbsp;				Logging.SAVELOAD.error(&quot;Unable to write signs.json.&quot;);</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void writePlayer(String filename, Player player) {
+<b class="nc">&nbsp;		LoadingDisplay.setMessage(&quot;Player&quot;);</b>
+<b class="nc">&nbsp;		writePlayer(player, data);</b>
+<b class="nc">&nbsp;		writeToFile(location + filename + extension, data);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void writePlayer(Player player, List&lt;String&gt; data) {
+<b class="nc">&nbsp;		data.clear();</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(player.x));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(player.y));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(player.spawnx));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(player.spawny));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(player.health));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(player.extraHealth));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(player.hunger));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(player.armor));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(player.armorDamageBuffer));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(player.curArmor == null ? &quot;NULL&quot; : player.curArmor.getName()));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(player.getScore()));</b>
+<b class="nc">&nbsp;		data.add(String.valueOf(Game.currentLevel));</b>
+&nbsp;
+<b class="nc">&nbsp;		StringBuilder subdata = new StringBuilder(&quot;PotionEffects[&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		for (java.util.Map.Entry&lt;PotionType, Integer&gt; potion : player.potioneffects.entrySet())</b>
+<b class="nc">&nbsp;			subdata.append(potion.getKey()).append(&quot;;&quot;).append(potion.getValue()).append(&quot;:&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (player.potioneffects.size() &gt; 0)</b>
+<b class="nc">&nbsp;			subdata = new StringBuilder(subdata.substring(0, subdata.length() - (1)) + &quot;]&quot;); // Cuts off extra &quot;:&quot; and appends &quot;]&quot;</b>
+<b class="nc">&nbsp;		else subdata.append(&quot;]&quot;);</b>
+<b class="nc">&nbsp;		data.add(subdata.toString());</b>
+&nbsp;
+<b class="nc">&nbsp;		data.add(String.valueOf(player.shirtColor));</b>
+&nbsp;
+<b class="nc">&nbsp;		JSONObject unlockedRecipes = new JSONObject();</b>
+<b class="nc">&nbsp;		for (Recipe recipe : CraftingDisplay.getUnlockedRecipes()) {</b>
+<b class="nc">&nbsp;			JSONArray costs = new JSONArray();</b>
+<b class="nc">&nbsp;			recipe.getCosts().forEach((c, i) -&gt; costs.put(c + &quot;_&quot; + i));</b>
+<b class="nc">&nbsp;			unlockedRecipes.put(recipe.getProduct().getName() + &quot;_&quot; + recipe.getAmount(), costs);</b>
+<b class="nc">&nbsp;		}</b>
+<b class="nc">&nbsp;		data.add(unlockedRecipes.toString());</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void writeInventory(String filename, Player player) {
+<b class="nc">&nbsp;		writeInventory(player, data);</b>
+<b class="nc">&nbsp;		writeToFile(location + filename + extension, data);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static void writeInventory(Player player, List&lt;String&gt; data) {
+<b class="nc">&nbsp;		data.clear();</b>
+<b class="nc">&nbsp;		if (player.activeItem != null) {</b>
+<b class="nc">&nbsp;			data.add(player.activeItem.getData());</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		Inventory inventory = player.getInventory();</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int i = 0; i &lt; inventory.invSize(); i++) {</b>
+<b class="nc">&nbsp;			data.add(inventory.get(i).getData());</b>
+&nbsp;		}
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void writeEntities(String filename) {
+<b class="nc">&nbsp;		LoadingDisplay.setMessage(&quot;minicraft.displays.loading.message.entities&quot;);</b>
+<b class="nc">&nbsp;		for (int l = 0; l &lt; World.levels.length; l++) {</b>
+<b class="nc">&nbsp;			for (Entity e : World.levels[l].getEntitiesToSave()) {</b>
+<b class="nc">&nbsp;				String saved = writeEntity(e, true);</b>
+<b class="nc">&nbsp;				if (saved.length() &gt; 0)</b>
+<b class="nc">&nbsp;					data.add(saved);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		writeToFile(location + filename + extension, data);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public static String writeEntity(Entity e, boolean isLocalSave) {
+<b class="nc">&nbsp;		String name = e.getClass().getName();</b>
+<b class="nc">&nbsp;		name = name.substring(name.lastIndexOf(&#39;.&#39;) + 1);</b>
+<b class="nc">&nbsp;		StringBuilder extradata = new StringBuilder();</b>
+&nbsp;
+&nbsp;		// Don&#39;t even write ItemEntities or particle effects; Spark... will probably is saved, eventually; it presents an unfair cheat to remove the sparks by reloading the Game.
+&nbsp;
+<b class="nc">&nbsp;		if (isLocalSave &amp;&amp; (e instanceof ItemEntity || e instanceof Arrow || e instanceof Spark || e instanceof FireSpark || e instanceof Particle)) // Write these only when sending a world, not writing it. (RemotePlayers are saved separately, when their info is received.)</b>
+<b class="nc">&nbsp;			return &quot;&quot;;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (!isLocalSave)</b>
+<b class="nc">&nbsp;			extradata.append(&quot;:&quot;).append(e.eid);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (e instanceof Mob) {</b>
+<b class="nc">&nbsp;			Mob m = (Mob) e;</b>
+<b class="nc">&nbsp;			extradata.append(&quot;:&quot;).append(m.health);</b>
+<b class="nc">&nbsp;			if (e instanceof EnemyMob)</b>
+<b class="nc">&nbsp;				extradata.append(&quot;:&quot;).append(((EnemyMob) m).lvl);</b>
+<b class="nc">&nbsp;			else if (e instanceof Sheep)</b>
+<b class="nc">&nbsp;				extradata.append(&quot;:&quot;).append(((Sheep) m).cut); // Saves if the sheep is cut. If not, we could reload the save and the wool would regenerate.</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (e instanceof Chest) {</b>
+<b class="nc">&nbsp;			Chest chest = (Chest) e;</b>
+&nbsp;
+<b class="nc">&nbsp;			for (int ii = 0; ii &lt; chest.getInventory().invSize(); ii++) {</b>
+<b class="nc">&nbsp;				Item item = chest.getInventory().get(ii);</b>
+<b class="nc">&nbsp;				extradata.append(&quot;:&quot;).append(item.getData());</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (chest instanceof DeathChest) extradata.append(&quot;:&quot;).append(((DeathChest) chest).time);</b>
+<b class="nc">&nbsp;			if (chest instanceof DungeonChest) extradata.append(&quot;:&quot;).append(((DungeonChest) chest).isLocked());</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (e instanceof Spawner) {</b>
+<b class="nc">&nbsp;			Spawner egg = (Spawner) e;</b>
+<b class="nc">&nbsp;			String mobname = egg.mob.getClass().getName();</b>
+<b class="nc">&nbsp;			mobname = mobname.substring(mobname.lastIndexOf(&quot;.&quot;) + 1);</b>
+<b class="nc">&nbsp;			extradata.append(&quot;:&quot;).append(mobname).append(&quot;:&quot;).append(egg.mob instanceof EnemyMob ? ((EnemyMob) egg.mob).lvl : 1);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (e instanceof Lantern) {</b>
+<b class="nc">&nbsp;			extradata.append(&quot;:&quot;).append(((Lantern) e).type.ordinal());</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (e instanceof Crafter) {</b>
+<b class="nc">&nbsp;			name = ((Crafter) e).type.name();</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (e instanceof KnightStatue) {</b>
+<b class="nc">&nbsp;			extradata.append(&quot;:&quot;).append(((KnightStatue) e).getBossHealth());</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (!isLocalSave) {</b>
+<b class="nc">&nbsp;			if (e instanceof ItemEntity) extradata.append(&quot;:&quot;).append(((ItemEntity) e).getData());</b>
+<b class="nc">&nbsp;			if (e instanceof Arrow) extradata.append(&quot;:&quot;).append(((Arrow) e).getData());</b>
+<b class="nc">&nbsp;			if (e instanceof Spark) extradata.append(&quot;:&quot;).append(((Spark) e).getData());</b>
+<b class="nc">&nbsp;			if (e instanceof TextParticle) extradata.append(&quot;:&quot;).append(((TextParticle) e).getData());</b>
+&nbsp;		}
+&nbsp;		//else // is a local save
+&nbsp;
+<b class="nc">&nbsp;		int depth = 0;</b>
+<b class="nc">&nbsp;		if (e.getLevel() == null)</b>
+<b class="nc">&nbsp;			Logging.SAVELOAD.warn(&quot;Saving entity with no level reference: &quot; + e + &quot;; setting level to surface&quot;);</b>
+&nbsp;		else
+<b class="nc">&nbsp;			depth = e.getLevel().depth;</b>
+&nbsp;
+<b class="nc">&nbsp;		extradata.append(&quot;:&quot;).append(World.lvlIdx(depth));</b>
+&nbsp;
+<b class="nc">&nbsp;		return name + &quot;[&quot; + e.x + &quot;:&quot; + e.y + extradata + &quot;]&quot;;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

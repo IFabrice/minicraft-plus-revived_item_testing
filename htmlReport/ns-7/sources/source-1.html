@@ -1,0 +1,321 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Color</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.gfx</a>
+</div>
+
+<h1>Coverage Summary for Class: Color (minicraft.gfx)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Color</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    20%
+  </span>
+  <span class="absValue">
+    (4/20)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    30.1%
+  </span>
+  <span class="absValue">
+    (25/83)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.gfx;
+&nbsp;
+<b class="nc">&nbsp;public class Color {</b>
+&nbsp;
+&nbsp;	/* To explain this class, you have to know how Bit-Shifting works.
+&nbsp;	 	David made a small post, so go here if you don&#39;t already know: http://minicraftforums.com/viewtopic.php?f=9&amp;t=2256
+&nbsp;
+&nbsp;		Note: this class still confuses me a bit, lol. -David
+&nbsp;
+&nbsp;		On bit shifting: the new bits will always be zero, UNLESS it is a negative number aka the left-most bit is 1. Then, shifting right will fill with 1&#39;s, it seems.
+&nbsp;	*/
+&nbsp;
+&nbsp;	/*
+&nbsp;		To provide a method to the madness, all methods ending in &quot;Color&quot; are copies of the methods of the same name without the &quot;Color&quot; part, except they convert the given value to 24bit Java RGB rather than the normal, minicraft 13-bit total RGB.
+&nbsp;		Methods containing the word &quot;get&quot; deal with converting the minicraft rgb to something else, and unGet for the other way.
+&nbsp;
+&nbsp;		Another point:
+&nbsp;
+&nbsp;		rgbByte = int using 8 bits to store the r, g, and b.
+&nbsp;		rgbInt = int using 24 bits to store r, g, and b, with 8 bits each; this is the classic 0-255 scale for each color component, compacted into one integer variable.
+&nbsp;		rgb4Sprite = int using the 4 bytes in an int to store each of the 4 rgbBytes used for coloring a sprite.
+&nbsp;		rgbReadable = int representing rgb in a readable decimal format, by having the values 0-5 in the 100s, 10s, and 1s place for r, g, and b respectively.
+&nbsp;		rgbMinicraft = int using 12 bits for r, g, and b, 4 bits each, and one for transparency
+&nbsp;
+&nbsp;		So, the methods ending in &quot;Color&quot; deal with rgbInts, while their counterparts deal with rgbBytes.
+&nbsp;	*/
+&nbsp;
+<b class="fc">&nbsp;	public static final int TRANSPARENT = Color.get(0, 0);</b>
+<b class="fc">&nbsp;	public static final int WHITE = Color.get(1, 255);</b>
+<b class="fc">&nbsp;	public static final int GRAY = Color.get(1, 153);</b>
+<b class="fc">&nbsp;	public static final int DARK_GRAY = Color.get(1, 51);</b>
+<b class="fc">&nbsp;	public static final int BLACK = Color.get(1, 0);</b>
+<b class="fc">&nbsp;	public static final int RED = Color.get(1, 198, 44, 44);</b>
+<b class="fc">&nbsp;	public static final int GREEN = Color.get(1, 77, 212, 77);</b>
+<b class="fc">&nbsp;	public static final int BLUE = Color.get(1, 32, 32, 136);</b>
+<b class="fc">&nbsp;	public static final int YELLOW = Color.get(1, 255, 255, 0);</b>
+<b class="fc">&nbsp;	public static final int MAGENTA = Color.get(1, 255, 0, 255);</b>
+<b class="fc">&nbsp;	public static final int CYAN = Color.get(1, 90, 204, 204);</b>
+&nbsp;
+&nbsp;	public static final char COLOR_CHAR = &#39;\u00A7&#39;;
+&nbsp;
+<b class="fc">&nbsp;	public static final String TRANSPARENT_CODE = Color.toStringCode(Color.TRANSPARENT);</b>
+<b class="fc">&nbsp;	public static final String WHITE_CODE = Color.toStringCode(Color.WHITE);</b>
+<b class="fc">&nbsp;	public static final String GRAY_CODE = Color.toStringCode(Color.GRAY);</b>
+<b class="fc">&nbsp;	public static final String DARK_GRAY_CODE = Color.toStringCode(Color.DARK_GRAY);</b>
+<b class="fc">&nbsp;	public static final String BLACK_CODE = Color.toStringCode(Color.BLACK);</b>
+<b class="fc">&nbsp;	public static final String RED_CODE = Color.toStringCode(Color.RED);</b>
+<b class="fc">&nbsp;	public static final String GREEN_CODE = Color.toStringCode(Color.GREEN);</b>
+<b class="fc">&nbsp;	public static final String BLUE_CODE = Color.toStringCode(Color.BLUE);</b>
+<b class="fc">&nbsp;	public static final String YELLOW_CODE = Color.toStringCode(Color.YELLOW);</b>
+<b class="fc">&nbsp;	public static final String MAGENTA_CODE = Color.toStringCode(Color.MAGENTA);</b>
+<b class="fc">&nbsp;	public static final String CYAN_CODE = Color.toStringCode(Color.CYAN);</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This returns a minicraftrgb.
+&nbsp;	 * a should be between 0-1, r,g,and b should be 0-255
+&nbsp;	 */
+&nbsp;	public static int get(int a, int r, int g, int b) {
+<b class="fc">&nbsp;		return (a &lt;&lt; 24) + (r &lt;&lt; 16) + (g &lt;&lt; 8) + (b);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static int get(int a, int copy) {
+<b class="fc">&nbsp;		return get(a, copy, copy, copy);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static String toStringCode(int color) {
+<b class="fc">&nbsp;		return new String(new char[] {</b>
+&nbsp;			Color.COLOR_CHAR,
+&nbsp;			(char) ((color &gt;&gt; 24) &amp; 0xFF), // Alpha
+&nbsp;			(char) ((color &gt;&gt; 16) &amp; 0xFF), // Red
+&nbsp;			(char) ((color &gt;&gt; 8) &amp; 0xFF), // Blue
+&nbsp;			(char) (color &amp; 0xFF)  // Green
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;	public static int get(String color) {
+&nbsp;		// Omit color character if it&#39;s present
+<b class="nc">&nbsp;		int leading = color.length() == 5 ? 1 : 0;</b>
+<b class="nc">&nbsp;		return Color.get(color.charAt(leading), color.charAt(1 + leading), color.charAt(2 + leading), color.charAt(3 + leading));</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private static int limit(int num, int min, int max) {
+<b class="nc">&nbsp;		if (num &lt; min) num = min;</b>
+<b class="nc">&nbsp;		if (num &gt; max) num = max;</b>
+<b class="nc">&nbsp;		return num;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// This makes an int that you would pass to the get(a,b,c,d), or get(d), method, from three separate 8-bit r,g,b values.
+&nbsp;	public static int rgb(int red, int green, int blue) { // rgbInt array -&gt; rgbReadable
+<b class="nc">&nbsp;		red = limit(red, 0, 250);</b>
+<b class="nc">&nbsp;		green = limit(green, 0, 250);</b>
+<b class="nc">&nbsp;		blue = limit(blue, 0, 250);</b>
+&nbsp;
+<b class="nc">&nbsp;		return red / 50 * 100 + green / 50 * 10 + blue / 50; // This is: rgbReadable</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This method darkens or lightens a color by the specified amount.
+&nbsp;	 */
+&nbsp;	public static int tint(int color, int amount, boolean isSpriteCol) {
+<b class="nc">&nbsp;		if (isSpriteCol) {</b>
+<b class="nc">&nbsp;			int[] rgbBytes = separateEncodedSprite(color); // This just separates the four 8-bit sprite colors; they are still in base-6 added form.</b>
+<b class="nc">&nbsp;			for (int i = 0; i &lt; rgbBytes.length; i++) {</b>
+<b class="nc">&nbsp;				rgbBytes[i] = tint(rgbBytes[i], amount);</b>
+&nbsp;			}
+<b class="nc">&nbsp;			return rgbBytes[0] &lt;&lt; 24 | rgbBytes[1] &lt;&lt; 16 | rgbBytes[2] &lt;&lt; 8 | rgbBytes[3]; // This is: rgb4Sprite</b>
+&nbsp;		} else {
+<b class="nc">&nbsp;			return tint(color, amount); // This is: rgbByte</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	private static int tint(int rgbByte, int amount) {
+<b class="nc">&nbsp;		if (rgbByte == 255) return 255; // See description of bit shifting above; it will hold the 255 value, not -1</b>
+&nbsp;
+<b class="nc">&nbsp;		int[] rgb = decodeRGB(rgbByte); // This returns the rgb values as 0-5 numbers.</b>
+<b class="nc">&nbsp;		for (int i = 0; i &lt; rgb.length; i++)</b>
+<b class="nc">&nbsp;			rgb[i] = limit(rgb[i] + amount, 0, 5);</b>
+&nbsp;
+<b class="nc">&nbsp;		return rgb[0] * 36 + rgb[1] * 6 + rgb[2]; // This is: rgbByte</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * seperates a 4-part sprite color (rgb4Sprite) into it&#39;s original 4 component colors (which are each rgbBytes)
+&nbsp;	 */
+&nbsp;	/// Reverse of Color.get(a, b, c, d).
+&nbsp;	public static int[] separateEncodedSprite(int rgb4Sprite) {
+<b class="nc">&nbsp;		return separateEncodedSprite(rgb4Sprite, false);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static int[] separateEncodedSprite(int rgb4Sprite, boolean convertToReadable) {
+&nbsp;
+&nbsp;		// The numbers are stored, most to least shifted, as d, c, b, a.
+<b class="nc">&nbsp;		int a = (rgb4Sprite &gt;&gt; 24) &amp; 0xFF; // See note at top; this is to remove left-hand 1&#39;s.</b>
+<b class="nc">&nbsp;		int b = (rgb4Sprite &amp; 0x00_FF_00_00) &gt;&gt; 16;</b>
+<b class="nc">&nbsp;		int c = (rgb4Sprite &amp; 0x00_00_FF_00) &gt;&gt; 8;</b>
+<b class="nc">&nbsp;		int d = (rgb4Sprite &amp; 0x00_00_00_FF);</b>
+&nbsp;
+<b class="nc">&nbsp;		if (convertToReadable) {</b>
+&nbsp;			// They become rgbReadable
+<b class="nc">&nbsp;			a = unGet(a);</b>
+<b class="nc">&nbsp;			b = unGet(b);</b>
+<b class="nc">&nbsp;			c = unGet(c);</b>
+<b class="nc">&nbsp;			d = unGet(d);</b>
+&nbsp;		} // Else, they are rgbByte
+&nbsp;
+<b class="nc">&nbsp;		return new int[] { a, b, c, d };</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * This turns a 216 scale rgb int into a 0-5 scale &quot;concatenated&quot; rgb int. (aka rgbByte -&gt; r/g/b Readables)
+&nbsp;	 */
+&nbsp;	public static int[] decodeRGB(int rgbByte) {
+<b class="nc">&nbsp;		int r = (rgbByte / 36) % 6;</b>
+<b class="nc">&nbsp;		int g = (rgbByte / 6) % 6;</b>
+<b class="nc">&nbsp;		int b = rgbByte % 6;</b>
+<b class="nc">&nbsp;		return new int[] { r, g, b };</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static int unGet(int rgbByte) { // rgbByte -&gt; rgbReadable
+<b class="nc">&nbsp;		int[] cols = decodeRGB(rgbByte);</b>
+<b class="nc">&nbsp;		return cols[0] * 100 + cols[1] * 10 + cols[2];</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/// This turns a 25-bit minicraft color into a 24-bit rgb color.
+&nbsp;	protected static int upgrade(int rgbMinicraft) {
+&nbsp;
+<b class="nc">&nbsp;		return rgbMinicraft &amp; 0xFF_FF_FF;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	protected static int tintColor(int rgbInt, int amount) {
+<b class="nc">&nbsp;		if (rgbInt &lt; 0) return rgbInt; // This is &quot;transparent&quot;.</b>
+&nbsp;
+<b class="nc">&nbsp;		int[] comps = decodeRGBColor(rgbInt);</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int i = 0; i &lt; comps.length; i++)</b>
+<b class="nc">&nbsp;			comps[i] = limit(comps[i] + amount, 0, 255);</b>
+&nbsp;
+<b class="nc">&nbsp;		return comps[0] &lt;&lt; 16 | comps[1] &lt;&lt; 8 | comps[2];</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	protected static int[] decodeRGBColor(int rgbInt) {
+<b class="nc">&nbsp;		int r = (rgbInt &amp; 0xFF_00_00) &gt;&gt; 16;</b>
+<b class="nc">&nbsp;		int g = (rgbInt &amp; 0x00_FF_00) &gt;&gt; 8;</b>
+<b class="nc">&nbsp;		int b = (rgbInt &amp; 0x00_00_FF);</b>
+&nbsp;
+<b class="nc">&nbsp;		return new int[] { r, g, b };</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Gets the lightness of the given 24-bit RGB color value.
+&nbsp;	 * This is strictly calculated by L from RGB to HSL conversion.
+&nbsp;	 * For other formula and method reference: https://stackoverflow.com/a/56678483.
+&nbsp;	 * @return lightness, from 0 to 1 floating point number
+&nbsp;	 */
+&nbsp;	public static float getLightnessFromRGB(int color) {
+<b class="nc">&nbsp;		int r = (color &gt;&gt; 16) &amp; 0xFF;</b>
+<b class="nc">&nbsp;		int g = (color &gt;&gt; 8) &amp; 0xFF;</b>
+<b class="nc">&nbsp;		int b = color &amp; 0xFF;</b>
+<b class="nc">&nbsp;		return (Math.max(Math.max(r, g), b) + Math.min(Math.min(r, g), b)) / 510f;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/// This is for color testing.
+&nbsp;	public static void main(String[] args) {
+&nbsp;		int r, g, b;
+&nbsp;
+<b class="nc">&nbsp;		r = Integer.parseInt(args[0]);</b>
+<b class="nc">&nbsp;		g = Integer.parseInt(args[1]);</b>
+<b class="nc">&nbsp;		b = Integer.parseInt(args[2]);</b>
+&nbsp;
+<b class="nc">&nbsp;		System.out.println(rgb(r, g, b));</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/// For sprite colors
+&nbsp;	public static String toString(int col) {
+<b class="nc">&nbsp;		return java.util.Arrays.toString(Color.separateEncodedSprite(col, true));</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

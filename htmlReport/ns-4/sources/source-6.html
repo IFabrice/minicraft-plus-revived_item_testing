@@ -1,0 +1,222 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > DungeonChest</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.entity.furniture</a>
+</div>
+
+<h1>Coverage Summary for Class: DungeonChest (minicraft.entity.furniture)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">DungeonChest</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    40%
+  </span>
+  <span class="absValue">
+    (4/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    23.8%
+  </span>
+  <span class="absValue">
+    (10/42)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.entity.furniture;
+&nbsp;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.Entity;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.entity.particle.SmashParticle;
+&nbsp;import minicraft.entity.particle.TextParticle;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.SpriteLinker.LinkedSprite;
+&nbsp;import minicraft.gfx.SpriteLinker.SpriteType;
+&nbsp;import minicraft.item.Item;
+&nbsp;import minicraft.item.Items;
+&nbsp;import minicraft.item.StackableItem;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;
+&nbsp;import java.util.Random;
+&nbsp;
+&nbsp;public class DungeonChest extends Chest {
+<b class="fc">&nbsp;	private static final LinkedSprite openSprite = new LinkedSprite(SpriteType.Entity, &quot;dungeon_chest&quot;);</b>
+<b class="fc">&nbsp;	private static final LinkedSprite lockSprite = new LinkedSprite(SpriteType.Entity, &quot;white_chest&quot;);</b>
+&nbsp;
+&nbsp;	private boolean isLocked;
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Creates a custom chest with the name Dungeon Chest.
+&nbsp;	 * @param random Populate the inventory of the DungeonChest using the loot table system with the given {@link Random} provider.
+&nbsp;	 *    {@code null} if populating the inventory is not intended.
+&nbsp;	 */
+&nbsp;	public DungeonChest(@Nullable Random random) {
+<b class="nc">&nbsp;		this(random, false);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public DungeonChest(@Nullable Random random, boolean unlocked) {
+<b class="fc">&nbsp;		super(&quot;Dungeon Chest&quot;);</b>
+<b class="fc">&nbsp;		if (random != null) {</b>
+<b class="nc">&nbsp;			populateInv(random);</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		setLocked(!unlocked);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public @NotNull Furniture copy() {
+<b class="fc">&nbsp;		return new DungeonChest(null, !this.isLocked);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean use(Player player) {
+<b class="nc">&nbsp;		if (isLocked) {</b>
+<b class="nc">&nbsp;			boolean activeKey = player.activeItem != null &amp;&amp; player.activeItem.equals(Items.get(&quot;Key&quot;));</b>
+<b class="nc">&nbsp;			boolean invKey = player.getInventory().count(Items.get(&quot;key&quot;)) &gt; 0;</b>
+&nbsp;
+<b class="nc">&nbsp;			if (activeKey || invKey) { // If the player has a key...</b>
+<b class="nc">&nbsp;				if (activeKey) { // Remove activeItem</b>
+<b class="nc">&nbsp;					StackableItem key = (StackableItem) player.activeItem;</b>
+<b class="nc">&nbsp;					key.count--;</b>
+<b class="nc">&nbsp;				} else { // Remove from inv</b>
+<b class="nc">&nbsp;					player.getInventory().removeItem(Items.get(&quot;key&quot;));</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				isLocked = false;</b>
+<b class="nc">&nbsp;				this.sprite = openSprite; // Set to the unlocked color</b>
+&nbsp;
+<b class="nc">&nbsp;				level.add(new SmashParticle(x * 16, y * 16));</b>
+<b class="nc">&nbsp;				level.add(new TextParticle(Localization.getLocalized(&quot;minicraft.text_particales.key_consumed&quot;), x, y, Color.RED));</b>
+<b class="nc">&nbsp;				level.chestCount--;</b>
+&nbsp;
+&nbsp;				// If this is the last chest.
+<b class="nc">&nbsp;				if (level.chestCount == 0) {</b>
+<b class="nc">&nbsp;					level.dropItem(x, y, 5, Items.get(&quot;Gold Apple&quot;));</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				return super.use(player); // the player unlocked the chest.</b>
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			return false; // the chest is locked, and the player has no key.</b>
+<b class="nc">&nbsp;		} else return super.use(player); // the chest was already unlocked.</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Populate the inventory of the DungeonChest using the loot table system.
+&nbsp;	 */
+&nbsp;	public void populateInv(Random random) {
+&nbsp;		// Clear inventory.
+<b class="nc">&nbsp;		getInventory().clearInv();</b>
+&nbsp;
+&nbsp;		// Populate inventory.
+<b class="nc">&nbsp;		populateInvRandom(random, &quot;dungeonchest&quot;, 0);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	public boolean isLocked() {
+<b class="nc">&nbsp;		return isLocked;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void setLocked(boolean locked) {
+<b class="fc">&nbsp;		this.isLocked = locked;</b>
+&nbsp;
+&nbsp;		// auto update sprite
+<b class="fc">&nbsp;		sprite = locked ? DungeonChest.lockSprite : DungeonChest.openSprite;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * what happens if the player tries to push a Dungeon Chest.
+&nbsp;	 */
+&nbsp;	@Override
+&nbsp;	protected void touchedBy(Entity entity) {
+<b class="nc">&nbsp;		if (!isLocked) // can only be pushed if unlocked.</b>
+<b class="nc">&nbsp;			super.touchedBy(entity);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public boolean interact(Player player, @Nullable Item item, Direction attackDir) {
+<b class="nc">&nbsp;		if (!isLocked)</b>
+<b class="nc">&nbsp;			return super.interact(player, item, attackDir);</b>
+<b class="nc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

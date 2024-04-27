@@ -1,0 +1,217 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > FurnitureItem</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.item</a>
+</div>
+
+<h1>Coverage Summary for Class: FurnitureItem (minicraft.item)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">FurnitureItem</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (37/37)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
+&nbsp;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.Sound;
+&nbsp;import minicraft.entity.Direction;
+&nbsp;import minicraft.entity.furniture.Bed;
+&nbsp;import minicraft.entity.furniture.Chest;
+&nbsp;import minicraft.entity.furniture.Composter;
+&nbsp;import minicraft.entity.furniture.Crafter;
+&nbsp;import minicraft.entity.furniture.DungeonChest;
+&nbsp;import minicraft.entity.furniture.Furniture;
+&nbsp;import minicraft.entity.furniture.Lantern;
+&nbsp;import minicraft.entity.furniture.Spawner;
+&nbsp;import minicraft.entity.furniture.Tnt;
+&nbsp;import minicraft.entity.mob.Cow;
+&nbsp;import minicraft.entity.mob.Creeper;
+&nbsp;import minicraft.entity.mob.Knight;
+&nbsp;import minicraft.entity.mob.Pig;
+&nbsp;import minicraft.entity.mob.Player;
+&nbsp;import minicraft.entity.mob.Sheep;
+&nbsp;import minicraft.entity.mob.Skeleton;
+&nbsp;import minicraft.entity.mob.Slime;
+&nbsp;import minicraft.entity.mob.Snake;
+&nbsp;import minicraft.entity.mob.Zombie;
+&nbsp;import minicraft.level.Level;
+&nbsp;import minicraft.level.tile.Tile;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;
+&nbsp;public class FurnitureItem extends Item {
+&nbsp;
+&nbsp;	protected static ArrayList&lt;Item&gt; getAllInstances() {
+<b class="fc">&nbsp;		ArrayList&lt;Item&gt; items = new ArrayList&lt;&gt;();</b>
+&nbsp;
+&nbsp;		/// There should be a spawner for each level of mob, or at least make the level able to be changed.
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Cow())));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Pig())));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Sheep())));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Slime(1))));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Zombie(1))));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Creeper(1))));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Skeleton(1))));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Snake(1))));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Spawner(new Knight(1))));</b>
+&nbsp;
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Chest()));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new DungeonChest(null, true)));</b>
+&nbsp;
+&nbsp;		// Add the various types of crafting furniture
+<b class="fc">&nbsp;		for (Crafter.Type type : Crafter.Type.values()) {</b>
+<b class="fc">&nbsp;			items.add(new FurnitureItem(new Crafter(type)));</b>
+&nbsp;		}
+&nbsp;		// Add the various lanterns
+<b class="fc">&nbsp;		for (Lantern.Type type : Lantern.Type.values()) {</b>
+<b class="fc">&nbsp;			items.add(new FurnitureItem(new Lantern(type)));</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Tnt()));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Bed()));</b>
+<b class="fc">&nbsp;		items.add(new FurnitureItem(new Composter()));</b>
+&nbsp;
+<b class="fc">&nbsp;		return items;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public Furniture furniture; // The furniture of this item
+&nbsp;	public boolean placed; // Value if the furniture has been placed or not.
+&nbsp;
+&nbsp;	public FurnitureItem(Furniture furniture) {
+<b class="fc">&nbsp;		super(furniture.name, furniture.itemSprite);</b>
+<b class="fc">&nbsp;		this.furniture = furniture; // Assigns the furniture to the item</b>
+<b class="fc">&nbsp;		placed = false;</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Determines if you can attack enemies with furniture (you can&#39;t)
+&nbsp;	 */
+&nbsp;	public boolean canAttack() {
+<b class="fc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * What happens when you press the &quot;Attack&quot; key with the furniture in your hands
+&nbsp;	 */
+&nbsp;	public boolean interactOn(Tile tile, Level level, int xt, int yt, Player player, Direction attackDir) {
+<b class="fc">&nbsp;		if (tile.mayPass(level, xt, yt, furniture)) { // If the furniture can go on the tile</b>
+<b class="fc">&nbsp;			Sound.play(&quot;craft&quot;);</b>
+&nbsp;
+&nbsp;			// Placed furniture&#39;s X and Y positions
+<b class="fc">&nbsp;			furniture.x = xt * 16 + 8;</b>
+<b class="fc">&nbsp;			furniture.y = yt * 16 + 8;</b>
+&nbsp;
+<b class="fc">&nbsp;			level.add(furniture); // Adds the furniture to the world</b>
+<b class="fc">&nbsp;			if (Game.isMode(&quot;minicraft.settings.mode.creative&quot;))</b>
+<b class="fc">&nbsp;				furniture = furniture.copy();</b>
+&nbsp;			else
+<b class="fc">&nbsp;				placed = true; // The value becomes true, which removes it from the player&#39;s active item</b>
+&nbsp;
+<b class="fc">&nbsp;			return true;</b>
+&nbsp;		}
+<b class="fc">&nbsp;		return false;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public boolean isDepleted() {
+<b class="fc">&nbsp;		return placed;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public @NotNull FurnitureItem copy() {
+&nbsp;		// in case the item is a spawner, it will use the sprite position (sx, sy)
+&nbsp;		// instead if it is not, the constructor will obtain said sprite
+<b class="fc">&nbsp;		return new FurnitureItem(furniture.copy());</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

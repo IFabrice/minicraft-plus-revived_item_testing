@@ -1,0 +1,408 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > MultiplayerDisplay</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen</a>
+</div>
+
+<h1>Coverage Summary for Class: MultiplayerDisplay (minicraft.screen)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">MultiplayerDisplay</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/82)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">MultiplayerDisplay$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/22)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">MultiplayerDisplay$2</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">MultiplayerDisplay$State</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/19)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/107)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen;
+&nbsp;
+&nbsp;import kong.unirest.Callback;
+&nbsp;import kong.unirest.Empty;
+&nbsp;import kong.unirest.HttpResponse;
+&nbsp;import kong.unirest.JsonNode;
+&nbsp;import kong.unirest.Unirest;
+&nbsp;import kong.unirest.UnirestException;
+&nbsp;import minicraft.core.Action;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Ellipsis;
+&nbsp;import minicraft.gfx.Ellipsis.SequentialEllipsis;
+&nbsp;import minicraft.gfx.Font;
+&nbsp;import minicraft.gfx.FontStyle;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.network.Analytics;
+&nbsp;import minicraft.util.Logging;
+&nbsp;
+&nbsp;/**
+&nbsp; * @deprecated As multiplayer mode removed. This class is not localized.
+&nbsp; */
+&nbsp;@Deprecated
+<b class="nc">&nbsp;public class MultiplayerDisplay extends Display {</b>
+&nbsp;
+&nbsp;	private static final String domain = &quot;https://playminicraft.com&quot;;
+&nbsp;	private static final String apiDomain = domain + &quot;/api&quot;;
+&nbsp;
+<b class="nc">&nbsp;	public static String savedIP = &quot;&quot;;</b>
+<b class="nc">&nbsp;	public static String savedUUID = &quot;&quot;;</b>
+<b class="nc">&nbsp;	public static String savedUsername = &quot;&quot;;</b>
+<b class="nc">&nbsp;	private String email = &quot;&quot;;</b>
+&nbsp;
+<b class="nc">&nbsp;	private String waitingMessage = &quot;waiting...&quot;;</b>
+<b class="nc">&nbsp;	private String loadingMessage = &quot;nothing&quot;;</b>
+<b class="nc">&nbsp;	private String errorMessage = &quot;&quot;;</b>
+&nbsp;
+<b class="nc">&nbsp;	private String typing = email;</b>
+<b class="nc">&nbsp;	private boolean inputIsValid = false;</b>
+&nbsp;
+<b class="nc">&nbsp;	private boolean online = false;</b>
+<b class="nc">&nbsp;	private boolean typingEmail = true;</b>
+&nbsp;
+<b class="nc">&nbsp;	private Ellipsis ellipsis = new SequentialEllipsis();</b>
+&nbsp;
+<b class="nc">&nbsp;	private enum State {</b>
+<b class="nc">&nbsp;		WAITING, LOGIN, ENTERIP, LOADING, ERROR</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private State curState;
+&nbsp;
+&nbsp;	public MultiplayerDisplay() {
+<b class="nc">&nbsp;		this(true);</b>
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	public MultiplayerDisplay(boolean pingSite) {</b>
+&nbsp;
+<b class="nc">&nbsp;		if (savedUUID == null) savedUUID = &quot;&quot;;</b>
+<b class="nc">&nbsp;		if (email == null) email = &quot;&quot;;</b>
+<b class="nc">&nbsp;		if (savedUsername == null) savedUsername = &quot;&quot;;</b>
+&nbsp;
+<b class="nc">&nbsp;		if (pingSite)</b>
+<b class="nc">&nbsp;			contactAccountServer(() -&gt; {</b>
+<b class="nc">&nbsp;			});</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void contactAccountServer(Action sitePingCallback) {
+<b class="nc">&nbsp;		setWaitMessage(&quot;testing connection&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		Unirest.get(domain).asEmptyAsync(new Callback&lt;Empty&gt;() {</b>
+&nbsp;			@Override
+&nbsp;			public void completed(HttpResponse&lt;Empty&gt; response) {
+<b class="nc">&nbsp;				if (response.getStatus() == 200)</b>
+<b class="nc">&nbsp;					online = true;</b>
+&nbsp;				else
+<b class="nc">&nbsp;					System.err.println(&quot;Warning: Minicraft site ping returned status code &quot; + response.getStatus());</b>
+&nbsp;
+<b class="nc">&nbsp;				if (savedUUID.length() &gt; 0) {</b>
+<b class="nc">&nbsp;					setWaitMessage(&quot;attempting log in&quot;);</b>
+<b class="nc">&nbsp;					fetchName(savedUUID);</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				if (curState == State.ERROR)</b>
+&nbsp;					return;
+&nbsp;
+&nbsp;				// at this point, the game is online, and either the player could log in automatically, or has to enter their
+&nbsp;				// email and password.
+&nbsp;
+<b class="nc">&nbsp;				if (savedUsername.length() == 0 || savedUUID.length() == 0)</b>
+<b class="nc">&nbsp;					curState = State.LOGIN; // the player must log in manually.</b>
+&nbsp;				else {
+<b class="nc">&nbsp;					typing = savedIP;</b>
+<b class="nc">&nbsp;					curState = State.ENTERIP; // the user has sufficient credentials; skip login phase</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				sitePingCallback.act();</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			@Override
+&nbsp;			public void failed(UnirestException e) {
+<b class="nc">&nbsp;				System.err.println(&quot;Website ping failed: &quot; + e.getMessage());</b>
+<b class="nc">&nbsp;				if (!e.getMessage().equalsIgnoreCase(&quot;connection reset by peer&quot;))</b>
+<b class="nc">&nbsp;					e.printStackTrace();</b>
+<b class="nc">&nbsp;				cancelled();</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			@Override
+&nbsp;			public void cancelled() {
+<b class="nc">&nbsp;				System.err.println(&quot;Website ping cancelled.&quot;);</b>
+<b class="nc">&nbsp;				if (savedUsername.length() == 0 || savedUUID.length() == 0) {</b>
+&nbsp;					// couldn&#39;t validate username, and can&#39;t enter offline mode b/c there is no username
+<b class="nc">&nbsp;					setError(&quot;could not connect to playminicraft account server, but no login data saved; cannot enter offline mode.&quot;, false);</b>
+&nbsp;					return;
+&nbsp;				}
+&nbsp;
+&nbsp;				// there is a saved copy of the uuid and username of the last player; use it for offline mode.
+<b class="nc">&nbsp;				curState = State.ENTERIP;</b>
+&nbsp;
+<b class="nc">&nbsp;				sitePingCallback.act();</b>
+&nbsp;			}
+&nbsp;		});
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick(InputHandler input) {
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private void fetchName(String uuid) {
+<b class="nc">&nbsp;		Analytics.LoginAttempt.ping();</b>
+&nbsp;		/// HTTP REQUEST - ATTEMPT TO SEND UUID TO SERVER AND UPDATE USERNAME
+<b class="nc">&nbsp;		HttpResponse&lt;JsonNode&gt; response = null;</b>
+&nbsp;
+&nbsp;		try {
+<b class="nc">&nbsp;			response = Unirest.post(apiDomain + &quot;/fetch-name&quot;)</b>
+<b class="nc">&nbsp;				.field(&quot;uuid&quot;, savedUUID)</b>
+<b class="nc">&nbsp;				.asJson();</b>
+<b class="nc">&nbsp;		} catch (UnirestException e) {</b>
+<b class="nc">&nbsp;			e.printStackTrace();</b>
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		if (response != null) {</b>
+<b class="nc">&nbsp;			kong.unirest.json.JSONObject json = response.getBody().getObject();</b>
+<b class="nc">&nbsp;			switch (json.getString(&quot;status&quot;)) {</b>
+&nbsp;				case &quot;error&quot;:
+<b class="nc">&nbsp;					setError(&quot;problem with saved login data; please exit and login again.&quot;, false);</b>
+<b class="nc">&nbsp;					savedUUID = &quot;&quot;;</b>
+<b class="nc">&nbsp;					break;</b>
+&nbsp;
+&nbsp;				case &quot;success&quot;:
+<b class="nc">&nbsp;					Logging.NETWORK.debug(&quot;Successfully received username from playminicraft server.&quot;);</b>
+<b class="nc">&nbsp;					savedUsername = json.getString(&quot;name&quot;);</b>
+<b class="nc">&nbsp;					Analytics.LoginSuccess.ping();</b>
+&nbsp;					break;
+&nbsp;			}
+<b class="nc">&nbsp;		} else</b>
+<b class="nc">&nbsp;			setError(&quot;Internal server error: Couldn&#39;t fetch username from uuid&quot;);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;	public void setWaitMessage(String message) {
+<b class="nc">&nbsp;		waitingMessage = message;</b>
+<b class="nc">&nbsp;		curState = State.WAITING;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void setLoadingMessage(String msg) {
+<b class="nc">&nbsp;		curState = State.LOADING;</b>
+<b class="nc">&nbsp;		loadingMessage = msg;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public void setError(String msg) {
+<b class="nc">&nbsp;		setError(msg, true);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private void setError(String msg, boolean overrideMenu) {
+<b class="nc">&nbsp;		if (curState == State.ERROR) return; // keep original message</b>
+<b class="nc">&nbsp;		this.curState = State.ERROR;</b>
+<b class="nc">&nbsp;		errorMessage = msg;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen) {
+<b class="nc">&nbsp;		screen.clear(0);</b>
+&nbsp;
+<b class="nc">&nbsp;		switch (curState) {</b>
+&nbsp;			case ENTERIP:
+<b class="nc">&nbsp;				Font.drawCentered(&quot;Logged in as: &quot; + savedUsername, screen, 6, Color.get(1, 102, 255, 102));</b>
+&nbsp;
+<b class="nc">&nbsp;				if (!online)</b>
+<b class="nc">&nbsp;					Font.drawCentered(&quot;Offline mode: local servers only&quot;, screen, Screen.h / 2 - Font.textHeight() * 6, Color.get(1, 153, 153, 255));</b>
+&nbsp;
+<b class="nc">&nbsp;				Font.drawCentered(&quot;Enter ip address to connect to:&quot;, screen, Screen.h / 2 - Font.textHeight() * 2 - 2, Color.get(1, 255));</b>
+<b class="nc">&nbsp;				Font.drawCentered(typing, screen, Screen.h / 2 - Font.textHeight(), Color.get(1, 255, 255, 102));</b>
+&nbsp;
+<b class="nc">&nbsp;				Font.drawCentered(&quot;Press Shift-Escape to logout&quot;, screen, Screen.h - Font.textHeight() * 7, Color.get(1, 204));</b>
+<b class="nc">&nbsp;				break;</b>
+&nbsp;
+&nbsp;			case LOGIN:
+<b class="nc">&nbsp;				String msg = &quot;Enter email:&quot;;</b>
+<b class="nc">&nbsp;				if (!typingEmail)</b>
+<b class="nc">&nbsp;					msg = &quot;Enter password:&quot;;</b>
+<b class="nc">&nbsp;				Font.drawCentered(msg, screen, Screen.h / 2 - 6, Color.WHITE);</b>
+&nbsp;
+<b class="nc">&nbsp;				msg = typing;</b>
+<b class="nc">&nbsp;				if (!typingEmail)</b>
+&nbsp;					//noinspection ReplaceAllDot
+<b class="nc">&nbsp;					msg = msg.replaceAll(&quot;.&quot;, &quot;.&quot;);</b>
+<b class="nc">&nbsp;				Font.drawCentered(msg, screen, Screen.h / 2 + 6, (inputIsValid ? Color.get(1, 204) : Color.RED));</b>
+<b class="nc">&nbsp;				if (!inputIsValid) {</b>
+<b class="nc">&nbsp;					Font.drawCentered(&quot;field is blank&quot;, screen, Screen.h / 2 + 20, Color.RED);</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				Font.drawCentered(&quot;get an account at:&quot;, screen, Font.textHeight() / 2 - 1, Color.get(1, 153, 204, 255));</b>
+<b class="nc">&nbsp;				Font.drawCentered(domain.substring(domain.indexOf(&quot;://&quot;) + 3) + &quot;/register&quot;, screen, Font.textHeight() * 3 / 2, Color.get(1, 153, 204, 255));</b>
+&nbsp;
+<b class="nc">&nbsp;				break;</b>
+&nbsp;
+&nbsp;			case WAITING:
+<b class="nc">&nbsp;				Font.drawCentered(waitingMessage + ellipsis.updateAndGet(), screen, Screen.h / 2, Color.WHITE);</b>
+<b class="nc">&nbsp;				break;</b>
+&nbsp;
+&nbsp;			case LOADING:
+<b class="nc">&nbsp;				Font.drawCentered(&quot;Loading &quot; + loadingMessage + &quot; from server&quot; + ellipsis.updateAndGet(), screen, Screen.h / 2, Color.WHITE);</b>
+&nbsp;				//Font.drawCentered(transferPercent + &quot;%&quot;, screen, Screen.h / 2 + 6, Color.WHITE);
+<b class="nc">&nbsp;				break;</b>
+&nbsp;
+&nbsp;			case ERROR:
+&nbsp;				//if(Updater.tickCount % 10 == 0) System.out.println(&quot;error message: &quot; + errorMessage);
+<b class="nc">&nbsp;				Font.drawCentered(&quot;Could not connect to server:&quot;, screen, Screen.h / 2 - 6, Color.RED);</b>
+<b class="nc">&nbsp;				FontStyle style = new FontStyle(Color.get(1, 255, 51, 51)).setYPos(Screen.h / 2 + 6);</b>
+<b class="nc">&nbsp;				Font.drawParagraph(errorMessage, screen, style, 1);</b>
+&nbsp;				//Font.drawCentered(errorMessage, screen, Screen.h/2+6, Color.get(1, 255, 51, 51));
+&nbsp;				break;
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		if (curState == State.ENTERIP || curState == State.ERROR) {</b>
+<b class="nc">&nbsp;			Font.drawCentered(&quot;Press &quot; + Game.input.getMapping(&quot;exit&quot;) + &quot; to return&quot;, screen, Screen.h - Font.textHeight() * 2, Color.GRAY);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

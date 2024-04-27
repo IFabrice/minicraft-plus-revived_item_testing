@@ -1,0 +1,444 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > WorldGenDisplay</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.screen</a>
+</div>
+
+<h1>Coverage Summary for Class: WorldGenDisplay (minicraft.screen)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">WorldGenDisplay</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/81)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">WorldGenDisplay$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/27)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">WorldGenDisplay$2</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">WorldGenDisplay$3</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">WorldGenDisplay$4</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/18)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/114)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.screen;
+&nbsp;
+&nbsp;import com.studiohartman.jamepad.ControllerButton;
+&nbsp;import minicraft.core.Game;
+&nbsp;import minicraft.core.io.FileHandler;
+&nbsp;import minicraft.core.io.InputHandler;
+&nbsp;import minicraft.core.io.Localization;
+&nbsp;import minicraft.core.io.Settings;
+&nbsp;import minicraft.gfx.Color;
+&nbsp;import minicraft.gfx.Font;
+&nbsp;import minicraft.gfx.Screen;
+&nbsp;import minicraft.screen.entry.InputEntry;
+&nbsp;import minicraft.screen.entry.SelectEntry;
+&nbsp;import minicraft.util.Logging;
+&nbsp;
+&nbsp;import java.nio.file.InvalidPathException;
+&nbsp;import java.nio.file.Paths;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.List;
+&nbsp;import java.util.OptionalLong;
+&nbsp;import java.util.regex.Pattern;
+&nbsp;
+<b class="nc">&nbsp;public class WorldGenDisplay extends Display {</b>
+&nbsp;	private static final Pattern detailedFilenamePattern;
+&nbsp;
+&nbsp;	private static final String worldNameRegex;
+&nbsp;
+&nbsp;	static {
+<b class="nc">&nbsp;		if (FileHandler.OS.contains(&quot;windows&quot;)) {</b>
+&nbsp;			// Reference: https://stackoverflow.com/a/6804755
+<b class="nc">&nbsp;			worldNameRegex = &quot;[^&lt;&gt;:\&quot;/\\\\|?*\\x00-\\x1F]+&quot;;</b>
+<b class="nc">&nbsp;			detailedFilenamePattern = Pattern.compile(</b>
+&nbsp;				&quot;# Match a valid Windows filename (unspecified file system).          \n&quot; +
+&nbsp;					&quot;^                                # Anchor to start of string.        \n&quot; +
+&nbsp;					&quot;(?!                              # Assert filename is not: CON, PRN, \n&quot; +
+&nbsp;					&quot;  (?:                            # AUX, NUL, COM1, COM2, COM3, COM4, \n&quot; +
+&nbsp;					&quot;    CON|PRN|AUX|NUL|             # COM5, COM6, COM7, COM8, COM9,     \n&quot; +
+&nbsp;					&quot;    COM[1-9]|LPT[1-9]            # LPT1, LPT2, LPT3, LPT4, LPT5,     \n&quot; +
+&nbsp;					&quot;  )                              # LPT6, LPT7, LPT8, and LPT9...     \n&quot; +
+&nbsp;					&quot;  (?:\\.[^.]*)?                  # followed by optional extension    \n&quot; +
+&nbsp;					&quot;  $                              # and end of string                 \n&quot; +
+&nbsp;					&quot;)                                # End negative lookahead assertion. \n&quot; +
+&nbsp;					&quot;[^&lt;&gt;:\&quot;/\\\\|?*\\x00-\\x1F]*     # Zero or more valid filename chars.\n&quot; +
+&nbsp;					&quot;[^&lt;&gt;:\&quot;/\\\\|?*\\x00-\\x1F\\ .]  # Last char is not a space or dot.  \n&quot; +
+&nbsp;					&quot;$                                # Anchor to end of string.            &quot;,
+&nbsp;				Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.COMMENTS);
+<b class="nc">&nbsp;		} else if (FileHandler.OS.contains(&quot;mac&quot;)) {</b>
+<b class="nc">&nbsp;			worldNameRegex = &quot;[^/:]+&quot;;</b>
+<b class="nc">&nbsp;			detailedFilenamePattern = null;</b>
+&nbsp;		} else { // Reference: https://en.wikipedia.org/wiki/Filename#Length_restrictions
+<b class="nc">&nbsp;			worldNameRegex = &quot;[^/\0]+&quot;;</b>
+<b class="nc">&nbsp;			detailedFilenamePattern = null;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+<b class="nc">&nbsp;	private static InputEntry worldSeed = new InputEntry(&quot;minicraft.displays.world_gen.world_seed&quot;, &quot;[-!\&quot;#%/()=+,a-zA-Z0-9]+&quot;, 20);</b>
+&nbsp;
+&nbsp;	public static OptionalLong getSeed() {
+<b class="nc">&nbsp;		String seedStr = worldSeed.getUserInput();</b>
+&nbsp;
+&nbsp;		// If there is no input seed, generate random number
+<b class="nc">&nbsp;		if (seedStr.length() == 0)</b>
+<b class="nc">&nbsp;			return OptionalLong.empty();</b>
+&nbsp;
+&nbsp;		// If the seed is only numbers, just use numbers
+<b class="nc">&nbsp;		if (Pattern.matches(&quot;-?[0-9]*&quot;, seedStr) &amp;&amp; seedStr.length() &lt; 20) {</b>
+<b class="nc">&nbsp;			return OptionalLong.of(Long.parseLong(seedStr));</b>
+&nbsp;		}
+&nbsp;
+&nbsp;		// If the seed is some combination of numbers/letters, hash them into a floating point number
+<b class="nc">&nbsp;		long seed = 1125899906842597L; // rather large prime number</b>
+<b class="nc">&nbsp;		int len = seedStr.length();</b>
+&nbsp;
+<b class="nc">&nbsp;		for (int i = 0; i &lt; len; i++) {</b>
+<b class="nc">&nbsp;			seed = 31 * seed + seedStr.charAt(i);</b>
+&nbsp;		}
+&nbsp;
+<b class="nc">&nbsp;		return OptionalLong.of(seed);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static InputEntry makeWorldNameInput(String prompt, List&lt;String&gt; takenNames, String initValue, boolean isGen) {
+<b class="nc">&nbsp;		return new InputEntry(prompt, worldNameRegex, 36, initValue) {</b>
+&nbsp;			private String lastName;
+&nbsp;
+&nbsp;			@Override
+&nbsp;			public boolean isValid() {
+<b class="nc">&nbsp;				if (!super.isValid()) return false;</b>
+<b class="nc">&nbsp;				String name = getUserInput();</b>
+<b class="nc">&nbsp;				for (String other : takenNames)</b>
+<b class="nc">&nbsp;					if (other.equalsIgnoreCase(name)) {</b>
+<b class="nc">&nbsp;						if (!name.equals(lastName)) {</b>
+<b class="nc">&nbsp;							Logging.WORLD.debug(&quot;Duplicated or existed world name \&quot;{}\&quot;.&quot;, name);</b>
+<b class="nc">&nbsp;							lastName = name;</b>
+&nbsp;						}
+&nbsp;
+<b class="nc">&nbsp;						return false;</b>
+&nbsp;					}
+&nbsp;
+&nbsp;				try { // Checking if the folder name is valid;
+<b class="nc">&nbsp;					Paths.get(Game.gameDir + &quot;/saves/&quot; + name + &quot;/&quot;);</b>
+<b class="nc">&nbsp;				} catch (InvalidPathException e) {</b>
+<b class="nc">&nbsp;					if (!name.equals(lastName)) {</b>
+<b class="nc">&nbsp;						Logging.WORLD.debug(&quot;Invalid world name (InvalidPathException) \&quot;{}\&quot;: {}&quot;, name, e.getMessage());</b>
+<b class="nc">&nbsp;						lastName = name;</b>
+&nbsp;					}
+&nbsp;
+<b class="nc">&nbsp;					return false;</b>
+<b class="nc">&nbsp;				}</b>
+&nbsp;
+<b class="nc">&nbsp;				if (detailedFilenamePattern != null) {</b>
+<b class="nc">&nbsp;					if (!detailedFilenamePattern.matcher(name).matches()) {</b>
+<b class="nc">&nbsp;						if (!name.equals(lastName)) {</b>
+<b class="nc">&nbsp;							Logging.WORLD.debug(&quot;Invalid file name (Not matches to the valid pattern with the corresponding system) \&quot;{}\&quot;.&quot;, name);</b>
+<b class="nc">&nbsp;							lastName = name;</b>
+&nbsp;						}
+&nbsp;
+<b class="nc">&nbsp;						return false;</b>
+&nbsp;					}
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				lastName = name;</b>
+<b class="nc">&nbsp;				return name.length() &lt;= 255; // If it is lower than the general valid folder name length.</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			@Override
+&nbsp;			public String getUserInput() {
+<b class="nc">&nbsp;				return super.getUserInput().toLowerCase(Localization.getSelectedLocale());</b>
+&nbsp;			}
+&nbsp;
+&nbsp;			@Override
+&nbsp;			public void render(Screen screen, int x, int y, boolean isSelected) {
+<b class="nc">&nbsp;				super.render(screen, isGen ?</b>
+<b class="nc">&nbsp;					(getUserInput().length() &gt; 11 ? x - (getUserInput().length() - 11) * 8 : x) :</b>
+&nbsp;					x, y, isSelected);
+&nbsp;			}
+&nbsp;		};
+&nbsp;	}
+&nbsp;
+&nbsp;	public WorldGenDisplay() {
+<b class="nc">&nbsp;		super(true);</b>
+&nbsp;
+<b class="nc">&nbsp;		InputEntry nameField = makeWorldNameInput(&quot;minicraft.displays.world_gen.enter_world&quot;, WorldSelectDisplay.getWorldNames(), &quot;&quot;, true);</b>
+&nbsp;
+<b class="nc">&nbsp;		SelectEntry nameHelp = new SelectEntry(&quot;minicraft.displays.world_gen.troublesome_input&quot;, () -&gt; Game.setDisplay(new PopupDisplay(null, &quot;minicraft.displays.world_gen.troublesome_input.msg&quot;))) {</b>
+&nbsp;			@Override
+&nbsp;			public int getColor(boolean isSelected) {
+<b class="nc">&nbsp;				return Color.get(1, 204);</b>
+&nbsp;			}
+&nbsp;		};
+&nbsp;
+<b class="nc">&nbsp;		nameHelp.setVisible(false);</b>
+&nbsp;
+<b class="nc">&nbsp;		HashSet&lt;String&gt; controls = new HashSet&lt;&gt;();</b>
+<b class="nc">&nbsp;		controls.addAll(Arrays.asList(Game.input.getMapping(&quot;cursor-up&quot;).split(&quot;/&quot;)));</b>
+<b class="nc">&nbsp;		controls.addAll(Arrays.asList(Game.input.getMapping(&quot;cursor-down&quot;).split(&quot;/&quot;)));</b>
+<b class="nc">&nbsp;		for (String key : controls) {</b>
+<b class="nc">&nbsp;			if (key.matches(&quot;^\\w$&quot;)) {</b>
+<b class="nc">&nbsp;				nameHelp.setVisible(true);</b>
+<b class="nc">&nbsp;				break;</b>
+&nbsp;			}
+<b class="nc">&nbsp;		}</b>
+&nbsp;
+<b class="nc">&nbsp;		worldSeed = new InputEntry(&quot;minicraft.displays.world_gen.world_seed&quot;, &quot;[-!\&quot;#%/()=+,a-zA-Z0-9]+&quot;, 20) {</b>
+&nbsp;			@Override
+&nbsp;			public boolean isValid() {
+<b class="nc">&nbsp;				return true;</b>
+&nbsp;			}
+&nbsp;		};
+&nbsp;
+<b class="nc">&nbsp;		Menu mainMenu =</b>
+&nbsp;			new Menu.Builder(false, 10, RelPos.LEFT,
+&nbsp;				nameField,
+&nbsp;				nameHelp,
+<b class="nc">&nbsp;				Settings.getEntry(&quot;mode&quot;),</b>
+<b class="nc">&nbsp;				Settings.getEntry(&quot;scoretime&quot;),</b>
+&nbsp;
+&nbsp;				new SelectEntry(&quot;minicraft.displays.world_gen.create_world&quot;, () -&gt; {
+<b class="nc">&nbsp;					if (!nameField.isValid()) return;</b>
+<b class="nc">&nbsp;					WorldSelectDisplay.setWorldName(nameField.getUserInput(), false);</b>
+<b class="nc">&nbsp;					Game.setDisplay(new LoadingDisplay());</b>
+<b class="nc">&nbsp;				}) {</b>
+&nbsp;					@Override
+&nbsp;					public void render(Screen screen, int x, int y, boolean isSelected) {
+<b class="nc">&nbsp;						Font.draw(toString(), screen, x, y, Color.CYAN);</b>
+&nbsp;					}
+&nbsp;				},
+&nbsp;
+<b class="nc">&nbsp;				Settings.getEntry(&quot;size&quot;),</b>
+<b class="nc">&nbsp;				Settings.getEntry(&quot;theme&quot;),</b>
+<b class="nc">&nbsp;				Settings.getEntry(&quot;type&quot;),</b>
+<b class="nc">&nbsp;				Settings.getEntry(&quot;quests&quot;),</b>
+<b class="nc">&nbsp;				Settings.getEntry(&quot;tutorials&quot;),</b>
+&nbsp;				worldSeed
+&nbsp;			)
+<b class="nc">&nbsp;				.setDisplayLength(5)</b>
+<b class="nc">&nbsp;				.setScrollPolicies(0.8f, false)</b>
+<b class="nc">&nbsp;				.setTitle(&quot;minicraft.displays.world_gen.title&quot;)</b>
+<b class="nc">&nbsp;				.createMenu();</b>
+&nbsp;
+<b class="nc">&nbsp;		onScreenKeyboardMenu = OnScreenKeyboardMenu.checkAndCreateMenu();</b>
+<b class="nc">&nbsp;		if (onScreenKeyboardMenu == null)</b>
+<b class="nc">&nbsp;			menus = new Menu[] { mainMenu };</b>
+&nbsp;		else
+<b class="nc">&nbsp;			menus = new Menu[] { onScreenKeyboardMenu, mainMenu };</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	OnScreenKeyboardMenu onScreenKeyboardMenu;
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void render(Screen screen) {
+<b class="nc">&nbsp;		super.render(screen);</b>
+<b class="nc">&nbsp;		if (onScreenKeyboardMenu != null)</b>
+<b class="nc">&nbsp;			onScreenKeyboardMenu.render(screen);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Override
+&nbsp;	public void tick(InputHandler input) {
+<b class="nc">&nbsp;		boolean acted = false; // Checks if typing action is needed to be handled.</b>
+<b class="nc">&nbsp;		boolean takeExitHandle = true;</b>
+<b class="nc">&nbsp;		if (onScreenKeyboardMenu == null)</b>
+<b class="nc">&nbsp;			super.tick(input);</b>
+&nbsp;		else { // Handling the on-screen keyboard.
+&nbsp;			try {
+<b class="nc">&nbsp;				onScreenKeyboardMenu.tick(input);</b>
+<b class="nc">&nbsp;			} catch (OnScreenKeyboardMenu.OnScreenKeyboardMenuTickActionCompleted e) {</b>
+<b class="nc">&nbsp;				acted = true;</b>
+<b class="nc">&nbsp;			} catch (OnScreenKeyboardMenu.OnScreenKeyboardMenuBackspaceButtonActed e) {</b>
+<b class="nc">&nbsp;				takeExitHandle = false;</b>
+<b class="nc">&nbsp;				acted = true;</b>
+<b class="nc">&nbsp;			}</b>
+&nbsp;
+<b class="nc">&nbsp;			if (takeExitHandle &amp;&amp; input.inputPressed(&quot;exit&quot;)) {</b>
+<b class="nc">&nbsp;				Game.exitDisplay();</b>
+&nbsp;				return;
+&nbsp;			}
+&nbsp;
+<b class="nc">&nbsp;			if (menus[1].getSelection() == 0) {</b>
+<b class="nc">&nbsp;				if (input.buttonPressed(ControllerButton.X)) { // Hide the keyboard.</b>
+<b class="nc">&nbsp;					onScreenKeyboardMenu.setVisible(!onScreenKeyboardMenu.isVisible());</b>
+<b class="nc">&nbsp;					if (!onScreenKeyboardMenu.isVisible())</b>
+<b class="nc">&nbsp;						selection = 1;</b>
+&nbsp;					else
+<b class="nc">&nbsp;						selection = 0;</b>
+&nbsp;				}
+&nbsp;
+<b class="nc">&nbsp;				if (!acted) menus[1].tick(input); // Process the tick of the main menu.</b>
+<b class="nc">&nbsp;			} else if (selection == 0) {</b>
+<b class="nc">&nbsp;				onScreenKeyboardMenu.setVisible(false);</b>
+<b class="nc">&nbsp;				selection = 1;</b>
+<b class="nc">&nbsp;				menus[1].tick(input);</b>
+&nbsp;			} else {
+<b class="nc">&nbsp;				menus[1].tick(input);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

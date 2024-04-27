@@ -1,0 +1,210 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Settings</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.core.io</a>
+</div>
+
+<h1>Coverage Summary for Class: Settings (minicraft.core.io)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Settings</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (6/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    82.9%
+  </span>
+  <span class="absValue">
+    (29/35)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.core.io;
+&nbsp;
+&nbsp;import minicraft.screen.entry.ArrayEntry;
+&nbsp;import minicraft.screen.entry.BooleanEntry;
+&nbsp;import minicraft.screen.entry.RangeEntry;
+&nbsp;
+&nbsp;import java.awt.DisplayMode;
+&nbsp;import java.awt.GraphicsEnvironment;
+&nbsp;import java.awt.HeadlessException;
+&nbsp;import java.util.HashMap;
+&nbsp;
+<b class="nc">&nbsp;public final class Settings {</b>
+&nbsp;
+<b class="fc">&nbsp;	private static final HashMap&lt;String, ArrayEntry&lt;?&gt;&gt; options = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;	static {
+<b class="fc">&nbsp;		options.put(&quot;fps&quot;, new RangeEntry(&quot;minicraft.settings.fps&quot;, 10, 300, getDefaultRefreshRate())); // Has to check if the game is running in a headless mode. If it doesn&#39;t set the fps to 60</b>
+<b class="fc">&nbsp;		options.put(&quot;screenshot&quot;, new ArrayEntry&lt;&gt;(&quot;minicraft.settings.screenshot_scale&quot;, 1, 2, 5, 10, 15, 20)); // The magnification of screenshot. I would want to see ultimate sized.</b>
+<b class="fc">&nbsp;		options.put(&quot;diff&quot;, new ArrayEntry&lt;&gt;(&quot;minicraft.settings.difficulty&quot;, &quot;minicraft.settings.difficulty.easy&quot;, &quot;minicraft.settings.difficulty.normal&quot;, &quot;minicraft.settings.difficulty.hard&quot;));</b>
+<b class="fc">&nbsp;		options.get(&quot;diff&quot;).setSelection(1);</b>
+<b class="fc">&nbsp;		options.put(&quot;mode&quot;, new ArrayEntry&lt;&gt;(&quot;minicraft.settings.mode&quot;, &quot;minicraft.settings.mode.survival&quot;, &quot;minicraft.settings.mode.creative&quot;, &quot;minicraft.settings.mode.hardcore&quot;, &quot;minicraft.settings.mode.score&quot;));</b>
+&nbsp;
+<b class="fc">&nbsp;		options.put(&quot;scoretime&quot;, new ArrayEntry&lt;&gt;(&quot;minicraft.settings.scoretime&quot;, 10, 20, 40, 60, 120));</b>
+<b class="fc">&nbsp;		options.get(&quot;scoretime&quot;).setValueVisibility(10, false);</b>
+<b class="fc">&nbsp;		options.get(&quot;scoretime&quot;).setValueVisibility(120, false);</b>
+&nbsp;
+<b class="fc">&nbsp;		options.put(&quot;sound&quot;, new BooleanEntry(&quot;minicraft.settings.sound&quot;, true));</b>
+<b class="fc">&nbsp;		options.put(&quot;autosave&quot;, new BooleanEntry(&quot;minicraft.settings.autosave&quot;, true));</b>
+&nbsp;
+<b class="fc">&nbsp;		options.put(&quot;size&quot;, new ArrayEntry&lt;&gt;(&quot;minicraft.settings.size&quot;, 128, 256, 512));</b>
+<b class="fc">&nbsp;		options.put(&quot;theme&quot;, new ArrayEntry&lt;&gt;(&quot;minicraft.settings.theme&quot;, &quot;minicraft.settings.theme.normal&quot;, &quot;minicraft.settings.theme.forest&quot;, &quot;minicraft.settings.theme.desert&quot;, &quot;minicraft.settings.theme.plain&quot;, &quot;minicraft.settings.theme.hell&quot;));</b>
+<b class="fc">&nbsp;		options.put(&quot;type&quot;, new ArrayEntry&lt;&gt;(&quot;minicraft.settings.type&quot;, &quot;minicraft.settings.type.island&quot;, &quot;minicraft.settings.type.box&quot;, &quot;minicraft.settings.type.mountain&quot;, &quot;minicraft.settings.type.irregular&quot;));</b>
+&nbsp;
+&nbsp;		// TODO localize these labels
+<b class="fc">&nbsp;		options.put(&quot;tutorials&quot;, new BooleanEntry(&quot;minicraft.settings.tutorials&quot;, false));</b>
+<b class="fc">&nbsp;		options.put(&quot;quests&quot;, new BooleanEntry(&quot;minicraft.settings.quests&quot;, false));</b>
+<b class="fc">&nbsp;		options.put(&quot;showquests&quot;, new BooleanEntry(&quot;minicraft.settings.show_quests&quot;, true));</b>
+&nbsp;
+<b class="fc">&nbsp;		options.get(&quot;mode&quot;).setChangeAction(value -&gt;</b>
+<b class="fc">&nbsp;			options.get(&quot;scoretime&quot;).setVisible(&quot;minicraft.settings.mode.score&quot;.equals(value))</b>
+&nbsp;		);
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns the value of the specified option.
+&nbsp;	 * @param option The setting to get.
+&nbsp;	 * @return The value of the setting
+&nbsp;	 */
+&nbsp;	public static Object get(String option) {
+<b class="fc">&nbsp;		return options.get(option.toLowerCase()).getValue();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Returns the index of the value in the list of values for the specified option.
+&nbsp;	 * @param option The setting to get.
+&nbsp;	 * @return The index of the setting.
+&nbsp;	 */
+&nbsp;	public static int getIdx(String option) {
+<b class="fc">&nbsp;		return options.get(option.toLowerCase()).getSelection();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Return the ArrayEntry object associated with the given option name.
+&nbsp;	 * @param option The setting to get.
+&nbsp;	 * @return The ArrayEntry.
+&nbsp;	 */
+&nbsp;	public static ArrayEntry&lt;?&gt; getEntry(String option) {
+<b class="nc">&nbsp;		return options.get(option.toLowerCase());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Sets the value of the given option name, to the given value, provided it is a valid value for that option.
+&nbsp;	 * @param option The setting to edit.
+&nbsp;	 * @param value The value to change to.
+&nbsp;	 */
+&nbsp;	public static void set(String option, Object value) {
+<b class="fc">&nbsp;		options.get(option.toLowerCase()).setValue(value);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Sets the index of the value of the given option, provided it is a valid index.
+&nbsp;	 * @param option The setting to edit.
+&nbsp;	 * @param idx Index to select.
+&nbsp;	 */
+&nbsp;	public static void setIdx(String option, int idx) {
+<b class="nc">&nbsp;		options.get(option.toLowerCase()).setSelection(idx);</b>
+<b class="nc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Gets the refresh rate of the default monitor.
+&nbsp;	 * Safely handles headless environments (if that were to happen for some reason).
+&nbsp;	 * @return The refresh rate if successful. 60 if not.
+&nbsp;	 */
+&nbsp;	private static int getDefaultRefreshRate() {
+&nbsp;		int hz;
+&nbsp;		try {
+<b class="fc">&nbsp;			hz = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getRefreshRate();</b>
+<b class="nc">&nbsp;		} catch (HeadlessException e) {</b>
+<b class="nc">&nbsp;			return 60;</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+<b class="fc">&nbsp;		if (hz == DisplayMode.REFRESH_RATE_UNKNOWN) return 60;</b>
+<b class="fc">&nbsp;		if (hz &gt; 300 || 10 &gt;= hz) return 60;</b>
+<b class="fc">&nbsp;		return hz;</b>
+&nbsp;	}
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>

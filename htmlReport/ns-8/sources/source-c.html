@@ -1,0 +1,276 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Items</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">minicraft.item</a>
+</div>
+
+<h1>Coverage Summary for Class: Items (minicraft.item)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Items</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (9/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    98.6%
+  </span>
+  <span class="absValue">
+    (71/72)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Items$CreativeModeInventory</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    98.7%
+  </span>
+  <span class="absValue">
+    (77/78)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package minicraft.item;
+&nbsp;
+&nbsp;import minicraft.util.Logging;
+&nbsp;import org.jetbrains.annotations.NotNull;
+&nbsp;import org.jetbrains.annotations.Nullable;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;
+<b class="fc">&nbsp;public class Items {</b>
+&nbsp;
+&nbsp;	// I&#39;ve checked -- this is only used for making the creative inventory, and in Load.java.
+&nbsp;	// ...well, that used to be true...
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * Ok, so here&#39;s the actual big idea:
+&nbsp;	 * &lt;p&gt;
+&nbsp;	 * This class is meant to define all the different kinds of items in minicraft. Item(Type).java might be what maps the different item sprites in the spritesheet to a name, but it doesn&#39;t really define anything final. This class has all the items you could possibly have, and every form of them, more or less.
+&nbsp;	 * &lt;p&gt;
+&nbsp;	 * If you want to access one of those items, you do it through this class, by calling get(&quot;item name&quot;); casing does not matter.
+&nbsp;	 */
+<b class="fc">&nbsp;	private static final ArrayList&lt;Item&gt; items = new ArrayList&lt;&gt;();</b>
+&nbsp;
+&nbsp;	private static void add(Item i) {
+<b class="fc">&nbsp;		items.add(i);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	private static void addAll(ArrayList&lt;Item&gt; items) {
+<b class="fc">&nbsp;		for (Item i : items) add(i);</b>
+<b class="fc">&nbsp;	}</b>
+&nbsp;
+&nbsp;	static {
+<b class="fc">&nbsp;		add(new PowerGloveItem());</b>
+<b class="fc">&nbsp;		addAll(FurnitureItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(BucketItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(BookItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(TileItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(ToolItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(FoodItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(StackableItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(ClothingItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(ArmorItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(PotionItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(FishingRodItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(SummonItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(HeartItem.getAllInstances());</b>
+<b class="fc">&nbsp;		addAll(WateringCanItem.getAllInstances());</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static ArrayList&lt;Item&gt; getAll() {
+<b class="fc">&nbsp;		return new ArrayList&lt;&gt;(items);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	/**
+&nbsp;	 * fetches an item from the list given its name.
+&nbsp;	 */
+&nbsp;	@NotNull
+&nbsp;	public static Item get(String name) {
+<b class="fc">&nbsp;		Item i = get(name, false);</b>
+<b class="fc">&nbsp;		if (i == null) return new UnknownItem(&quot;NULL&quot;); // Technically shouldn&#39;t ever happen, since get returns unknownItem if item is not found</b>
+<b class="fc">&nbsp;		return i;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@Nullable
+&nbsp;	public static Item get(String name, boolean allowNull) {
+<b class="fc">&nbsp;		name = name.toUpperCase();</b>
+&nbsp;		//System.out.println(&quot;fetching name: \&quot;&quot; + name + &quot;\&quot;&quot;);
+<b class="fc">&nbsp;		int data = 1;</b>
+<b class="fc">&nbsp;		boolean hadUnderscore = false;</b>
+<b class="fc">&nbsp;		if (name.contains(&quot;_&quot;)) {</b>
+<b class="fc">&nbsp;			hadUnderscore = true;</b>
+&nbsp;			try {
+<b class="fc">&nbsp;				data = Integer.parseInt(name.substring(name.indexOf(&quot;_&quot;) + 1));</b>
+<b class="fc">&nbsp;			} catch (Exception ex) {</b>
+<b class="fc">&nbsp;				ex.printStackTrace();</b>
+<b class="fc">&nbsp;			}</b>
+<b class="fc">&nbsp;			name = name.substring(0, name.indexOf(&quot;_&quot;));</b>
+<b class="fc">&nbsp;		} else if (name.contains(&quot;;&quot;)) {</b>
+<b class="fc">&nbsp;			hadUnderscore = true;</b>
+&nbsp;			try {
+<b class="fc">&nbsp;				data = Integer.parseInt(name.substring(name.indexOf(&quot;;&quot;) + 1));</b>
+<b class="fc">&nbsp;			} catch (Exception ex) {</b>
+<b class="fc">&nbsp;				ex.printStackTrace();</b>
+<b class="nc">&nbsp;			}</b>
+<b class="fc">&nbsp;			name = name.substring(0, name.indexOf(&quot;;&quot;));</b>
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		if (name.equalsIgnoreCase(&quot;NULL&quot;)) {</b>
+<b class="fc">&nbsp;			if (allowNull) return null;</b>
+&nbsp;			else {
+<b class="fc">&nbsp;				Logging.ITEMS.warn(&quot;Items.get passed argument \&quot;null\&quot; when null is not allowed; returning UnknownItem.&quot;);</b>
+<b class="fc">&nbsp;				return new UnknownItem(&quot;NULL&quot;);</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;
+<b class="fc">&nbsp;		if (name.equals(&quot;UNKNOWN&quot;))</b>
+<b class="fc">&nbsp;			return new UnknownItem(&quot;BLANK&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;		Item i = null;</b>
+<b class="fc">&nbsp;		for (Item cur : items) {</b>
+<b class="fc">&nbsp;			if (cur.getName().equalsIgnoreCase(name)) {</b>
+<b class="fc">&nbsp;				i = cur;</b>
+<b class="fc">&nbsp;				break;</b>
+&nbsp;			}
+<b class="fc">&nbsp;		}</b>
+&nbsp;
+<b class="fc">&nbsp;		if (i != null) {</b>
+<b class="fc">&nbsp;			i = i.copy();</b>
+<b class="fc">&nbsp;			if (i instanceof StackableItem)</b>
+<b class="fc">&nbsp;				((StackableItem) i).count = data;</b>
+<b class="fc">&nbsp;			if (i instanceof ToolItem &amp;&amp; hadUnderscore)</b>
+<b class="fc">&nbsp;				((ToolItem) i).dur = data;</b>
+<b class="fc">&nbsp;			if (i instanceof WateringCanItem)</b>
+<b class="fc">&nbsp;				((WateringCanItem) i).content = data;</b>
+<b class="fc">&nbsp;			return i;</b>
+&nbsp;		} else {
+<b class="fc">&nbsp;			Logging.ITEMS.error(&quot;Requested invalid item with name: &#39;{}&#39;&quot;, name);</b>
+<b class="fc">&nbsp;			return new UnknownItem(name);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+<b class="fc">&nbsp;	public static Item arrowItem = get(&quot;arrow&quot;);</b>
+&nbsp;
+&nbsp;	public static int getCount(Item item) {
+<b class="fc">&nbsp;		if (item instanceof StackableItem) {</b>
+<b class="fc">&nbsp;			return ((StackableItem) item).count;</b>
+<b class="fc">&nbsp;		} else if (item != null) {</b>
+<b class="fc">&nbsp;			return 1;</b>
+&nbsp;		} else {
+<b class="fc">&nbsp;			return 0;</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	public static CreativeModeInventory getCreativeModeInventory() {
+<b class="fc">&nbsp;		return new CreativeModeInventory();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	public static class CreativeModeInventory extends Inventory {
+<b class="fc">&nbsp;		CreativeModeInventory() {</b>
+<b class="fc">&nbsp;			unlimited = true;</b>
+<b class="fc">&nbsp;			items.forEach(i -&gt; {</b>
+<b class="fc">&nbsp;				if (!(i instanceof PowerGloveItem)) add(i.copy());</b>
+<b class="fc">&nbsp;			});</b>
+<b class="fc">&nbsp;		}</b>
+&nbsp;	}
+&nbsp;}
+&nbsp;
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-04-19 17:20</div>
+</div>
+</body>
+</html>
