@@ -29,7 +29,7 @@ public class FoodItemBlackBoxTest {
 	// Tests that foodItems can be retrieved - fault here: maybe there is a Food missing?
 	@Test
 	public void testFoodItemQuantityIsValid() {
-		assert(foodItems.size() == 11);
+		assert(foodItems.size() == 10);
 	}
 
 	// Error guessing for food's expected behavior

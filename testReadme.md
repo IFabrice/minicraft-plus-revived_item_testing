@@ -3,7 +3,7 @@
   - Junit
   - Intellij coverage reportage
 - Black box testing
-  - **TODO: Michael fill**
+  - Junit
 - Mock testing
   - mockito inline library
 - Integration testing
@@ -80,26 +80,30 @@ The files tested can all be found in the `src/client/item` folder
 
 **Note**: We used extensive mock testing and mocking in our white box testing, that is we used mock testing hand in hand in our white box tests.
 
-## Discovered faults
+## Discovered faults (Whitebox)
 1. **testRemoveItemNoneStackingItemManyRemove** reveals a fault in the **inventor** class, inventory loops until i == size of the list of items being stored, however if you remove an item you change the size of the list, so let's say the inventory has two items and you remove the first item, the loop will terminate before checking whether to remove the second item. A fix would be to store before hand the initial size of the list and use this size for loop termination.
 2. **testConstructInvalidReqItems** and **testConstructorInvalidCreatedItems** reveals a fault in the constructor of the **Recipe** class, namely there is no error checking of the input for the constructor and no throws annotations are written on the class, although it you pass in a poorly formatted string, an error will occur
 3. **testGetAttackDamageBonusDurMobPickaxe** reveals a fault in the getAttackDamageBonus method of the **ToolItem** class, the attack damage bonus is stated to always be between 3 and 6 for wooden pickaxes, however this is not the case, the likely fault is that there is a math error in the calculation of a random bonus damage between these values
 
-# BlackBox 
+# BlackBox
 ## coverage
-We were aiming at achieving each choice coverage of input partitioning. In situations where input partitioning was not possible, we attempted to use output partitioning, using the same coverage criterion. Some methods could not achieve ECC for reasons that have to do with the implementation of the functios. For instance, some functions could only return False. 
+We aimed for achieving each choice coverage of input partitioning. In situations where input partitioning was not possible, we attempted to use output partitioning, using the same coverage criterion. Some methods could not achieve ECC for reasons that have to do with the implementation of the functions. For instance, some functions could only return False.
 
 ## Blackbox limitations
 ### Specifications
-It was challenging to do blackbox testing on module we focused on, since the whole code base has little to no specifications. We did our best to imagine what the specifications for each method would look like, and we wrote tests according to those specifications. 
+It was challenging to do blackbox testing on module we focused on, since the whole code base has little to no specifications. We did our best to imagine what the specifications for each method would look like (or looked for external resources like Minicraft Wiki for guidance), and we wrote tests according to those specifications.
 
-In addition, testing most of the classes needed the use of classes that are outside the scope of our target, and we either had to mock the functions or dive deep in understanding of how other classes work as well. We tried to learn and use those classes themselves, but we cannot be sure that we used all variations of the classes in achieving all choice coverage because we could not find all possible use cases. 
+In addition, testing most of the classes needed the use of classes that are outside the scope of our target (for instance, many object classes required a Game, Player, and Level class to successfully run all of their functions, and these listed classes are not in the Items folder that we dedicated our project to), and we either had to mock the functions or dive deep in understanding of how other classes work as well. We tried to learn and use those classes to the best of our ability, but we cannot be sure that we used all variations of the classes in achieving all choice coverage because we could not find all possible use cases.
 
 ### Methods definitions
-Most methods were defined as protected, and this limited the number of functions we could test as blackbox. 
+Most methods were defined as private or protected, and this limited the number of functions we could test as blackbox.
 
+## Discovered faults (Blackbox)
+1. **testBucketSuccessfullyFilled/testBucketCannotBeFilled** reveals a fault in the **Bucket** class, where the Buckets received by the getAll() method do not have their Fill.contained field set. Therefore, when trying to use those generated buckets in the game, a NullPointerException is returned.
+2. **testNewFurnitureWithNullConstructor** reveals a fault in **FurnitureItem** - this time, in one of the rare cases where a constructor is publicly accessible, the user is able to create a null object (note that this includes the sprite rendered on the screen) and the interactOn() method returns true nonetheless. Having a null furniture object in the game could have undefined behavior, so a check for null elements within the method would be recommended.
+3. The various **testRemoveItem** test cases in **Inventory** reveal a fault within the logic of the removal. When prompted for a count, users can put in invalid counts for the number of items to remove (negative, zero, a number that exceeds the quantity in inventory, items not in inventory, etc.), and the function will still operate as if a positive integer was entered, affecting the inventory contents in unpredictable ways. The method ought to return whenever it is given an invalid count.
 # Integration testing
-It was difficult to find integration points for the classes we tested since most of them integrate in classes that are outside the scope of our target. Logically, this make sense as well since most Items would not interact with each other in their definitions. We managed to find integrations in Inventory class and we created an integration test for Inventory class interacting with other classes. 
+It was difficult to find integration points for the classes we tested since most of them integrate in classes that are outside the scope of our target. Logically, this make sense as well since most Items would not interact with each other in their definitions. We managed to find integrations in Inventory class and we created an integration test for Inventory class interacting with other classes.
 
 # Presentation slides
 https://docs.google.com/presentation/d/1E694S9wW8zk4PG-As2q7P9memtDqbMaC/edit#slide=id.p4

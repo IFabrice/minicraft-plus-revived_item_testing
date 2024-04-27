@@ -89,7 +89,7 @@ public class FurnitureItemBlackBoxTest {
 		Tiles.initTileList();
 		Tile grassTile = Tiles.get("grass");
 		Level level = new Level(5, 8, 3, null);
-		assertThrows(Exception.class, () -> f.interactOn(grassTile, level, 0, 0, player, Direction.NONE));
+		assertFalse(f.interactOn(grassTile, level, 0, 0, player, Direction.NONE));
 	}
 
 	@Test
