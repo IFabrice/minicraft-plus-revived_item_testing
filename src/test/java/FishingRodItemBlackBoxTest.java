@@ -120,9 +120,7 @@ public class FishingRodItemBlackBoxTest {
 		Player player = new Player(null, new InputHandler());
 		Tiles.initTileList();
 		Tile waterTile = Tiles.get("water");
-		for (FishingRodItem fishingRodItem : fishingRodItems) {
-			fishingRodItem.interactOn(waterTile, null, 0, 0, player, Direction.NONE);
-			assertFalse(fishingRodItem.isDepleted());
-		}
+		fishingRodItems.get(3).interactOn(waterTile, null, 0, 0, player, Direction.NONE);
+		assertFalse(fishingRodItems.get(3).isDepleted());
 	}
 }

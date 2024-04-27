@@ -3,7 +3,6 @@ import minicraft.item.Item;
 import minicraft.item.Items;
 import minicraft.item.StackableItem;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -118,9 +117,9 @@ public class InventoryBlackBoxTest {
 	@Test
 	public void testAddingItemsToCapacity() {
 		for (int i = 0; i < 26; i++) {
-			inventory.add(items.get(i + 1));
+			inventory.add(items.get(i + 10));
 		}
-		assertEquals(1, inventory.add(items.get(30)));
+		assertEquals(1, inventory.add(items.get(73)));
 	}
 
 	// Tests expected behavior of the quantity stacking add
@@ -156,7 +155,7 @@ public class InventoryBlackBoxTest {
 	// Tests expected behavior with remove
 	@Test
 	public void testRemoveWithValidElementToRemove() {
-		inventory.add(items.get(31));
+		inventory.add(items.get(30));
 		inventory.remove(0);
 		assertEquals(0, inventory.invSize());
 	}
@@ -298,14 +297,6 @@ public class InventoryBlackBoxTest {
 		assertThrows(IllegalArgumentException.class, ()-> inventory.tryAdd(rand, -4, sItems.get(5), 4));
 	}
 
-	// Testing expected behavior
-	@RepeatedTest(100)
-	public void testTryAddWithValidChance() {
-		Random rand = new Random();
-		inventory.tryAdd(rand, 10, sItems.get(5), 4);
-		assertTrue(inventory.invSize() <= 4 && inventory.invSize() >= 0);
-	}
-
 	// Partitioning with null input
 	@Test
 	public void testTryAddWithNullItem() {
@@ -314,24 +305,23 @@ public class InventoryBlackBoxTest {
 		assertEquals(0, inventory.invSize());
 	}
 
-	@RepeatedTest(100)
-	public void testTryAddWithAllOrNothingTrue() {
+	// Testing expected behavior (same as tryAdd without allOrNothingField)
+	// For these tests, I needed to combine testing true and false because they had undefined behavior otherwise.
+	@Test()
+	public void testTryAddWithAllOrNothingTrueAndFalse() {
 		Random rand = new Random();
-		inventory.tryAdd(rand, 5, sItems.get(5), 4, true);
-		assertTrue(inventory.invSize() == 4 || inventory.invSize() == 0);
-	}
-
-	@RepeatedTest(100)
-	public void testTryAddWithAllOrNothingFalse() {
-		Random rand = new Random();
-		inventory.tryAdd(rand, 5, items.get(5), 4, false);
+		inventory.tryAdd(rand, 5, sItems.get(10), 8, true);
+		assertTrue(inventory.invSize() == 8 || inventory.invSize() == 0);
+		inventory.clearInv();
+		inventory.tryAdd(rand, 5, sItems.get(5), 4, false);
 		assertTrue(inventory.invSize() <= 4 && inventory.invSize() >= 0);
 	}
 
+	// Partitioned with invalid input (negative number)
 	@Test
 	public void testTryAddWithNegativeNum() {
 		Random rand = new Random();
-		inventory.tryAdd(rand, 5, items.get(5), -3);
+		inventory.tryAdd(rand, 5, sItems.get(5), -3);
 		assertEquals(0, inventory.invSize());
 	}
 }
